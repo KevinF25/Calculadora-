@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calculadora de fórmulas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f5f3;--card:#fff;--ink:#17302b;--mute:#5f726d;--line:#d5ded9;--acc:#1d6b58;--accbg:#e1efe9;--warn:#9a5b00;--warnbg:#fdf0d5;--bad:#b3261e;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1917;--card:#17252a;--ink:#e3eeea;--mute:#8fa59f;--line:#2b3f3b;--acc:#5fc4a5;--accbg:#183a31;--warn:#f0b955;--warnbg:#3a2d12;--bad:#ff8a80}}
+:root[data-theme="dark"]{--bg:#0f1917;--card:#17252a;--ink:#e3eeea;--mute:#8fa59f;--line:#2b3f3b;--acc:#5fc4a5;--accbg:#183a31;--warn:#f0b955;--warnbg:#3a2d12;--bad:#ff8a80}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.45 "Instrument Sans",system-ui,sans-serif;font-variant-numeric:tabular-nums}
+main{max-width:640px;margin:0 auto;padding:18px 14px 110px}
+h1{font-size:24px;margin:0 0 2px;font-weight:700;letter-spacing:-.01em}
+h2{font-size:17px;margin:0 0 10px;font-weight:600}
+.sub{color:var(--mute);margin:0 0 16px;font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+label{display:block;font-size:13px;color:var(--mute);margin-bottom:3px}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px;min-height:42px}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+textarea{min-height:70px;resize:vertical}
+.top{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sum{background:var(--accbg);border-radius:8px;padding:8px 10px;font-size:14px}
+.sum b{display:block;font-size:20px;color:var(--acc)}
+.row{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px;background:var(--card)}
+.row.warn{border-color:var(--warn);background:var(--warnbg)}
+.r1{display:flex;gap:8px;margin-bottom:8px}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.res{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.res div{background:var(--bg);border-radius:8px;padding:6px 8px;font-size:12px;color:var(--mute)}
+.res b{display:block;font-size:16px;color:var(--ink)}
+.res .g b{color:var(--acc)}
+.row.warn .g b{color:var(--warn)}
+.tag{font-size:12px;color:var(--warn);margin-top:6px;display:none}
+.row.warn .tag{display:block}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 12px;min-height:42px}
+button.p{background:var(--acc);color:var(--bg);border-color:var(--acc);font-weight:600}
+.x{width:42px;padding:0;color:var(--bad);flex:none}
+.bar{display:flex;gap:8px;flex-wrap:wrap}
+.msg{font-size:14px;margin:8px 0 0}
+.ok{color:var(--acc)}.wn{color:var(--warn)}
+.ver{border-top:1px solid var(--line);padding:10px 0}
+.ver small{color:var(--mute)}
+.ver p{margin:4px 0 8px;white-space:pre-wrap}
+.mnote{font-size:12px;color:var(--mute);margin:-2px 0 8px}.mnote:empty{display:none}
+details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28px}
+.mi{border-top:1px solid var(--line);padding:10px 0}
+.mi .r1{align-items:center;margin-bottom:6px}.mi .r1 b{flex:1}
+.chk{margin-bottom:6px}.chk label{display:inline-flex;gap:6px;align-items:center;margin-right:14px;color:var(--ink);font-size:14px}
+.chk input{width:auto;min-height:0}
+[hidden]{display:none!important}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;background:var(--card);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+.nav button{flex:1;border:0;background:none;color:var(--mute);display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;padding:4px 0;min-height:48px;border-radius:8px}
+.nav button.on{color:var(--acc);font-weight:600}
+.nav svg{width:24px;height:24px}
+.fam{margin:16px 0 0;padding:6px 12px;border-radius:8px 8px 0 0;color:#fff;font-weight:600;font-size:15px}
+.glist{border-radius:0 0 8px 8px;overflow:hidden}
+.mrow{display:flex;align-items:center;gap:8px;padding:12px;background:var(--card);border:1px solid var(--line);border-top:0;cursor:pointer;min-height:48px}
+.mrow b{flex:1;font-weight:500}
+.mrow small{color:var(--mute)}
+.mrow svg{width:22px;height:22px;flex:none}
+.mpan{padding:10px 12px;background:var(--bg);border:1px solid var(--line);border-top:0}
+.mpan .chk{margin-top:4px}
+#wz{position:fixed;inset:0;z-index:20;background:var(--bg);overflow:auto;padding:calc(env(safe-area-inset-top,0px) + 14px) 16px calc(env(safe-area-inset-bottom,0px) + 24px)}
+#wz .wzin{max-width:640px;margin:0 auto}
+#wz .wzbar{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+#wz .wzbar select{flex:1}
+.wzbig{font-size:56px;font-weight:700;color:var(--acc);line-height:1.1;margin:6px 0}
+.wzbig small{font-size:24px;color:var(--mute);font-weight:500}
+.wzprog{height:6px;background:var(--line);border-radius:3px;margin:6px 0 16px;overflow:hidden}
+.wzprog i{display:block;height:100%;background:var(--acc)}
+.wzbtn{display:flex;gap:10px;margin:14px 0}
+.wzbtn button{flex:1;min-height:58px;font-size:18px}
+.wzt{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:4px 8px;font-size:14px;border-top:1px solid var(--line);padding:8px 0}
+</style>
+</head>
+<body>
+<main>
+<div id="tab-calc">
+<h1>Calculadora de fórmulas</h1>
+<p class="sub" id="sb"></p>
+
+<section class="card">
+  <label for="md">Las partes son de</label>
+  <select id="md" style="margin-bottom:10px"><option value="puro">Material puro (mantiene la proporción olfativa)</option><option value="pesar">Lo que peso del frasco</option></select>
+  <div class="top">
+    <div><label for="tot">Peso total a hacer (g)</label><input id="tot" type="number" inputmode="decimal" step="any" min="0" value="10"></div>
+    <div><label for="mn">Límite de alerta (g)</label><input id="mn" type="number" inputmode="decimal" step="any" min="0" value="0.010"></div>
+  </div>
+  <div class="top" style="margin-top:10px">
+    <div class="sum">Total de partes<b id="sp">0</b></div>
+    <div class="sum">Suma de gramos<b id="sg">0.000</b></div>
+  </div>
+  <p class="msg" id="m1"></p>
+  <p class="msg" id="m2"></p>
+</section>
+
+<section>
+  <h2>Materiales</h2>
+  <div id="rows"></div>
+  <div class="bar">
+    <button class="p" id="add">Agregar material</button>
+    <button id="wzs">Empezar a pesar</button>
+    <button id="copy">Copiar fórmula</button>
+    <button id="clr">Vaciar tabla</button>
+  </div>
+  <p class="msg" id="cm"></p>
+</section>
+
+<datalist id="mats"></datalist>
+
+
+<section class="card">
+  <h2>Preparar una dilución</h2>
+  <div class="top">
+    <div><label for="pp">Porcentaje deseado (%)</label><input id="pp" type="number" inputmode="decimal" step="any" min="0" max="100" placeholder="10"></div>
+    <div><label for="pt">Gramos de dilución</label><input id="pt" type="number" inputmode="decimal" step="any" min="0" placeholder="10"></div>
+  </div>
+  <p class="msg" id="po">Escribe el porcentaje y cuántos gramos quieres preparar.</p>
+</section>
+
+<section class="card" hidden>
+  <h2>Concentración real de una dilución</h2>
+  <p class="sub" style="margin-top:0">Ya la preparaste: escribe lo que pesaste de verdad.</p>
+  <div class="top">
+    <div><label for="dm">Material pesado (g)</label><input id="dm" type="number" inputmode="decimal" step="any" min="0"></div>
+    <div><label for="ds">Solvente pesado (g)</label><input id="ds" type="number" inputmode="decimal" step="any" min="0"></div>
+  </div>
+  <p class="msg" id="dr">Escribe los dos pesos para ver el porcentaje real.</p>
+</section>
+
+<section class="card">
+  <h2>Versiones y notas</h2>
+  <label for="nt">¿Qué cambiaste y cómo olía?</label>
+  <textarea id="nt"></textarea>
+  <label for="vn" style="margin-top:8px">Nombre (opcional)</label>
+  <input id="vn" placeholder="Ej. Prueba 6">
+  <div class="bar" style="margin-top:8px"><button type="button" class="p" id="sv">Guardar versión</button></div>
+  <p class="msg" id="vm" aria-live="polite"></p>
+  <div id="vl"></div>
+</section>
+<p id="sync" class="msg" style="text-align:center;margin:12px 0 24px">Respaldo: comprobando…</p>
+</div>
+
+<div id="tab-mat" hidden>
+<h1>Materiales</h1>
+<p class="sub">Tu biblioteca por familia olfativa. Toca un material para editarlo.</p>
+<input id="mq" type="search" placeholder="Buscar material" aria-label="Buscar material" style="margin-bottom:10px">
+<div class="r1"><input id="mname" placeholder="Nombre del material nuevo" aria-label="Nombre del material"><button class="p" id="ma" style="flex:none">Agregar</button></div>
+<p class="msg" id="mm"></p>
+<div id="ml"></div>
+</div>
+
+<div id="tab-for" hidden>
+<h1>Fórmulas</h1>
+<p class="sub">Guarda con nombre la fórmula que tienes en la calculadora y ábrela cuando quieras.</p>
+<section class="card">
+  <label for="fname">Nombre</label>
+  <input id="fname" placeholder="Ej. Prueba 6">
+  <label for="fcat" style="margin-top:8px">Categoría (opcional)</label>
+  <input id="fcat" list="fcats" placeholder="Ej. Skin scent">
+  <datalist id="fcats"></datalist>
+  <div class="bar" style="margin-top:10px"><button class="p" id="fsave">Guardar fórmula actual</button></div>
+  <p class="msg" id="fm" aria-live="polite"></p>
+</section>
+<input id="fq" type="search" placeholder="Buscar fórmula" aria-label="Buscar fórmula" style="margin-bottom:6px">
+<div id="fl"></div>
+</div>
+</main>
+
+<div id="wz" hidden>
+  <div class="wzin">
+    <div class="wzbar"><button type="button" id="wzx">Cerrar</button><select id="wzo" aria-label="Orden"><option value="tabla">Orden de la tabla</option><option value="desc">Más pesado primero</option><option value="asc">Más ligero primero</option></select></div>
+    <div id="wzb"></div>
+  </div>
+</div>
+
+<nav class="nav" aria-label="Secciones">
+  <button type="button" id="nv-calc" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M8.5 7.5h7M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01"/></svg>Calculadora</button>
+  <button type="button" id="nv-mat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19C5 10 10 5 20 5c0 10-5 14-13 14"/><path d="M5 19c3-5 6-8 10-10"/></svg>Materiales</button>
+  <button type="button" id="nv-for"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6c-2-1.5-5-2-8-1.5v13c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5v-13C17 4 14 4.5 12 6z"/><path d="M12 6v13"/></svg>Fórmulas</button>
+</nav>
+
+<script>
+var MATS=["Ambroxan","Ambrofix","Ambrocenide","Absolute Ambergris","Bacdanol","Bergamot Superior Oil FCF","Cashmeran","Galaxolide","Habanolide","Hedione","Helvetolide","Iso E Super","Javanol","Musk R1","Vetiveryl Acetate","Ambrettolide"];
+var KEY="perfcalc-v1";
+var rows=[{n:"",d:100,p:""}];
+var vers=[];var lib=[];
+var $=function(i){return document.getElementById(i)};
+var reg=[],MK="perfcalc-mats-v1";
+var FAM={"Ámbar":"#a68540","Almizcle":"#3f6191","Amaderado":"#805f3b","Cítrico":"#7d8f2a","Floral":"#a8506b","Modificador":"#5a5a5e","Sin familia":"#5f726d"};
+var FAMLIST=Object.keys(FAM);
+var DEFF={"Ambroxan":"Ámbar","Ambrofix":"Ámbar","Ambrocenide":"Ámbar","Absolute Ambergris":"Ámbar","Bacdanol":"Amaderado","Bergamot Superior Oil FCF":"Cítrico","Cashmeran":"Amaderado","Galaxolide":"Almizcle","Habanolide":"Almizcle","Hedione":"Modificador","Helvetolide":"Almizcle","Iso E Super":"Amaderado","Javanol":"Amaderado","Musk R1":"Almizcle","Vetiveryl Acetate":"Amaderado","Ambrettolide":"Almizcle"};
+var DEFP={"Bergamot Superior Oil FCF":"Salida","Hedione":"Corazón","Ambroxan":"Fondo","Ambrofix":"Fondo","Ambrocenide":"Fondo","Absolute Ambergris":"Fondo","Cashmeran":"Corazón","Iso E Super":"Fondo","Javanol":"Corazón","Habanolide":"Fondo","Helvetolide":"Corazón","Galaxolide":"Corazón","Musk R1":"Fondo","Vetiveryl Acetate":"Fondo","Bacdanol":"Fondo","Ambrettolide":"Corazón"};
+function migrate(){reg.forEach(function(m){if(m.fam===undefined)m.fam=DEFF[m.n]||"";if(m.pos===undefined)m.pos=DEFP[m.n]||""})}
+var openM=-1,mq="";
+function saveMats(){try{localStorage.setItem(MK,JSON.stringify(reg))}catch(e){}touch()}
+function loadMats(){var ok=false;try{var m=JSON.parse(localStorage.getItem(MK)||"null");if(m&&m.length){reg=m;ok=true}}catch(e){}
+  if(!ok){reg=MATS.slice().sort().map(function(n){return{n:n,d:[100,10,1],note:""}})}
+  migrate()}
+function findMat(n){n=(n||"").trim().toLowerCase();if(!n)return null;for(var i=0;i<reg.length;i++)if(reg[i].n.toLowerCase()===n)return reg[i];return null}
+function avail(n){var m=findMat(n);return m&&m.d.length?m.d:[100,10,1]}
+function noteFor(n){var m=findMat(n);return m&&m.note?m.note:""}
+function selOpts(r){var av=avail(r.n);return [100,10,1].filter(function(v){return av.indexOf(v)>-1||+r.d===v}).map(function(v){return '<option value="'+v+'"'+(+r.d===v?' selected':'')+'>'+v+'%</option>'}).join("")}
+function fillList(){var dl=$("mats");dl.innerHTML=reg.map(function(m){return '<option value="'+esc(m.n)+'">'}).join("")}
+function refreshRow(i){var el=$("r"+i);if(!el)return;var r=rows[i],av=avail(r.n);
+  if(av.indexOf(+r.d)<0)r.d=av[0];
+  el.querySelector("select").innerHTML=selOpts(r);el.querySelector('[data-o="mn"]').textContent=noteFor(r.n)}
+function refreshAll(){rows.forEach(function(r,i){refreshRow(i)});calc()}
+function famOf(m){return m.fam&&FAM[m.fam]?m.fam:"Sin familia"}
+function pyr(pos,col){
+  var P=[["Salida","M12 3 L15.6 9.5 H8.4 Z"],["Corazón","M7.6 11 H16.4 L18.9 15.5 H5.1 Z"],["Fondo","M4.3 17 H19.7 L21.9 21 H2.1 Z"]];
+  return '<svg viewBox="0 0 24 24" aria-hidden="true" style="color:'+col+'">'+P.map(function(q){var on=q[0]===pos;return '<path d="'+q[1]+'" fill="'+(on?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"'+(on?'':' opacity=".4"')+'/>'}).join("")+'</svg>';
+}
+function matPanel(m,i){
+  return '<div class="mpan"><label>Diluciones que tengo</label><div class="chk">'+
+  [100,10,1].map(function(v){return '<label><input type="checkbox" data-mi="'+i+'" data-v="'+v+'"'+(m.d.indexOf(v)>-1?' checked':'')+'>'+v+'%</label>'}).join("")+'</div>'+
+  '<div class="r2"><div><label>Familia</label><select data-mf="'+i+'">'+FAMLIST.map(function(f){return '<option'+(famOf(m)===f?' selected':'')+'>'+f+'</option>'}).join("")+'</select></div>'+
+  '<div><label>Pirámide</label><select data-mp="'+i+'">'+["","Salida","Corazón","Fondo"].map(function(q){return '<option value="'+q+'"'+((m.pos||"")===q?' selected':'')+'>'+(q||"Sin definir")+'</option>'}).join("")+'</select></div></div>'+
+  '<input placeholder="Nota (cómo huele, para qué lo usas)" aria-label="Nota" data-mn="'+i+'" value="'+esc(m.note||"")+'">'+
+  '<div class="bar" style="margin-top:8px"><button type="button" data-md="'+i+'" style="color:var(--bad)">Quitar de mi lista</button></div></div>';
+}
+function renderMats(){
+  var q=mq.trim().toLowerCase(),g={};
+  reg.forEach(function(m,i){if(q&&(m.n+" "+(m.note||"")).toLowerCase().indexOf(q)<0)return;var f=famOf(m);(g[f]=g[f]||[]).push({m:m,i:i})});
+  var h="";
+  FAMLIST.forEach(function(f){var a=g[f];if(!a)return;
+    a.sort(function(x,y){return x.m.n.localeCompare(y.m.n)});
+    h+='<div class="fam" style="background:'+FAM[f]+'">'+f+'</div><div class="glist">'+a.map(function(o){var m=o.m,i=o.i;
+      return '<div class="mrow" data-mo="'+i+'" role="button" tabindex="0"><b>'+esc(m.n)+'</b><small>'+m.d.join(" · ")+'%</small>'+pyr(m.pos,FAM[f])+'</div>'+(openM===i?matPanel(m,i):'')}).join("")+'</div>'});
+  $("ml").innerHTML=h||'<p class="msg">'+(reg.length?"Nada coincide con la búsqueda.":"Todavía no hay materiales. Agrega el primero arriba.")+'</p>';
+}
+
+function prep(){
+  var p=parseFloat($("pp").value),t=parseFloat($("pt").value),o=$("po");
+  if(!(p>0&&p<=100)||!(t>0)){o.className="msg";o.textContent="Escribe el porcentaje y cuántos gramos quieres preparar.";return}
+  var m=t*p/100,sv=t-m;o.className="msg";
+  o.innerHTML="Pesa <b>"+f(m,3)+" g</b> de material y <b>"+f(sv,3)+" g</b> de solvente = "+f(t,3)+" g al "+f(p,2)+"%.<br><span style=\"color:var(--mute)\">Pesa primero el material y después agrega solvente hasta el total. Luego anota lo que pesaste en la sección de abajo.</span>";
+}
+$("pp").oninput=prep;$("pt").oninput=prep;
+function snap(){return {rows:rows,vers:vers,lib:lib,tot:$("tot").value,mode:$("md").value,mn:$("mn").value,nt:$("nt").value,dm:$("dm").value,ds:$("ds").value}}
+function store(){try{localStorage.setItem(KEY,JSON.stringify(snap()))}catch(e){}touch()}
+function load(){try{var s=JSON.parse(localStorage.getItem(KEY)||"null");if(s){rows=s.rows&&s.rows.length?s.rows:rows;vers=s.vers||[];lib=s.lib||[];if(s.tot)$("tot").value=s.tot;if(s.mode)$("md").value=s.mode;if(s.mn)$("mn").value=s.mn;if(s.nt)$("nt").value=s.nt;if(s.dm)$("dm").value=s.dm;if(s.ds)$("ds").value=s.ds}}catch(e){}}
+function f(n,d){return (isFinite(n)?n:0).toFixed(d)}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+
+function render(){
+  var h="";
+  rows.forEach(function(r,i){
+    h+='<div class="row" id="r'+i+'"><div class="r1"><input list="mats" placeholder="Material" aria-label="Material" value="'+esc(r.n)+'" data-i="'+i+'" data-k="n"><button class="x" data-del="'+i+'" aria-label="Quitar material">&#10005;</button></div><div class="mnote" data-o="mn">'+esc(noteFor(r.n))+'</div>'+
+    '<div class="r2"><div><label>Dilución del frasco</label><select data-i="'+i+'" data-k="d">'+
+    selOpts(r)+'</select></div>'+
+    '<div><label>Partes</label><input type="number" inputmode="decimal" step="any" min="0" value="'+esc(r.p)+'" data-i="'+i+'" data-k="p"></div></div>'+
+    '<div class="res"><div>'+($("md").value==="puro"?"% del puro":"% de lo pesado")+'<b data-o="pc">0%</b></div><div class="g">Pesar (g)<b data-o="g">0.000</b></div><div>Material puro (g)<b data-o="pu">0.000</b></div></div>'+
+    '<div class="tag">Menos del límite de la balanza: sube el peso total.</div></div>';
+  });
+  $("rows").innerHTML=h;calc();
+}
+
+function fracs(){
+  var mode=$("md").value,W=0,w=rows.map(function(r){var p=parseFloat(r.p)||0;var x=mode==="puro"?p/(r.d/100):p;W+=x;return x});
+  return w.map(function(x){return W>0?x/W:0});
+}
+function calc(){
+  var T=parseFloat($("tot").value)||0,L=parseFloat($("mn").value)||0,mode=$("md").value;
+  $("sb").textContent=mode==="puro"?"Las partes son de material puro. Al cambiar una dilución, los gramos se ajustan y la proporción olfativa se mantiene.":"Las partes son de lo que pesas de cada frasco. Cambiar una dilución cambia el material puro de esa línea.";
+  var S=0;rows.forEach(function(r){S+=parseFloat(r.p)||0});
+  var fr=fracs(),sg=0,minF=null,warnN=0;
+  rows.forEach(function(r,i){
+    var el=$("r"+i);if(!el)return;
+    var p=parseFloat(r.p)||0,g=fr[i]*T,pu=g*(r.d/100);
+    var pc=mode==="puro"?(S>0?p/S:0):fr[i];
+    sg+=g;
+    el.querySelector('[data-o="pc"]').textContent=f(pc*100,2)+"%";
+    el.querySelector('[data-o="g"]').textContent=f(g,3);
+    el.querySelector('[data-o="pu"]').textContent=f(pu,4);
+    var w=p>0&&g<L;el.classList.toggle("warn",w);if(w)warnN++;
+    if(p>0&&(minF===null||fr[i]<minF))minF=fr[i];
+  });
+  $("sp").textContent=f(S,2).replace(/\.?0+$/,"")||"0";
+  $("sg").textContent=f(sg,3);
+  var m1=$("m1");m1.className="msg";m1.textContent="";
+  if(S===1000){m1.className="msg ok";m1.textContent="Las partes suman exactamente 1000."}
+  var m2=$("m2");m2.className="msg";m2.textContent="";
+  if(minF&&L>0){
+    var need=Math.ceil(L/minF*10)/10;
+    if(warnN>0){m2.className="msg wn";m2.textContent="Peso total mínimo sugerido: "+f(need,1)+" g para que la línea más pequeña llegue a "+f(L,3)+" g."}
+    else{m2.textContent="Con este total, todas las líneas pasan el límite. Mínimo posible: "+f(need,1)+" g."}
+  }
+  store();
+}
+
+function dil(){
+  var m=parseFloat($("dm").value),s=parseFloat($("ds").value),o=$("dr");
+  if(!(m>0)||!(s>=0)||isNaN(s)){o.textContent="Escribe los dos pesos para ver el porcentaje real.";return}
+  o.innerHTML="Concentración real: <b>"+f(m/(m+s)*100,2)+"%</b> en "+f(m+s,3)+" g de dilución.";
+}
+
+function text(){
+  var T=parseFloat($("tot").value)||0,S=0,mode=$("md").value,fr=fracs();rows.forEach(function(r){S+=parseFloat(r.p)||0});
+  var t="Total: "+f(T,3)+" g | Partes de "+(mode==="puro"?"material puro":"lo pesado")+": "+S+"\n";
+  rows.forEach(function(r,i){var p=parseFloat(r.p)||0;if(!r.n&&!p)return;var g=fr[i]*T;
+    t+=(r.n||"(sin nombre)")+" ("+r.d+"%): "+p+" partes, "+f(g,3)+" g de dilución, "+f(g*r.d/100,4)+" g puro\n"});
+  return t;
+}
+
+function renderVers(){
+  if(!vers.length){$("vl").innerHTML='<p class="msg">Las versiones nuevas se guardan en la pestaña Fórmulas.</p>';return}
+  $("vl").innerHTML=vers.map(function(v,i){return {v:v,i:i}}).reverse().map(function(o){var v=o.v,i=o.i;return '<div class="ver"><b>Versión '+(i+1)+'</b> <small>'+esc(v.date||"")+' · '+f(v.tot,2)+' g</small><p>'+esc(v.note||"(sin notas)")+'</p><div class="bar"><button type="button" data-load="'+i+'">Cargar</button><button type="button" class="x" data-dv="'+i+'" aria-label="Borrar versión">&#10005;</button></div></div>'}).join("");
+}
+
+$("rows").addEventListener("input",function(e){
+  var t=e.target,i=t.getAttribute("data-i");if(i===null)return;
+  rows[i][t.getAttribute("data-k")]=t.getAttribute("data-k")==="d"?+t.value:t.value;if(t.getAttribute("data-k")==="n")refreshRow(+i);calc();
+});
+$("rows").addEventListener("click",function(e){
+  var d=e.target.getAttribute("data-del");if(d===null)return;
+  rows.splice(+d,1);if(!rows.length)rows.push({n:"",d:100,p:""});render();
+});
+$("add").onclick=function(){rows.push({n:"",d:100,p:""});render();var a=document.querySelectorAll("#rows .row");a[a.length-1].querySelector("input").focus()};
+$("clr").onclick=function(){rows=[{n:"",d:100,p:""}];render()};
+$("md").onchange=render;$("tot").oninput=calc;$("mn").oninput=calc;$("dm").oninput=function(){dil();store()};$("ds").oninput=function(){dil();store()};$("nt").oninput=store;
+$("copy").onclick=function(){
+  var t=text(),ok=function(){$("cm").className="msg ok";$("cm").textContent="Fórmula copiada."};
+  var fb=function(){var a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");ok()}catch(e){$("cm").textContent="No se pudo copiar."}document.body.removeChild(a)};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(ok,fb)}else fb();
+};
+$("sv").onclick=function(){
+  var vm=$("vm");
+  try{
+    if(!rows.some(function(r){return r.n||parseFloat(r.p)})){vm.className="msg wn";vm.textContent="La tabla está vacía.";return}
+    var n=$("vn").value.trim(),k=lib.length+1;
+    if(!n){n="Versión "+k;while(lib.some(function(x){return x.name.toLowerCase()===n.toLowerCase()})){k++;n="Versión "+k}}
+    else if(lib.some(function(x){return x.name.toLowerCase()===n.toLowerCase()})){vm.className="msg wn";vm.textContent="Ya hay una fórmula con ese nombre. Cámbialo.";return}
+    var id="f"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    lib.push({id:id,name:n,cat:"",ts:Date.now(),tot:parseFloat($("tot").value)||0,mode:$("md").value,note:$("nt").value,rows:clone(rows)});
+    $("nt").value="";$("vn").value="";saveLib();vm.textContent="";
+    openF=id;armD=armU=null;renderLib();showTab("for");
+    $("fm").className="msg ok";$("fm").textContent="Guardada: "+n+" ✓";
+  }catch(err){vm.className="msg wn";vm.textContent="No se pudo guardar: "+(err&&err.message||"error");}
+};
+$("vl").addEventListener("click",function(e){
+  var l=e.target.getAttribute("data-load"),d=e.target.getAttribute("data-dv");
+  if(l!==null){var v=vers[+l];rows=JSON.parse(JSON.stringify(v.rows));$("tot").value=v.tot;if(v.mode)$("md").value=v.mode;$("nt").value=v.note||"";render()}
+  if(d!==null){vers.splice(+d,1);renderVers();store()}
+});
+
+$("ma").onclick=function(){
+  var n=$("mname").value.trim(),o=$("mm");o.className="msg";o.textContent="";if(!n)return;
+  if(findMat(n)){o.textContent="Ese material ya está en la lista.";return}
+  reg.push({n:n,d:[100,10,1],note:"",fam:"",pos:""});openM=reg.length-1;mq="";$("mq").value="";saveMats();fillList();renderMats();refreshAll();$("mname").value="";
+};
+$("ml").addEventListener("click",function(e){var d=e.target.getAttribute("data-md");if(d===null)return;reg.splice(+d,1);openM=-1;saveMats();fillList();renderMats();refreshAll()});
+$("ml").addEventListener("change",function(e){var i=e.target.getAttribute("data-mi");if(i===null)return;
+  var v=+e.target.getAttribute("data-v"),m=reg[+i],k=m.d.indexOf(v);
+  if(e.target.checked&&k<0)m.d.push(v);if(!e.target.checked&&k>-1)m.d.splice(k,1);
+  m.d.sort(function(a,b){return b-a});saveMats();refreshAll();renderMats()});
+$("ml").addEventListener("change",function(e){var t=e.target,k=t.getAttribute("data-mf"),q=t.getAttribute("data-mp");
+  if(k!==null){reg[+k].fam=t.value==="Sin familia"?"":t.value;saveMats();renderMats()}
+  if(q!==null){reg[+q].pos=t.value;saveMats();renderMats()}});
+function toggleM(e){var r=e.target.closest&&e.target.closest("[data-mo]");if(!r)return;var i=+r.getAttribute("data-mo");openM=openM===i?-1:i;renderMats()}
+$("ml").addEventListener("click",toggleM);
+$("ml").addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){if(e.target.getAttribute&&e.target.getAttribute("data-mo")!==null){e.preventDefault();toggleM(e)}}});
+$("mq").oninput=function(){mq=this.value;renderMats()};
+$("ml").addEventListener("input",function(e){var i=e.target.getAttribute("data-mn");if(i===null)return;reg[+i].note=e.target.value;saveMats();refreshAll()});
+
+var lq="",openF=null,armD=null,armU=null;
+function fdate(ts){try{return new Date(ts).toLocaleDateString("es",{day:"numeric",month:"short",year:"2-digit"})}catch(e){return ""}}
+function clone(o){return JSON.parse(JSON.stringify(o))}
+function findF(id){for(var i=0;i<lib.length;i++)if(lib[i].id===id)return lib[i];return null}
+function fPanel(x){
+  var lines=(x.rows||[]).filter(function(r){return r.n||parseFloat(r.p)}).map(function(r){return '<div>'+esc(r.n||"(sin nombre)")+' <small style="color:var(--mute)">'+esc(r.d)+'% · '+esc(r.p||0)+' partes</small></div>'}).join("");
+  return '<div class="mpan"><small style="color:var(--mute)">'+f(x.tot,2)+' g en total · '+(x.mode==="pesar"?"partes de lo que se pesa":"partes de material puro")+'</small><div style="margin:6px 0 10px">'+lines+'</div>'+(x.note?'<p style="margin:0 0 10px;white-space:pre-wrap">'+esc(x.note)+'</p>':'')+
+  '<div class="bar"><button type="button" class="p" data-fopen="'+x.id+'">Abrir en la calculadora</button>'+
+  '<button type="button" data-fup="'+x.id+'">'+(armU===x.id?"¿Seguro? Toca otra vez":"Actualizar con la actual")+'</button>'+
+  '<button type="button" data-fdel="'+x.id+'" style="color:var(--bad)">'+(armD===x.id?"¿Seguro? Toca otra vez":"Borrar")+'</button></div>'+
+  '<p class="msg">Abrir reemplaza la tabla actual de la calculadora.</p></div>';
+}
+function renderLib(){
+  var q=lq.trim().toLowerCase(),g={},cats={};
+  lib.forEach(function(x){var c=x.cat||"";if(c)cats[c]=1;if(q&&(x.name+" "+c).toLowerCase().indexOf(q)<0)return;(g[c]=g[c]||[]).push(x)});
+  $("fcats").innerHTML=Object.keys(cats).map(function(c){return '<option value="'+esc(c)+'">'}).join("");
+  var keys=Object.keys(g).sort(function(a,b){if(!a)return 1;if(!b)return -1;return a.localeCompare(b)});
+  var h=keys.map(function(c){g[c].sort(function(a,b){return b.ts-a.ts});
+    return '<div class="fam" style="background:'+(c?'#1d6b58':'#5f726d')+'">'+esc(c||"Sin categoría")+'</div><div class="glist">'+g[c].map(function(x){
+      return '<div class="mrow" data-fo="'+x.id+'" role="button" tabindex="0"><b>'+esc(x.name)+'</b><small>'+fdate(x.ts)+'</small></div>'+(openF===x.id?fPanel(x):'')}).join("")+'</div>'}).join("");
+  $("fl").innerHTML=h||'<p class="msg">'+(lib.length?"Nada coincide con la búsqueda.":"Todavía no hay fórmulas guardadas.")+'</p>';
+}
+function saveLib(){store()}
+$("fsave").onclick=function(){
+  var n=$("fname").value.trim(),c=$("fcat").value.trim(),o=$("fm");o.className="msg";
+  if(!n){o.textContent="Ponle un nombre a la fórmula.";return}
+  if(!rows.some(function(r){return r.n||parseFloat(r.p)})){o.textContent="La tabla de la calculadora está vacía.";return}
+  if(lib.some(function(x){return x.name.toLowerCase()===n.toLowerCase()})){o.className="msg wn";o.textContent="Ya hay una fórmula con ese nombre. Ábrela y usa «Actualizar con la actual», o cambia el nombre.";return}
+  lib.push({id:"f"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:n,cat:c,ts:Date.now(),tot:parseFloat($("tot").value)||0,mode:$("md").value,rows:clone(rows)});
+  saveLib();$("fname").value="";o.className="msg ok";o.textContent="Guardada ✓";renderLib();
+};
+$("fq").oninput=function(){lq=this.value;renderLib()};
+function toggleF(e){var r=e.target.closest&&e.target.closest("[data-fo]");if(!r)return false;var id=r.getAttribute("data-fo");openF=openF===id?null:id;armD=armU=null;renderLib();return true}
+$("fl").addEventListener("keydown",function(e){if((e.key==="Enter"||e.key===" ")&&e.target.getAttribute&&e.target.getAttribute("data-fo")!==null){e.preventDefault();toggleF(e)}});
+$("fl").addEventListener("click",function(e){
+  if(toggleF(e))return;
+  var t=e.target,o=t.getAttribute("data-fopen"),u=t.getAttribute("data-fup"),d=t.getAttribute("data-fdel"),x;
+  if(o!==null){x=findF(o);if(!x)return;rows=clone(x.rows);if(!rows.length)rows=[{n:"",d:100,p:""}];$("tot").value=x.tot;if(x.mode)$("md").value=x.mode;render();showTab("calc");$("cm").className="msg ok";$("cm").textContent="Abierta: "+x.name+".";return}
+  if(u!==null){x=findF(u);if(!x)return;if(armU!==u){armU=u;armD=null;renderLib();return}
+    x.rows=clone(rows);x.tot=parseFloat($("tot").value)||0;x.mode=$("md").value;x.ts=Date.now();armU=null;saveLib();renderLib();$("fm").className="msg ok";$("fm").textContent="Actualizada: "+x.name+".";return}
+  if(d!==null){if(armD!==d){armD=d;armU=null;renderLib();return}
+    lib=lib.filter(function(a){return a.id!==d});openF=null;armD=null;saveLib();renderLib()}
+});
+function showTab(t){
+  ["calc","mat","for"].forEach(function(k){$("tab-"+k).hidden=k!==t;$("nv-"+k).classList.toggle("on",k===t)});
+  if(t==="mat")renderMats();if(t==="for")renderLib();
+  window.scrollTo(0,0);
+}
+$("nv-calc").onclick=function(){showTab("calc")};
+$("nv-mat").onclick=function(){showTab("mat")};
+$("nv-for").onclick=function(){showTab("for")};
+
+var wz=null,wzLock=null;
+function wzBuild(){
+  var T=parseFloat($("tot").value)||0,fr=fracs(),it=[],old={};
+  if(wz)wz.items.forEach(function(x){old[x.n+"|"+x.d]=x});
+  rows.forEach(function(r,i){var g=fr[i]*T;if(r.n&&g>0){var o=old[r.n+"|"+(+r.d)];it.push({n:r.n,d:+r.d,g:g,note:noteFor(r.n),done:o?o.done:false,real:o?o.real:""})}});
+  var m=$("wzo").value;
+  if(m==="desc")it.sort(function(a,b){return b.g-a.g});
+  if(m==="asc")it.sort(function(a,b){return a.g-b.g});
+  return it;
+}
+function wzRender(){
+  var b=$("wzb"),it=wz.items,n=it.length,h="",i;
+  if(!n){b.innerHTML='<p class="msg">No hay materiales con gramos para pesar. Escribe nombre y partes en la calculadora.</p>';return}
+  if(wz.i>=n){
+    var sT=0,sR=0;it.forEach(function(x){sT+=x.g;sR+=(x.real!==""&&!isNaN(parseFloat(x.real)))?parseFloat(x.real):x.g});
+    h+='<h2>Resumen</h2><p class="msg">Si no anotaste lo que pesaste, se asume la cantidad objetivo.</p><div class="wzt" style="color:var(--mute)"><span>Material</span><span>Objetivo</span><span>Pesado</span></div>';
+    it.forEach(function(x){var has=x.real!==""&&!isNaN(parseFloat(x.real)),r=has?parseFloat(x.real):x.g;
+      h+='<div class="wzt"><span><b>'+esc(x.n)+'</b> <small style="color:var(--mute)">'+x.d+'%</small></span><span>'+f(x.g,3)+' g</span><span>'+(has?f(r,3)+' g':'—')+'</span><span style="grid-column:1/-1;color:var(--mute);font-size:12px">% de lo pesado: '+f(r/sR*100,2)+'% (objetivo '+f(x.g/sT*100,2)+'%)</span></div>'});
+    h+='<div class="wzt"><span><b>Total</b></span><span>'+f(sT,3)+' g</span><span>'+f(sR,3)+' g</span></div>';
+    h+='<div class="wzbtn"><button type="button" data-wback="1">Volver</button><button type="button" class="p" data-wclose="1">Terminar</button></div>';
+    b.innerHTML=h;return;
+  }
+  var x=it[wz.i],done=it.filter(function(y){return y.done}).length;
+  h+='<div class="msg">'+(wz.i+1)+' de '+n+'</div><div class="wzprog"><i style="width:'+(done/n*100)+'%"></i></div>';
+  h+='<div style="font-size:28px;font-weight:700">'+esc(x.n)+'</div><div class="sub" style="margin:2px 0 0">Frasco al '+x.d+'%'+(x.note?' · '+esc(x.note):'')+'</div>';
+  h+='<div class="wzbig">'+f(x.g,3)+' <small>g</small></div>';
+  if(x.d<100)h+='<div class="msg" style="margin:0 0 12px">Material puro: '+f(x.g*x.d/100,4)+' g</div>';
+  h+='<label for="wzr">Lo que pesé (g), opcional</label><input id="wzr" type="number" inputmode="decimal" step="any" min="0" value="'+esc(x.real)+'" placeholder="'+f(x.g,3)+'" style="min-height:52px;font-size:20px">';
+  h+='<div class="wzbtn"><button type="button" data-wprev="1"'+(wz.i===0?' disabled':'')+'>Anterior</button><button type="button" class="p" data-wdone="1">Listo</button></div>';
+  h+='<div style="margin-top:8px">';
+  it.forEach(function(y,k){h+='<div class="mrow" data-wj="'+k+'" role="button" tabindex="0" style="'+(k===wz.i?'border-color:var(--acc);':'')+'"><b>'+(y.done?'✓ ':'')+esc(y.n)+'</b><small>'+f(y.g,3)+' g</small></div>'});
+  h+='</div>';
+  b.innerHTML=h;
+}
+function wzLockOn(){try{if(navigator.wakeLock&&navigator.wakeLock.request)navigator.wakeLock.request("screen").then(function(l){wzLock=l},function(){})}catch(e){}}
+function wzLockOff(){try{if(wzLock){wzLock.release();wzLock=null}}catch(e){}}
+function wzClose(){$("wz").hidden=true;document.body.style.overflow="";wzLockOff()}
+$("wzs").onclick=function(){wz=null;wz={items:wzBuild(),i:0};$("wz").hidden=false;document.body.style.overflow="hidden";$("wz").scrollTop=0;wzLockOn();wzRender()};
+$("wzx").onclick=wzClose;
+$("wzo").onchange=function(){if(!wz)return;var cur=wz.items[wz.i];wz.items=wzBuild();wz.i=0;for(var k=0;k<wz.items.length;k++)if(!wz.items[k].done){wz.i=k;break}wzRender()};
+$("wzb").addEventListener("input",function(e){if(e.target.id==="wzr"&&wz&&wz.items[wz.i])wz.items[wz.i].real=e.target.value});
+$("wzb").addEventListener("click",function(e){
+  if(!wz)return;var t=e.target,j=t.closest&&t.closest("[data-wj]");
+  if(j){wz.i=+j.getAttribute("data-wj");wzRender();return}
+  if(t.getAttribute("data-wdone")!==null){wz.items[wz.i].done=true;wz.i++;wzRender();$("wz").scrollTop=0;return}
+  if(t.getAttribute("data-wprev")!==null){if(wz.i>0)wz.i--;wzRender();$("wz").scrollTop=0;return}
+  if(t.getAttribute("data-wback")!==null){wz.i=wz.items.length-1;wzRender();return}
+  if(t.getAttribute("data-wclose")!==null)wzClose();
+});
+document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible"&&wz&&!$("wz").hidden)wzLockOn()});
+
+var booting=true,LTS="perfcalc-ts-v1",dbRef=null,syncReady=false,pushT=null,pushing=false,pendingPush=false,curTs=0;
+try{curTs=+localStorage.getItem(LTS)||0}catch(e){}
+function setSync(t,ok){var e=$("sync");if(!e)return;e.textContent=t;e.className="msg"+(ok?" ok":"")}
+function touch(){if(booting)return;curTs=Date.now();try{localStorage.setItem(LTS,String(curTs))}catch(e){}schedulePush()}
+function schedulePush(){if(!dbRef||!syncReady)return;clearTimeout(pushT);pushT=setTimeout(push,800)}
+function push(){
+  if(!dbRef)return;if(pushing){pendingPush=true;return}pushing=true;
+  var d=snap();d.reg=reg;d.ts=curTs;d=JSON.parse(JSON.stringify(d));
+  dbRef.set(d).then(function(){setSync("Respaldo activo ✓ (guardado "+new Date().toLocaleTimeString("es",{hour:"2-digit",minute:"2-digit"})+")",true)},function(e){setSync("Respaldo con error al guardar: "+((e&&e.code)||"desconocido"))}).then(function(){pushing=false;if(pendingPush){pendingPush=false;push()}});
+}
+function applyRemote(d){
+  d=JSON.parse(JSON.stringify(d));
+  if(d.rows&&d.rows.length)rows=d.rows;
+  vers=d.vers||[];
+  if(d.reg&&d.reg.length)reg=d.reg;
+  migrate();if(d.lib)lib=d.lib;
+  if(d.tot)$("tot").value=d.tot;
+  if(d.mode)$("md").value=d.mode;
+  if(d.mn)$("mn").value=d.mn;if(d.nt!=null)$("nt").value=d.nt;if(d.dm!=null)$("dm").value=d.dm;if(d.ds!=null)$("ds").value=d.ds;
+  curTs=d.ts||Date.now();
+  try{localStorage.setItem(KEY,JSON.stringify(snap()));localStorage.setItem(MK,JSON.stringify(reg));localStorage.setItem(LTS,String(curTs))}catch(e){}
+  fillList();renderMats();render();renderVers();renderLib();dil();
+}
+function startSync(){
+  try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
+  if(!window.claude||!window.claude.use){booting=false;setSync("Sin respaldo: abre este enlace fuera del chat (navegador o pantalla de inicio).");return}
+  Promise.all([window.claude.use("db"),window.claude.use("user")]).then(function(r){
+    var db=r[0],u=r[1];if(!db||!u){booting=false;setSync("Sin respaldo: "+(!db?"base de datos no disponible aquí":"sin sesión de usuario")+". Abre el enlace desde la app o el navegador con tu sesión de Claude.");return}
+    return u.id().then(function(id){
+      if(!id){booting=false;setSync("Sin respaldo: no se pudo identificar tu cuenta.");return}
+      dbRef=db.doc("data/users/"+id+"/calc");
+      return dbRef.get().then(function(sn){
+        var d=sn.exists?JSON.parse(JSON.stringify(sn.data())):null;
+        if(d&&((d.ts||0)>curTs||!curTs))applyRemote(d);
+        booting=false;syncReady=true;setSync(d?"Respaldo activo ✓ (datos recuperados)":"Respaldo activo ✓",true);
+        var hasLocal=false;try{hasLocal=!!localStorage.getItem(KEY)}catch(e){}
+        if(!d&&hasLocal){if(!curTs)curTs=Date.now();push()}
+        else if(d&&(d.ts||0)<curTs)push();
+      });
+    });
+  }).catch(function(e){booting=false;setSync("Sin respaldo: error "+((e&&e.code)||"desconocido"))});
+}
+loadMats();fillList();renderMats();
+load();render();renderVers();renderLib();dil();
+startSync();
+function flush(){try{localStorage.setItem(KEY,JSON.stringify(snap()));localStorage.setItem(MK,JSON.stringify(reg))}catch(e){}
+  if(dbRef&&syncReady){clearTimeout(pushT);push()}}
+document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")flush()});
+window.addEventListener("pagehide",flush);
+</script>
+</body>
+</html>
