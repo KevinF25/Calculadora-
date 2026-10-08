@@ -517,7 +517,7 @@ function applyRemote(d){
   try{localStorage.setItem(KEY,JSON.stringify(snap()));localStorage.setItem(MK,JSON.stringify(reg));localStorage.setItem(LTS,String(curTs))}catch(e){}
   fillList();renderMats();render();renderVers();renderLib();dil();
 }
-var SB_URL="PEGA_AQUI_TU_URL_DE_SUPABASE",SB_KEY="PEGA_AQUI_TU_CLAVE_PUBLICA_ANON";
+var SB_URL="https://vnqiyzbvfzrjfpvfhsvr.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZucWl5emJ2ZnpyamZwdmZoc3ZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0MTAwMjAsImV4cCI6MjEwNjk4NjAyMH0.4ZP9AJVIAaSXE6n_9bTMYD7rQpVliecU2roq3xNDo54";
 var GK="perfcalc-guest",sb=null,sbUser=null;
 function sbOk(){return SB_URL.indexOf("http")===0&&SB_KEY.indexOf("PEGA")!==0&&!!window.supabase}
 function gmsg(t,ok){var e=$("gm");e.textContent=t;e.className="msg"+(ok?" ok":"")}
@@ -542,7 +542,10 @@ function startSync(u){
   }).catch(function(e){booting=false;setSync("Sin respaldo: error "+((e&&(e.code||e.message))||"desconocido"))});
 }
 function initAuth(){
-  if(!sbOk()){showGate(false);startSync(null);return}
+  if(!sbOk()){var g0=false;try{g0=localStorage.getItem(GK)==="1"}catch(e){}
+    startSync(null);
+    if(g0){showGate(false)}else{showGate(true);gmsg("Vista previa: el inicio de sesión solo funciona en la página publicada. Puedes usar la calculadora sin cuenta.")}
+    return}
   $("acc").hidden=false;
   sb=supabase.createClient(SB_URL,SB_KEY);
   sb.auth.onAuthStateChange(function(ev,ses){
@@ -558,10 +561,10 @@ function initAuth(){
   });
 }
 function creds(){return{email:$("ge").value.trim(),password:$("gp").value}}
-$("gin").onclick=function(){var c=creds();if(!c.email||!c.password){gmsg("Escribe tu correo y contraseña.");return}
+$("gin").onclick=function(){if(!sb){gmsg("El inicio de sesión no está disponible en esta vista.");return}var c=creds();if(!c.email||!c.password){gmsg("Escribe tu correo y contraseña.");return}
   gmsg("Entrando…",true);
   sb.auth.signInWithPassword(c).then(function(r){if(r.error)gmsg(/invalid login/i.test(r.error.message)?"Correo o contraseña incorrectos.":/confirm/i.test(r.error.message)?"Confirma tu correo primero (revisa tu bandeja).":"Error: "+r.error.message)})};
-$("gup").onclick=function(){var c=creds();if(!c.email||!c.password){gmsg("Escribe tu correo y contraseña.");return}
+$("gup").onclick=function(){if(!sb){gmsg("El registro no está disponible en esta vista.");return}var c=creds();if(!c.email||!c.password){gmsg("Escribe tu correo y contraseña.");return}
   if(c.password.length<6){gmsg("La contraseña debe tener al menos 6 caracteres.");return}
   gmsg("Creando cuenta…",true);
   sb.auth.signUp(c).then(function(r){if(r.error){gmsg("Error: "+r.error.message);return}
