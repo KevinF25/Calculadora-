@@ -87,6 +87,9 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 #gate .pw input{padding-right:86px}
 #gate .eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);min-height:34px;padding:4px 10px;font-size:13px;border:0;background:transparent;color:var(--acc);font-weight:600}
 #gate .lnk{width:100%;margin-top:8px;border:0;background:transparent;color:var(--acc);min-height:40px}
+.evs{display:flex;gap:6px;margin:4px 0 10px}
+.evs button{flex:1;min-height:44px;font-size:20px;color:var(--mute)}
+.evs button.on{color:#1d6b58;border-color:#1d6b58}
 </style>
 </head>
 <body>
@@ -413,6 +416,7 @@ function fPanel(x){
   '<div class="bar"><button type="button" class="p" data-fopen="'+x.id+'">Abrir en la calculadora</button>'+
   '<button type="button" data-fup="'+x.id+'">'+(armU===x.id?"¿Seguro? Toca otra vez":"Actualizar con la actual")+'</button>'+
   '<button type="button" data-fdel="'+x.id+'" style="color:var(--bad)">'+(armD===x.id?"¿Seguro? Toca otra vez":"Borrar")+'</button></div>'+
+  '<div class="bar" style="margin-top:8px"><button type="button" data-fev="'+x.id+'">'+(evOpen===x.id?"Cancelar evaluación":"Evaluar")+'</button><button type="button" data-fdup="'+x.id+'">Duplicar</button><button type="button" data-fpdf="'+x.id+'">Exportar PDF</button></div>'+evBlock(x)+
   '<p class="msg">Abrir reemplaza la tabla actual de la calculadora.</p></div>';
 }
 function renderLib(){
@@ -439,6 +443,7 @@ function toggleF(e){var r=e.target.closest&&e.target.closest("[data-fo]");if(!r)
 $("fl").addEventListener("keydown",function(e){if((e.key==="Enter"||e.key===" ")&&e.target.getAttribute&&e.target.getAttribute("data-fo")!==null){e.preventDefault();toggleF(e)}});
 $("fl").addEventListener("click",function(e){
   if(toggleF(e))return;
+  if(fExtra(e))return;
   var t=e.target,o=t.getAttribute("data-fopen"),u=t.getAttribute("data-fup"),d=t.getAttribute("data-fdel"),x;
   if(o!==null){x=findF(o);if(!x)return;rows=clone(x.rows);if(!rows.length)rows=[{n:"",d:100,p:""}];$("tot").value=x.tot;if(x.mode)$("md").value=x.mode;render();showTab("calc");$("cm").className="msg ok";$("cm").textContent="Abierta: "+x.name+".";return}
   if(u!==null){x=findF(u);if(!x)return;if(armU!==u){armU=u;armD=null;renderLib();return}
@@ -511,7 +516,7 @@ var BK="perfcalc-v1",BM="perfcalc-mats-v1",BT="perfcalc-ts-v1",LTS=BT;
 var INIT=[].slice.call(document.querySelectorAll("input,select,textarea")).filter(function(e){return!$("gate").contains(e)}).map(function(e){return[e,e.value,e.checked]});
 function setNS(id){var x=id?":"+id:"";KEY=BK+x;MK=BM+x;LTS=BT+x}
 function defReg(){return MATS.slice().sort().map(function(n){return{n:n,d:[100,10,1],note:""}})}
-function resetState(){rows=[{n:"",d:100,p:""}];vers=[];lib=[];reg=defReg();migrate();openM=-1;mq="";curTs=0;
+function resetState(){rows=[{n:"",d:100,p:""}];vers=[];lib=[];reg=defReg();migrate();openM=-1;mq="";lq="";openF=null;armD=armU=null;evOpen=null;curTs=0;
   INIT.forEach(function(a){a[0].value=a[1];a[0].checked=a[2]});
   if(wz){wz=null;wzClose()}}
 function redraw(){fillList();renderMats();render();renderVers();renderLib();dil()}
@@ -655,6 +660,114 @@ $("acc").onclick=function(){
   if(sbUser){if(confirm("¿Cerrar sesión de "+sbUser.email+"? Tus fórmulas siguen en tu cuenta."))logout()}
   else{setMode("in");showGate(true)}};
 $("gate").addEventListener("keydown",function(e){if(e.key==="Enter"&&(e.target.id==="ge"||e.target.id==="gp"||e.target.id==="gp2"))$("gin").click()});
+
+/* ===== Duplicar, evaluar y exportar PDF ===== */
+var evOpen=null;
+function evBlock(x){
+  var ev=(x.evals||[]).slice().sort(function(a,b){return b.ts-a.ts});
+  var h='<div style="margin-top:12px"><b>Evaluaciones</b>';
+  h+=ev.length?ev.map(function(v){return '<div style="margin:8px 0;padding-left:8px;border-left:2px solid #9fcab9"><div><b>'+esc(v.when||"Otro")+'</b>'+(v.score?' · <span style="color:#1d6b58">'+"★".repeat(v.score)+"☆".repeat(5-v.score)+'</span>':'')+' <small style="color:var(--mute)">'+fdate(v.ts)+'</small> <button type="button" data-evdel="'+x.id+'|'+v.id+'" aria-label="Borrar evaluación" style="min-height:0;padding:0 8px;color:var(--bad)">&#10005;</button></div>'+(v.note?'<div style="white-space:pre-wrap">'+esc(v.note)+'</div>':'')+'</div>'}).join(""):'<p class="msg">Todavía no la has evaluado.</p>';
+  if(evOpen===x.id){
+    h+='<div style="margin-top:10px"><label for="ev-w">Cuándo la probaste</label><select id="ev-w"><option>A la hora</option><option selected>Al día</option><option>A la semana</option><option>Otro</option></select>'+
+    '<label>Cómo huele</label><div class="evs" id="ev-s" data-score="0">'+[1,2,3,4,5].map(function(n){return '<button type="button" data-evs="'+n+'" aria-label="'+n+' de 5">★</button>'}).join("")+'</div>'+
+    '<label for="ev-n">Notas</label><textarea id="ev-n" rows="3" placeholder="Salida, corazón, fondo, duración…"></textarea>'+
+    '<div class="bar"><button type="button" class="p" data-evsave="'+x.id+'">Guardar evaluación</button></div><p class="msg" id="ev-m"></p></div>';
+  }
+  return h+'</div>';
+}
+function fExtra(e){
+  var t=e.target,a;if(!t.getAttribute)return false;
+  if((a=t.getAttribute("data-evs"))!==null){var box=t.parentNode;box.setAttribute("data-score",a);[].forEach.call(box.children,function(b){b.classList.toggle("on",+b.getAttribute("data-evs")<=+a)});return true}
+  if((a=t.getAttribute("data-fev"))!==null){evOpen=evOpen===a?null:a;renderLib();return true}
+  if((a=t.getAttribute("data-evsave"))!==null){var x=findF(a);if(!x)return true;
+    var sc=+$("ev-s").getAttribute("data-score"),nt=$("ev-n").value.trim();
+    if(!sc&&!nt){$("ev-m").textContent="Pon una calificación o una nota.";return true}
+    (x.evals=x.evals||[]).push({id:"e"+Date.now().toString(36)+Math.random().toString(36).slice(2,4),ts:Date.now(),when:$("ev-w").value,score:sc,note:nt});
+    evOpen=null;saveLib();renderLib();return true}
+  if((a=t.getAttribute("data-evdel"))!==null){var q=a.split("|"),y=findF(q[0]);
+    if(y&&confirm("¿Borrar esta evaluación?")){y.evals=(y.evals||[]).filter(function(v){return v.id!==q[1]});saveLib();renderLib()}return true}
+  if((a=t.getAttribute("data-fdup"))!==null){var s0=findF(a);if(!s0)return true;
+    var nm=s0.name+" (copia)",k=2;while(lib.some(function(v){return v.name.toLowerCase()===nm.toLowerCase()}))nm=s0.name+" (copia "+(k++)+")";
+    var id="f"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    lib.push({id:id,name:nm,cat:s0.cat||"",ts:Date.now(),tot:s0.tot,mode:s0.mode,note:s0.note||"",rows:clone(s0.rows||[])});
+    openF=id;armD=armU=null;evOpen=null;saveLib();renderLib();$("fm").className="msg ok";$("fm").textContent="Duplicada ✓ Ábrela en la calculadora para cambiarla.";return true}
+  if((a=t.getAttribute("data-fpdf"))!==null){var z=findF(a);if(z)exportPDF(z);return true}
+  return false}
+/* Cálculo de una fórmula guardada (misma matemática que la calculadora, pero con los datos de ESA fórmula) */
+function calcOf(x){
+  var mode=x.mode||"puro",T=parseFloat(x.tot)||0,S=0,W=0;
+  var rs=(x.rows||[]).filter(function(r){return r.n||parseFloat(r.p)});
+  var w=rs.map(function(r){var p=parseFloat(r.p)||0,d=(parseFloat(r.d)||100)/100;S+=p;var v=mode==="puro"?p/d:p;W+=v;return v});
+  return{mode:mode,T:T,S:S,rows:rs.map(function(r,i){var p=parseFloat(r.p)||0,fr=W>0?w[i]/W:0,g=fr*T,pc=mode==="puro"?(S>0?p/S:0):fr;
+    return{n:r.n||"(sin nombre)",d:parseFloat(r.d)||100,p:p,g:g,pu:g*((parseFloat(r.d)||100)/100),pc:pc}})};
+}
+function pdfText(s){var m={"…":133,"—":151,"–":150,"•":149,"‘":145,"’":146,"“":147,"”":148,"€":128};
+  return String(s).replace(/[^\x20-\x7E\xA0-\xFF]/g,function(c){return m[c]?String.fromCharCode(m[c]):"?"}).replace(/[\\()]/g,"\\$&")}
+function buildPDF(x){
+  var cv=document.createElement("canvas").getContext("2d");
+  function tw(s,sz,b){cv.font=(b?"bold ":"")+"100px Helvetica, Arial, sans-serif";return cv.measureText(s).width*sz/100}
+  function wrap(s,w,sz){var out=[];String(s).split("\n").forEach(function(par){var line="";par.split(/\s+/).forEach(function(wd){
+    while(tw(wd,sz)>w){var i=wd.length;while(i>1&&tw(wd.slice(0,i),sz)>w)i--;if(line){out.push(line);line=""}out.push(wd.slice(0,i));wd=wd.slice(i)}
+    var t=line?line+" "+wd:wd;if(tw(t,sz)>w&&line){out.push(line);line=wd}else line=t});out.push(line)});return out}
+  function col(h){h=h.replace("#","");return[0,2,4].map(function(i){return(parseInt(h.substr(i,2),16)/255).toFixed(3)}).join(" ")}
+  var PW=612,PH=792,M=46,CW=PW-2*M,pages=[],ops,y;
+  function np(){ops=[];pages.push(ops);y=M}
+  function T(s,px,yy,sz,b,c,al){var w=tw(s,sz,b);if(al==="r")px-=w;ops.push("BT /"+(b?"F2":"F1")+" "+sz+" Tf "+col(c)+" rg "+px.toFixed(2)+" "+(PH-yy).toFixed(2)+" Td ("+pdfText(s)+") Tj ET")}
+  function R(px,yy,w,h,c){ops.push(col(c)+" rg "+px.toFixed(2)+" "+(PH-yy-h).toFixed(2)+" "+w.toFixed(2)+" "+h.toFixed(2)+" re f")}
+  function L(x1,y1,x2,y2,c,lw){ops.push(col(c)+" RG "+lw+" w "+x1.toFixed(2)+" "+(PH-y1).toFixed(2)+" m "+x2.toFixed(2)+" "+(PH-y2).toFixed(2)+" l S")}
+  function drop(px,yy,sc,c){function P(a,b){return(px+a*sc).toFixed(2)+" "+(PH-(yy+b*sc)).toFixed(2)}
+    ops.push(col(c)+" rg "+P(12,3)+" m "+P(15.5,7.2)+" "+P(18,10.2)+" "+P(18,13.5)+" c "+P(18,16.814)+" "+P(15.314,19.5)+" "+P(12,19.5)+" c "+P(8.686,19.5)+" "+P(6,16.814)+" "+P(6,13.5)+" c "+P(6,10.2)+" "+P(8.5,7.2)+" "+P(12,3)+" c f");
+    ops.push("1 1 1 RG "+(sc*1.2).toFixed(2)+" w 1 J "+P(9.5,14)+" m "+P(9.5,15.381)+" "+P(10.619,16.5)+" "+P(12,16.5)+" c S")}
+  function need(h){if(y+h>PH-64)np()}
+  var G="#1d6b58",DK="#1c2b26",MU="#5b6b64",c=calcOf(x),f2=function(n,d){return f(n,d)};
+  np();
+  drop(M,36,1.4,G);
+  var tl=wrap(x.name,350,18),ex=0;
+  if(tl.length>2){tl=tl.slice(0,2);var l2=tl[1];while(l2.length>1&&tw(l2+"…",18,true)>350)l2=l2.slice(0,-1);tl[1]=l2.replace(/\s+$/,"")+"…"}
+  tl.forEach(function(l,i){T(l,M+42,58+i*21,18,true,DK)});ex=(tl.length-1)*21;
+  T([x.cat,fdate(x.ts)].filter(Boolean).join("  ·  "),M+42,74+ex,10,false,MU);
+  T("Total",PW-M,52,9,false,MU,"r");T(f2(c.T,2)+" g",PW-M,70,15,true,G,"r");
+  L(M,86+ex,PW-M,86+ex,G,1.6);y=106+ex;
+  var cx={d:M+246,p:M+306,g:M+382,pu:M+456,pc:M+CW-8};
+  function head(){R(M,y,CW,22,"#e9f3ee");var b=y+15;T("Material",M+8,b,10,true,"#0f4a3b");T("Dilución",cx.d,b,10,true,"#0f4a3b","r");T("Partes",cx.p,b,10,true,"#0f4a3b","r");T("Pesar (g)",cx.g,b,10,true,"#0f4a3b","r");T("Puro (g)",cx.pu,b,10,true,"#0f4a3b","r");T("%",cx.pc,b,10,true,"#0f4a3b","r");y+=22}
+  head();
+  var sg=0,sp=0,spc=0;
+  c.rows.forEach(function(r){
+    if(y+22>PH-64){np();head()}
+    var nm=r.n;while(nm.length>1&&tw(nm,10.5)>186){nm=nm.slice(0,-1)}if(nm!==r.n)nm=nm.replace(/\s+$/,"")+"…";
+    var b=y+15;T(nm,M+8,b,10.5,false,DK);T(f2(r.d,0).replace(/\.0+$/,"")+"%",cx.d,b,10.5,false,DK,"r");
+    T(f2(r.p,2).replace(/\.?0+$/,"")||"0",cx.p,b,10.5,false,DK,"r");T(f2(r.g,3),cx.g,b,10.5,false,DK,"r");T(f2(r.pu,4),cx.pu,b,10.5,false,DK,"r");T(f2(r.pc*100,2),cx.pc,b,10.5,false,DK,"r");
+    L(M,y+22,PW-M,y+22,"#d5e0da",0.5);y+=22;sg+=r.g;sp+=r.p;spc+=r.pc;
+  });
+  if(!c.rows.length){T("(sin materiales)",M+8,y+15,10.5,false,MU);y+=22}
+  need(26);var b=y+15,pu=0;c.rows.forEach(function(r){pu+=r.pu});
+  T("Total",M+8,b,10.5,true,"#0f4a3b");T(f2(sp,2).replace(/\.?0+$/,"")||"0",cx.p,b,10.5,true,"#0f4a3b","r");T(f2(sg,3),cx.g,b,10.5,true,"#0f4a3b","r");T(f2(pu,4),cx.pu,b,10.5,true,"#0f4a3b","r");T(f2(spc*100,2),cx.pc,b,10.5,true,"#0f4a3b","r");y+=22;
+  T(c.mode==="puro"?"Las partes son de material puro. El % es la proporción de material puro.":"Las partes son de lo que se pesa de cada frasco. El % es la proporción de lo pesado.",M+8,y+14,9,false,MU);y+=24;
+  if(x.note){need(40);T("Notas",M,y+12,10.5,true,G);y+=20;var ls=wrap(x.note,CW-14,11);
+    ls.forEach(function(l){need(16);R(M,y-2,2,16,"#9fcab9");T(l,M+10,y+10,11,false,"#33433c");y+=15});y+=10}
+  var ev=(x.evals||[]).slice().sort(function(a,b){return a.ts-b.ts});
+  if(ev.length){need(40);T("Evaluaciones",M,y+12,10.5,true,G);y+=22;
+    ev.forEach(function(v){var nl=v.note?wrap(v.note,CW-14,10.5):[];need(24+nl.length*14);
+      T((v.when||"Otro")+(v.score?"  ·  "+v.score+"/5":""),M+10,y+10,10.5,true,DK);T(fdate(v.ts),PW-M,y+10,9.5,false,MU,"r");
+      var h0=y;y+=15;nl.forEach(function(l){T(l,M+10,y+10,10.5,false,"#33433c");y+=14});R(M,h0-2,2,y-h0+2,"#9fcab9");y+=8})}
+  pages.forEach(function(pg,i){ops=pg;L(M,PH-44,PW-M,PH-44,"#d5e0da",0.5);T("Calculadora de fórmulas",M,PH-30,9,false,"#7a8a83");T((i+1)+" de "+pages.length,PW-M,PH-30,9,false,"#7a8a83","r")});
+  var o=[null,"<< /Type /Catalog /Pages 2 0 R >>",null,"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>","<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>"],kids=[];
+  pages.forEach(function(pg,i){var st=pg.join("\n"),cn=5+i*2;o[cn]="<< /Length "+st.length+" >>\nstream\n"+st+"\nendstream";
+    o[cn+1]="<< /Type /Page /Parent 2 0 R /MediaBox [0 0 "+PW+" "+PH+"] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents "+cn+" 0 R >>";kids.push((cn+1)+" 0 R")});
+  o[2]="<< /Type /Pages /Kids ["+kids.join(" ")+"] /Count "+pages.length+" >>";
+  var out="%PDF-1.4\n",off=[];for(var k=1;k<o.length;k++){off[k]=out.length;out+=k+" 0 obj\n"+o[k]+"\nendobj\n"}
+  var xr=out.length;out+="xref\n0 "+o.length+"\n0000000000 65535 f \n";for(k=1;k<o.length;k++)out+=("0000000000"+off[k]).slice(-10)+" 00000 n \n";
+  out+="trailer\n<< /Size "+o.length+" /Root 1 0 R >>\nstartxref\n"+xr+"\n%%EOF";
+  var u=new Uint8Array(out.length);for(k=0;k<out.length;k++)u[k]=out.charCodeAt(k)&255;return u;
+}
+function exportPDF(x){
+  var bytes;try{bytes=buildPDF(x)}catch(err){$("fm").className="msg wn";$("fm").textContent="No se pudo crear el PDF: "+err.message;return}
+  var nm=(x.name||"formula").replace(/[^\w\-áéíóúñÁÉÍÓÚÑ ]/g,"").trim()||"formula";
+  var blob=new Blob([bytes],{type:"application/pdf"}),file;
+  try{file=new File([blob],nm+".pdf",{type:"application/pdf"})}catch(e){file=null}
+  if(file&&navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file],title:x.name}).catch(function(){})}
+  else{var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nm+".pdf";document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1500)}
+}
 resetState();redraw();
 initAuth();
 function flush(){if(!ready)return;saveLocal();if(dbRef&&syncReady){clearTimeout(pushT);push()}}
