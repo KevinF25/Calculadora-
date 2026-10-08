@@ -80,7 +80,10 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 #gate{position:fixed;inset:0;z-index:30;background:var(--bg);overflow:auto;display:flex;padding:calc(env(safe-area-inset-top,0px) + 24px) 16px calc(env(safe-area-inset-bottom,0px) + 24px)}
 #gate .gwrap{max-width:420px;width:100%;margin:auto}
 #gate .gdrop{width:52px;height:52px;color:var(--acc);margin-bottom:10px}
-#gate .bar button{flex:1}
+#gate .pw{position:relative}
+#gate .pw input{padding-right:86px}
+#gate .eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);min-height:34px;padding:4px 10px;font-size:13px;border:0;background:transparent;color:var(--acc);font-weight:600}
+#gate .lnk{width:100%;margin-top:8px;border:0;background:transparent;color:var(--acc);min-height:40px}
 </style>
 </head>
 <body>
@@ -88,14 +91,19 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 <div class="gwrap">
 <svg class="gdrop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c3.5 4.2 6 7.2 6 10.5a6 6 0 0 1-12 0C6 10.2 8.5 7.2 12 3z"/><path d="M9.5 14a2.5 2.5 0 0 0 2.5 2.5"/></svg>
 <h1>Calculadora de fórmulas</h1>
-<p class="sub">Entra para guardar tus fórmulas y usarlas en cualquier dispositivo.</p>
+<p class="sub" id="gsub">Entra para guardar tus fórmulas y usarlas en cualquier dispositivo.</p>
 <section class="card">
   <label for="ge">Correo</label>
   <input id="ge" type="email" autocomplete="email" inputmode="email">
   <label for="gp" style="margin-top:10px">Contraseña</label>
-  <input id="gp" type="password" autocomplete="current-password">
-  <div class="bar" style="margin-top:12px"><button class="p" id="gin" type="button">Entrar</button><button id="gup" type="button">Crear cuenta</button></div>
-  <p class="msg" id="gm"></p>
+  <div class="pw"><input id="gp" type="password" autocomplete="current-password"><button type="button" class="eye" id="geye">Mostrar</button></div>
+  <div id="gconf" hidden>
+    <label for="gp2" style="margin-top:10px">Confirmar contraseña</label>
+    <div class="pw"><input id="gp2" type="password" autocomplete="new-password"></div>
+  </div>
+  <button class="p" id="gin" type="button" style="width:100%;margin-top:14px">Entrar</button>
+  <p class="msg" id="gm" role="status"></p>
+  <button id="gsw" type="button" class="lnk">¿No tienes cuenta? Crear cuenta</button>
 </section>
 <button id="ggu" type="button" style="width:100%">Usar sin cuenta</button>
 <p class="sub" style="margin-top:10px;text-align:center">Sin cuenta, tus fórmulas se guardan solo en este dispositivo.</p>
@@ -561,19 +569,36 @@ function initAuth(){
   });
 }
 function creds(){return{email:$("ge").value.trim(),password:$("gp").value}}
-$("gin").onclick=function(){if(!sb){gmsg("El inicio de sesión no está disponible en esta vista.");return}var c=creds();if(!c.email||!c.password){gmsg("Escribe tu correo y contraseña.");return}
+var gmode="in";
+function setMode(m){gmode=m;var up=m==="up";$("gconf").hidden=!up;$("gin").textContent=up?"Crear cuenta":"Entrar";
+  $("gsw").textContent=up?"¿Ya tienes cuenta? Entrar":"¿No tienes cuenta? Crear cuenta";
+  $("gp").autocomplete=up?"new-password":"current-password";
+  $("gsub").textContent=up?"Crea tu cuenta para guardar tus fórmulas.":"Entra para guardar tus fórmulas y usarlas en cualquier dispositivo.";gmsg("")}
+$("gsw").onclick=function(){setMode(gmode==="in"?"up":"in")};
+$("geye").onclick=function(){var h=$("gp").type==="password";$("gp").type=h?"text":"password";$("gp2").type=h?"text":"password";$("geye").textContent=h?"Ocultar":"Mostrar"};
+$("gin").onclick=function(){
+  if(!sb){gmsg("El inicio de sesión no está disponible en esta vista.");return}
+  var c=creds();
+  if(!c.email||!c.password){gmsg("Escribe tu correo y contraseña.");return}
+  if(gmode==="up"){
+    if(c.password.length<6){gmsg("La contraseña debe tener al menos 6 caracteres.");return}
+    if(c.password!==$("gp2").value){gmsg("Las contraseñas no coinciden.");return}
+    gmsg("Creando cuenta…",true);
+    sb.auth.signUp(c).then(function(r){
+      if(r.error){gmsg("Error: "+r.error.message);return}
+      if(r.data&&r.data.session)return;
+      var u=r.data&&r.data.user;
+      $("gp").value="";$("gp2").value="";setMode("in");
+      if(u&&u.identities&&u.identities.length===0){gmsg("Ese correo ya tiene una cuenta. Entra con tu contraseña.");return}
+      gmsg("Cuenta creada ✓ Te enviamos un correo: ábrelo, confirma tu cuenta y luego entra aquí.",true)});
+    return}
   gmsg("Entrando…",true);
   sb.auth.signInWithPassword(c).then(function(r){if(r.error)gmsg(/invalid login/i.test(r.error.message)?"Correo o contraseña incorrectos.":/confirm/i.test(r.error.message)?"Confirma tu correo primero (revisa tu bandeja).":"Error: "+r.error.message)})};
-$("gup").onclick=function(){if(!sb){gmsg("El registro no está disponible en esta vista.");return}var c=creds();if(!c.email||!c.password){gmsg("Escribe tu correo y contraseña.");return}
-  if(c.password.length<6){gmsg("La contraseña debe tener al menos 6 caracteres.");return}
-  gmsg("Creando cuenta…",true);
-  sb.auth.signUp(c).then(function(r){if(r.error){gmsg("Error: "+r.error.message);return}
-    if(!r.data.session)gmsg("Cuenta creada. Revisa tu correo para confirmarla y después entra.",true)})};
 $("ggu").onclick=function(){try{localStorage.setItem(GK,"1")}catch(e){}showGate(false);startSync(null)};
 $("acc").onclick=function(){
   if(sbUser){if(confirm("¿Cerrar sesión de "+sbUser.email+"? Tus fórmulas siguen en tu cuenta."))sb.auth.signOut()}
   else showGate(true)};
-$("gate").addEventListener("keydown",function(e){if(e.key==="Enter"&&(e.target.id==="ge"||e.target.id==="gp"))$("gin").click()});
+$("gate").addEventListener("keydown",function(e){if(e.key==="Enter"&&(e.target.id==="ge"||e.target.id==="gp"||e.target.id==="gp2"))$("gin").click()});
 loadMats();fillList();renderMats();
 load();render();renderVers();renderLib();dil();
 initAuth();
