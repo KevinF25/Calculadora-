@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Calculadora de fórmulas</title>
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Fórmulas">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -93,10 +96,10 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 <h1>Calculadora de fórmulas</h1>
 <p class="sub" id="gsub">Entra para guardar tus fórmulas y usarlas en cualquier dispositivo.</p>
 <section class="card">
-  <label for="ge">Correo</label>
-  <input id="ge" type="email" autocomplete="email" inputmode="email">
-  <label for="gp" style="margin-top:10px">Contraseña</label>
-  <div class="pw"><input id="gp" type="password" autocomplete="current-password"><button type="button" class="eye" id="geye">Mostrar</button></div>
+  <div id="gem"><label for="ge">Correo</label>
+  <input id="ge" type="email" autocomplete="email" inputmode="email"></div>
+  <div id="gpwb"><label id="glp" for="gp" style="margin-top:10px">Contraseña</label>
+  <div class="pw"><input id="gp" type="password" autocomplete="current-password"><button type="button" class="eye" id="geye">Mostrar</button></div></div>
   <div id="gconf" hidden>
     <label for="gp2" style="margin-top:10px">Confirmar contraseña</label>
     <div class="pw"><input id="gp2" type="password" autocomplete="new-password"></div>
@@ -104,9 +107,10 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
   <button class="p" id="gin" type="button" style="width:100%;margin-top:14px">Entrar</button>
   <p class="msg" id="gm" role="status"></p>
   <button id="gsw" type="button" class="lnk">¿No tienes cuenta? Crear cuenta</button>
+  <button id="gfg" type="button" class="lnk" style="margin-top:0">¿Olvidaste tu contraseña?</button>
 </section>
 <button id="ggu" type="button" style="width:100%">Usar sin cuenta</button>
-<p class="sub" style="margin-top:10px;text-align:center">Sin cuenta, tus fórmulas se guardan solo en este dispositivo.</p>
+<p class="sub" id="gnote" style="margin-top:10px;text-align:center">Sin cuenta, tus fórmulas se guardan solo en este dispositivo.</p>
 </div>
 </div>
 <main>
@@ -229,7 +233,7 @@ var DEFF={"Ambroxan":"Ámbar","Ambrofix":"Ámbar","Ambrocenide":"Ámbar","Absolu
 var DEFP={"Bergamot Superior Oil FCF":"Salida","Hedione":"Corazón","Ambroxan":"Fondo","Ambrofix":"Fondo","Ambrocenide":"Fondo","Absolute Ambergris":"Fondo","Cashmeran":"Corazón","Iso E Super":"Fondo","Javanol":"Corazón","Habanolide":"Fondo","Helvetolide":"Corazón","Galaxolide":"Corazón","Musk R1":"Fondo","Vetiveryl Acetate":"Fondo","Bacdanol":"Fondo","Ambrettolide":"Corazón"};
 function migrate(){reg.forEach(function(m){if(m.fam===undefined)m.fam=DEFF[m.n]||"";if(m.pos===undefined)m.pos=DEFP[m.n]||""})}
 var openM=-1,mq="";
-function saveMats(){try{localStorage.setItem(MK,JSON.stringify(reg))}catch(e){}touch()}
+function saveMats(){if(!ready)return;try{localStorage.setItem(MK,JSON.stringify(reg))}catch(e){}touch()}
 function loadMats(){var ok=false;try{var m=JSON.parse(localStorage.getItem(MK)||"null");if(m&&m.length){reg=m;ok=true}}catch(e){}
   if(!ok){reg=MATS.slice().sort().map(function(n){return{n:n,d:[100,10,1],note:""}})}
   migrate()}
@@ -274,7 +278,7 @@ function prep(){
 }
 $("pp").oninput=prep;$("pt").oninput=prep;
 function snap(){return {rows:rows,vers:vers,lib:lib,tot:$("tot").value,mode:$("md").value,mn:$("mn").value,nt:$("nt").value,dm:$("dm").value,ds:$("ds").value}}
-function store(){try{localStorage.setItem(KEY,JSON.stringify(snap()))}catch(e){}touch()}
+function store(){if(!ready)return;try{localStorage.setItem(KEY,JSON.stringify(snap()))}catch(e){}touch()}
 function load(){try{var s=JSON.parse(localStorage.getItem(KEY)||"null");if(s){rows=s.rows&&s.rows.length?s.rows:rows;vers=s.vers||[];lib=s.lib||[];if(s.tot)$("tot").value=s.tot;if(s.mode)$("md").value=s.mode;if(s.mn)$("mn").value=s.mn;if(s.nt)$("nt").value=s.nt;if(s.dm)$("dm").value=s.dm;if(s.ds)$("ds").value=s.ds}}catch(e){}}
 function f(n,d){return (isFinite(n)?n:0).toFixed(d)}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
@@ -502,18 +506,33 @@ $("wzb").addEventListener("click",function(e){
 });
 document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible"&&wz&&!$("wz").hidden)wzLockOn()});
 
-var booting=true,LTS="perfcalc-ts-v1",dbRef=null,syncReady=false,pushT=null,pushing=false,pendingPush=false,curTs=0;
-try{curTs=+localStorage.getItem(LTS)||0}catch(e){}
+var booting=false,dbRef=null,syncReady=false,ready=false,pushT=null,pushing=false,pendingPush=false,curTs=0,gen=0,outBusy=false;
+var BK="perfcalc-v1",BM="perfcalc-mats-v1",BT="perfcalc-ts-v1",LTS=BT;
+var INIT=[].slice.call(document.querySelectorAll("input,select,textarea")).filter(function(e){return!$("gate").contains(e)}).map(function(e){return[e,e.value,e.checked]});
+function setNS(id){var x=id?":"+id:"";KEY=BK+x;MK=BM+x;LTS=BT+x}
+function defReg(){return MATS.slice().sort().map(function(n){return{n:n,d:[100,10,1],note:""}})}
+function resetState(){rows=[{n:"",d:100,p:""}];vers=[];lib=[];reg=defReg();migrate();openM=-1;mq="";curTs=0;
+  INIT.forEach(function(a){a[0].value=a[1];a[0].checked=a[2]});
+  if(wz){wz=null;wzClose()}}
+function redraw(){fillList();renderMats();render();renderVers();renderLib();dil()}
+function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(snap()));localStorage.setItem(MK,JSON.stringify(reg));localStorage.setItem(LTS,String(curTs))}catch(e){}}
+/* Vacía todo y cancela lo pendiente: nada de lo que estaba en marcha puede escribir después */
+function lockUI(){gen++;clearTimeout(pushT);pushing=false;pendingPush=false;dbRef=null;syncReady=false;ready=false;resetState();redraw()}
+function useSpace(id){lockUI();setNS(id);booting=true;
+  try{curTs=+localStorage.getItem(LTS)||0}catch(e){}
+  load();loadMats();redraw();booting=false;ready=true}
 function setSync(t,ok){var e=$("sync");if(!e)return;e.textContent=t;e.className="msg"+(ok?" ok":"")}
-function touch(){if(booting)return;curTs=Date.now();try{localStorage.setItem(LTS,String(curTs))}catch(e){}schedulePush()}
-function schedulePush(){if(!dbRef||!syncReady)return;clearTimeout(pushT);pushT=setTimeout(push,800)}
+function touch(){if(booting||!ready)return;curTs=Date.now();try{localStorage.setItem(LTS,String(curTs))}catch(e){}schedulePush()}
+function schedulePush(){if(!dbRef||!syncReady||!ready)return;clearTimeout(pushT);pushT=setTimeout(push,800)}
 function push(){
-  if(!dbRef)return;if(pushing){pendingPush=true;return}pushing=true;
+  if(!dbRef||!syncReady||!ready)return;if(pushing){pendingPush=true;return}
+  var my=gen,ref=dbRef;pushing=true;
   var d=snap();d.reg=reg;d.ts=curTs;d=JSON.parse(JSON.stringify(d));
-  dbRef.set(d).then(function(){setSync("Respaldo activo ✓ (guardado "+new Date().toLocaleTimeString("es",{hour:"2-digit",minute:"2-digit"})+")",true)},function(e){setSync("Respaldo con error al guardar: "+((e&&e.code)||"desconocido"))}).then(function(){pushing=false;if(pendingPush){pendingPush=false;push()}});
+  ref.set(d).then(function(){if(my===gen)setSync("Respaldo activo ✓ (guardado "+new Date().toLocaleTimeString("es",{hour:"2-digit",minute:"2-digit"})+")",true)},function(e){if(my===gen)setSync("Respaldo con error al guardar: "+((e&&(e.code||e.message))||"desconocido"))}).then(function(){
+    if(my!==gen)return;pushing=false;if(pendingPush){pendingPush=false;push()}});
 }
 function applyRemote(d){
-  d=JSON.parse(JSON.stringify(d));
+  d=JSON.parse(JSON.stringify(d));resetState();
   if(d.rows&&d.rows.length)rows=d.rows;
   vers=d.vers||[];
   if(d.reg&&d.reg.length)reg=d.reg;
@@ -521,12 +540,10 @@ function applyRemote(d){
   if(d.tot)$("tot").value=d.tot;
   if(d.mode)$("md").value=d.mode;
   if(d.mn)$("mn").value=d.mn;if(d.nt!=null)$("nt").value=d.nt;if(d.dm!=null)$("dm").value=d.dm;if(d.ds!=null)$("ds").value=d.ds;
-  curTs=d.ts||Date.now();
-  try{localStorage.setItem(KEY,JSON.stringify(snap()));localStorage.setItem(MK,JSON.stringify(reg));localStorage.setItem(LTS,String(curTs))}catch(e){}
-  fillList();renderMats();render();renderVers();renderLib();dil();
+  curTs=d.ts||Date.now();saveLocal();redraw();
 }
 var SB_URL="https://vnqiyzbvfzrjfpvfhsvr.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZucWl5emJ2ZnpyamZwdmZoc3ZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0MTAwMjAsImV4cCI6MjEwNjk4NjAyMH0.4ZP9AJVIAaSXE6n_9bTMYD7rQpVliecU2roq3xNDo54";
-var GK="perfcalc-guest",sb=null,sbUser=null;
+var GK="perfcalc-guest",sb=null,sbUser=null,gmode="in";
 function sbOk(){return SB_URL.indexOf("http")===0&&SB_KEY.indexOf("PEGA")!==0&&!!window.supabase}
 function gmsg(t,ok){var e=$("gm");e.textContent=t;e.className="msg"+(ok?" ok":"")}
 function showGate(v){$("gate").hidden=!v;document.body.style.overflow=v?"hidden":""}
@@ -534,25 +551,50 @@ function mkRef(uid){return{
   get:function(){return sb.from("calc_data").select("data").eq("user_id",uid).maybeSingle().then(function(r){if(r.error)throw r.error;return{exists:!!r.data,data:function(){return r.data.data}}})},
   set:function(d){return sb.from("calc_data").upsert({user_id:uid,data:d,updated_at:new Date().toISOString()}).then(function(r){if(r.error)throw r.error})}
 }}
+/* u = usuario con sesión, o null = modo sin cuenta. Siempre empieza desde cero con el espacio de ESA cuenta. */
 function startSync(u){
   try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
-  clearTimeout(pushT);
+  useSpace(u?u.id:null);
   $("acc").textContent=u?"Cerrar sesión":"Iniciar sesión / crear cuenta";
-  if(!u){dbRef=null;syncReady=false;booting=false;setSync(sbOk()?"Modo sin cuenta: tus fórmulas se guardan solo en este dispositivo.":"Falta poner la URL y la clave de Supabase en el código.");return}
-  booting=true;syncReady=false;dbRef=mkRef(u.id);
-  dbRef.get().then(function(sn){
+  if(!u){setSync(sbOk()?"Modo sin cuenta: tus fórmulas se guardan solo en este dispositivo.":"Falta poner la URL y la clave de Supabase en el código.");return}
+  var my=gen,ref=mkRef(u.id);dbRef=ref;setSync("Sincronizando…");
+  ref.get().then(function(sn){
+    if(my!==gen)return;
     var d=sn.exists?JSON.parse(JSON.stringify(sn.data())):null;
     if(d&&((d.ts||0)>curTs||!curTs))applyRemote(d);
-    booting=false;syncReady=true;setSync(d?"Respaldo activo ✓ (datos recuperados)":"Respaldo activo ✓",true);
+    syncReady=true;setSync(d?"Respaldo activo ✓ (datos recuperados)":"Respaldo activo ✓",true);
     var hasLocal=false;try{hasLocal=!!localStorage.getItem(KEY)}catch(e){}
     if(!d&&hasLocal){if(!curTs)curTs=Date.now();push()}
     else if(d&&(d.ts||0)<curTs)push();
-  }).catch(function(e){booting=false;setSync("Sin respaldo: error "+((e&&(e.code||e.message))||"desconocido"))});
+  }).catch(function(e){if(my!==gen)return;setSync("Sin respaldo: error "+((e&&(e.code||e.message))||"desconocido"))});
+}
+function clearGate(){["ge","gp","gp2"].forEach(function(i){$(i).value="";$(i).type=i==="ge"?"email":"password"});$("geye").textContent="Mostrar";gmsg("")}
+function setMode(m){gmode=m;
+  $("gem").hidden=m==="new";$("gpwb").hidden=m==="forgot";$("gconf").hidden=!(m==="up"||m==="new");
+  $("glp").textContent=m==="new"?"Nueva contraseña":"Contraseña";
+  $("gin").textContent={"in":"Entrar","up":"Crear cuenta","forgot":"Enviar enlace","new":"Guardar contraseña"}[m];
+  $("gsw").textContent=m==="in"?"¿No tienes cuenta? Crear cuenta":m==="up"?"¿Ya tienes cuenta? Entrar":"Volver a entrar";
+  $("gsw").hidden=m==="new";$("gfg").hidden=m!=="in";$("ggu").hidden=m==="new";$("gnote").hidden=m==="new";
+  $("gp").autocomplete=m==="in"?"current-password":"new-password";
+  $("gsub").textContent={"in":"Entra para guardar tus fórmulas y usarlas en cualquier dispositivo.","up":"Crea tu cuenta para guardar tus fórmulas.","forgot":"Escribe tu correo y te enviamos un enlace para crear una contraseña nueva.","new":"Escribe tu nueva contraseña."}[m];
+  gmsg("")}
+function showLogin(){clearGate();setMode("in");showGate(true);$("acc").textContent="Iniciar sesión / crear cuenta";setSync("Sin sesión iniciada.")}
+function wipeSession(){try{Object.keys(localStorage).forEach(function(k){if(/^sb-.*-auth-token/.test(k))localStorage.removeItem(k)})}catch(e){}}
+function logout(){
+  if(outBusy||!sbUser)return;outBusy=true;
+  var ref=dbRef,payload=null;
+  if(ready){saveLocal();if(ref&&syncReady){var d=snap();d.reg=reg;d.ts=curTs;payload=JSON.parse(JSON.stringify(d))}}
+  sbUser=null;lockUI();try{localStorage.removeItem(GK)}catch(e){}showLogin();
+  var last=payload?ref.set(payload).catch(function(){}):Promise.resolve();
+  Promise.race([last,new Promise(function(r){setTimeout(r,2500)})]).then(function(){
+    if(sbUser)return;
+    return sb.auth.signOut().then(function(r){if(r&&r.error){wipeSession();location.reload()}},function(){wipeSession();location.reload()})
+  }).then(function(){outBusy=false},function(){outBusy=false});
 }
 function initAuth(){
   if(!sbOk()){var g0=false;try{g0=localStorage.getItem(GK)==="1"}catch(e){}
     startSync(null);
-    if(g0){showGate(false)}else{showGate(true);gmsg("Vista previa: el inicio de sesión solo funciona en la página publicada. Puedes usar la calculadora sin cuenta.")}
+    if(!g0){showGate(true);gmsg("Vista previa: el inicio de sesión solo funciona en la página publicada. Puedes usar la calculadora sin cuenta.")}
     return}
   $("acc").hidden=false;
   sb=supabase.createClient(SB_URL,SB_KEY);
@@ -561,24 +603,38 @@ function initAuth(){
       if(ev==="INITIAL_SESSION"){
         if(ses){sbUser=ses.user;showGate(false);startSync(sbUser);return}
         var g=false;try{g=localStorage.getItem(GK)==="1"}catch(e){}
-        if(g){showGate(false);startSync(null)}else{showGate(true);startSync(null)}
+        if(g){showGate(false);startSync(null)}else{lockUI();showLogin()}
         return}
-      if(ev==="SIGNED_IN"&&ses&&(!sbUser||sbUser.id!==ses.user.id)){sbUser=ses.user;showGate(false);gmsg("");startSync(sbUser);return}
-      if(ev==="SIGNED_OUT"){sbUser=null;startSync(null)}
+      if(ev==="PASSWORD_RECOVERY"){showGate(true);setMode("new");return}
+      if(ev==="SIGNED_IN"&&ses&&(!sbUser||sbUser.id!==ses.user.id)){
+        if(ready)saveLocal();sbUser=ses.user;clearGate();showGate(false);startSync(sbUser);return}
+      if(ev==="SIGNED_OUT"&&sbUser){if(ready)saveLocal();sbUser=null;lockUI();showLogin()}
     },0);
   });
 }
 function creds(){return{email:$("ge").value.trim(),password:$("gp").value}}
-var gmode="in";
-function setMode(m){gmode=m;var up=m==="up";$("gconf").hidden=!up;$("gin").textContent=up?"Crear cuenta":"Entrar";
-  $("gsw").textContent=up?"¿Ya tienes cuenta? Entrar":"¿No tienes cuenta? Crear cuenta";
-  $("gp").autocomplete=up?"new-password":"current-password";
-  $("gsub").textContent=up?"Crea tu cuenta para guardar tus fórmulas.":"Entra para guardar tus fórmulas y usarlas en cualquier dispositivo.";gmsg("")}
 $("gsw").onclick=function(){setMode(gmode==="in"?"up":"in")};
+$("gfg").onclick=function(){setMode("forgot")};
 $("geye").onclick=function(){var h=$("gp").type==="password";$("gp").type=h?"text":"password";$("gp2").type=h?"text":"password";$("geye").textContent=h?"Ocultar":"Mostrar"};
 $("gin").onclick=function(){
   if(!sb){gmsg("El inicio de sesión no está disponible en esta vista.");return}
   var c=creds();
+  if(gmode==="forgot"){
+    if(!c.email){gmsg("Escribe tu correo.");return}
+    gmsg("Enviando…",true);
+    sb.auth.resetPasswordForEmail(c.email,{redirectTo:location.origin+location.pathname}).then(function(r){
+      if(r.error){gmsg("No se pudo enviar: "+r.error.message);return}
+      gmsg("Si ese correo tiene una cuenta, te enviamos un enlace. Revisa tu bandeja (y el spam).",true)});
+    return}
+  if(gmode==="new"){
+    if(c.password.length<6){gmsg("La contraseña debe tener al menos 6 caracteres.");return}
+    if(c.password!==$("gp2").value){gmsg("Las contraseñas no coinciden.");return}
+    gmsg("Guardando…",true);
+    sb.auth.updateUser({password:c.password}).then(function(r){
+      if(r.error){gmsg("Error: "+r.error.message);return}
+      try{history.replaceState(null,"",location.pathname)}catch(e){}
+      clearGate();setMode("in");showGate(false)});
+    return}
   if(!c.email||!c.password){gmsg("Escribe tu correo y contraseña.");return}
   if(gmode==="up"){
     if(c.password.length<6){gmsg("La contraseña debe tener al menos 6 caracteres.");return}
@@ -596,14 +652,12 @@ $("gin").onclick=function(){
   sb.auth.signInWithPassword(c).then(function(r){if(r.error)gmsg(/invalid login/i.test(r.error.message)?"Correo o contraseña incorrectos.":/confirm/i.test(r.error.message)?"Confirma tu correo primero (revisa tu bandeja).":"Error: "+r.error.message)})};
 $("ggu").onclick=function(){try{localStorage.setItem(GK,"1")}catch(e){}showGate(false);startSync(null)};
 $("acc").onclick=function(){
-  if(sbUser){if(confirm("¿Cerrar sesión de "+sbUser.email+"? Tus fórmulas siguen en tu cuenta."))sb.auth.signOut()}
-  else showGate(true)};
+  if(sbUser){if(confirm("¿Cerrar sesión de "+sbUser.email+"? Tus fórmulas siguen en tu cuenta."))logout()}
+  else{setMode("in");showGate(true)}};
 $("gate").addEventListener("keydown",function(e){if(e.key==="Enter"&&(e.target.id==="ge"||e.target.id==="gp"||e.target.id==="gp2"))$("gin").click()});
-loadMats();fillList();renderMats();
-load();render();renderVers();renderLib();dil();
+resetState();redraw();
 initAuth();
-function flush(){try{localStorage.setItem(KEY,JSON.stringify(snap()));localStorage.setItem(MK,JSON.stringify(reg))}catch(e){}
-  if(dbRef&&syncReady){clearTimeout(pushT);push()}}
+function flush(){if(!ready)return;saveLocal();if(dbRef&&syncReady){clearTimeout(pushT);push()}}
 document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")flush()});
 window.addEventListener("pagehide",flush);
 </script>
