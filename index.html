@@ -775,6 +775,14 @@ $("fl").addEventListener("change",function(e){var t=e.target,id,x;if(!t.getAttri
     if(!n||lib.some(function(v){return v!==x&&v.name.toLowerCase()===n.toLowerCase()})){t.value=x.name;var m=$("fd-m");if(m){m.className="msg wn";m.textContent="El nombre no puede estar vacío ni repetirse."}return}
     if(n!==x.name){x.name=n;saveLib();renderLib()}return}
   if((id=t.getAttribute("data-ffc"))!==null){x=findF(id);if(!x)return;var c=t.value.trim();if(c!==(x.cat||"")){x.cat=c;saveLib();renderLib()}}});
+
+/* ===== Los botones "¿Seguro?" / "¿Borrar?" se desarman solos ===== */
+var armT=null;
+function disarmAll(){var had=armD||armU||armE;armD=armU=armE=null;clearTimeout(armT);
+  if(had){var a=document.activeElement,tg=a&&a.tagName;if(!(tg==="INPUT"||tg==="TEXTAREA"||tg==="SELECT"))renderLib()}}
+$("fl").addEventListener("click",function(e){var t=e.target,isArm=t.getAttribute&&(t.hasAttribute("data-fdel")||t.hasAttribute("data-fup")||t.hasAttribute("data-evdel"));
+  if(!isArm&&(armD||armU||armE)){armD=armU=armE=null;clearTimeout(armT);setTimeout(function(){var a=document.activeElement,tg=a&&a.tagName;if(!(tg==="INPUT"||tg==="TEXTAREA"||tg==="SELECT"))renderLib()},0);return}
+  setTimeout(function(){clearTimeout(armT);if(armD||armU||armE)armT=setTimeout(disarmAll,4000)},0)},true);
 resetState();redraw();
 initAuth();
 function flush(){if(!ready)return;saveLocal();if(dbRef&&syncReady){clearTimeout(pushT);push()}}
