@@ -412,7 +412,7 @@ function clone(o){return JSON.parse(JSON.stringify(o))}
 function findF(id){for(var i=0;i<lib.length;i++)if(lib[i].id===id)return lib[i];return null}
 function fPanel(x){
   var lines=(x.rows||[]).filter(function(r){return r.n||parseFloat(r.p)}).map(function(r){return '<div>'+esc(r.n||"(sin nombre)")+' <small style="color:var(--mute)">'+esc(r.d)+'% · '+esc(r.p||0)+' partes</small></div>'}).join("");
-  return '<div class="mpan"><small style="color:var(--mute)">'+f(x.tot,2)+' g en total · '+(x.mode==="pesar"?"partes de lo que se pesa":"partes de material puro")+'</small><div style="margin:6px 0 10px">'+lines+'</div>'+(x.note?'<p style="margin:0 0 10px;white-space:pre-wrap">'+esc(x.note)+'</p>':'')+
+  return '<div class="mpan"><label for="fd-n">Nombre</label><input id="fd-n" data-ffn="'+x.id+'" value="'+esc(x.name)+'"><label for="fd-c">Categoría</label><input id="fd-c" list="fcats" data-ffc="'+x.id+'" value="'+esc(x.cat||"")+'" placeholder="Ej. Skin scent"><p class="msg" id="fd-m"></p><small style="color:var(--mute)">'+f(x.tot,2)+' g en total · '+(x.mode==="pesar"?"partes de lo que se pesa":"partes de material puro")+'</small><div style="margin:6px 0 10px">'+lines+'</div>'+(x.note?'<p style="margin:0 0 10px;white-space:pre-wrap">'+esc(x.note)+'</p>':'')+
   '<div class="bar"><button type="button" class="p" data-fopen="'+x.id+'">Abrir en la calculadora</button>'+
   '<button type="button" data-fup="'+x.id+'">'+(armU===x.id?"¿Seguro? Toca otra vez":"Actualizar con la actual")+'</button>'+
   '<button type="button" data-fdel="'+x.id+'" style="color:var(--bad)">'+(armD===x.id?"¿Seguro? Toca otra vez":"Borrar")+'</button></div>'+
@@ -516,7 +516,7 @@ var BK="perfcalc-v1",BM="perfcalc-mats-v1",BT="perfcalc-ts-v1",LTS=BT;
 var INIT=[].slice.call(document.querySelectorAll("input,select,textarea")).filter(function(e){return!$("gate").contains(e)}).map(function(e){return[e,e.value,e.checked]});
 function setNS(id){var x=id?":"+id:"";KEY=BK+x;MK=BM+x;LTS=BT+x}
 function defReg(){return MATS.slice().sort().map(function(n){return{n:n,d:[100,10,1],note:""}})}
-function resetState(){rows=[{n:"",d:100,p:""}];vers=[];lib=[];reg=defReg();migrate();openM=-1;mq="";lq="";openF=null;armD=armU=null;evOpen=null;curTs=0;
+function resetState(){rows=[{n:"",d:100,p:""}];vers=[];lib=[];reg=defReg();migrate();openM=-1;mq="";lq="";openF=null;armD=armU=null;evOpen=null;armE=null;curTs=0;
   INIT.forEach(function(a){a[0].value=a[1];a[0].checked=a[2]});
   if(wz){wz=null;wzClose()}}
 function redraw(){fillList();renderMats();render();renderVers();renderLib();dil()}
@@ -662,11 +662,11 @@ $("acc").onclick=function(){
 $("gate").addEventListener("keydown",function(e){if(e.key==="Enter"&&(e.target.id==="ge"||e.target.id==="gp"||e.target.id==="gp2"))$("gin").click()});
 
 /* ===== Duplicar, evaluar y exportar PDF ===== */
-var evOpen=null;
+var evOpen=null,armE=null;
 function evBlock(x){
   var ev=(x.evals||[]).slice().sort(function(a,b){return b.ts-a.ts});
   var h='<div style="margin-top:12px"><b>Evaluaciones</b>';
-  h+=ev.length?ev.map(function(v){return '<div style="margin:8px 0;padding-left:8px;border-left:2px solid #9fcab9"><div><b>'+esc(v.when||"Otro")+'</b>'+(v.score?' · <span style="color:#1d6b58">'+"★".repeat(v.score)+"☆".repeat(5-v.score)+'</span>':'')+' <small style="color:var(--mute)">'+fdate(v.ts)+'</small> <button type="button" data-evdel="'+x.id+'|'+v.id+'" aria-label="Borrar evaluación" style="min-height:0;padding:0 8px;color:var(--bad)">&#10005;</button></div>'+(v.note?'<div style="white-space:pre-wrap">'+esc(v.note)+'</div>':'')+'</div>'}).join(""):'<p class="msg">Todavía no la has evaluado.</p>';
+  h+=ev.length?ev.map(function(v){return '<div style="margin:8px 0;padding-left:8px;border-left:2px solid #9fcab9"><div><b>'+esc(v.when||"Otro")+'</b>'+(v.score?' · <span style="color:#1d6b58">'+"★".repeat(v.score)+"☆".repeat(5-v.score)+'</span>':'')+' <small style="color:var(--mute)">'+fdate(v.ts)+'</small> <button type="button" data-evdel="'+x.id+'|'+v.id+'" aria-label="Borrar evaluación" style="min-height:40px;min-width:44px;padding:0 12px;color:var(--bad)">'+(armE===x.id+'|'+v.id?'¿Borrar?':'&#10005;')+'</button></div>'+(v.note?'<div style="white-space:pre-wrap">'+esc(v.note)+'</div>':'')+'</div>'}).join(""):'<p class="msg">Todavía no la has evaluado.</p>';
   if(evOpen===x.id){
     h+='<div style="margin-top:10px"><label for="ev-w">Cuándo la probaste</label><select id="ev-w"><option>A la hora</option><option selected>Al día</option><option>A la semana</option><option>Otro</option></select>'+
     '<label>Cómo huele</label><div class="evs" id="ev-s" data-score="0">'+[1,2,3,4,5].map(function(n){return '<button type="button" data-evs="'+n+'" aria-label="'+n+' de 5">★</button>'}).join("")+'</div>'+
@@ -685,7 +685,7 @@ function fExtra(e){
     (x.evals=x.evals||[]).push({id:"e"+Date.now().toString(36)+Math.random().toString(36).slice(2,4),ts:Date.now(),when:$("ev-w").value,score:sc,note:nt});
     evOpen=null;saveLib();renderLib();return true}
   if((a=t.getAttribute("data-evdel"))!==null){var q=a.split("|"),y=findF(q[0]);
-    if(y&&confirm("¿Borrar esta evaluación?")){y.evals=(y.evals||[]).filter(function(v){return v.id!==q[1]});saveLib();renderLib()}return true}
+    if(!y)return true;if(armE!==a){armE=a;renderLib();return true}armE=null;y.evals=(y.evals||[]).filter(function(v){return v.id!==q[1]});saveLib();renderLib();return true}
   if((a=t.getAttribute("data-fdup"))!==null){var s0=findF(a);if(!s0)return true;
     var nm=s0.name+" (copia)",k=2;while(lib.some(function(v){return v.name.toLowerCase()===nm.toLowerCase()}))nm=s0.name+" (copia "+(k++)+")";
     var id="f"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
@@ -768,6 +768,13 @@ function exportPDF(x){
   if(file&&navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file],title:x.name}).catch(function(){})}
   else{var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nm+".pdf";document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1500)}
 }
+
+/* ===== Cambiar nombre y categoría de una fórmula guardada (no toca su fecha) ===== */
+$("fl").addEventListener("change",function(e){var t=e.target,id,x;if(!t.getAttribute)return;
+  if((id=t.getAttribute("data-ffn"))!==null){x=findF(id);if(!x)return;var n=t.value.trim();
+    if(!n||lib.some(function(v){return v!==x&&v.name.toLowerCase()===n.toLowerCase()})){t.value=x.name;var m=$("fd-m");if(m){m.className="msg wn";m.textContent="El nombre no puede estar vacío ni repetirse."}return}
+    if(n!==x.name){x.name=n;saveLib();renderLib()}return}
+  if((id=t.getAttribute("data-ffc"))!==null){x=findF(id);if(!x)return;var c=t.value.trim();if(c!==(x.cat||"")){x.cat=c;saveLib();renderLib()}}});
 resetState();redraw();
 initAuth();
 function flush(){if(!ready)return;saveLocal();if(dbRef&&syncReady){clearTimeout(pushT);push()}}
