@@ -77,6 +77,11 @@ details.set[open] summary{margin-bottom:10px}
 .hdr .mb{border-color:transparent;background:transparent;color:var(--ink)}
 .hdr svg{width:24px;height:24px}
 .hdr .add{font-size:26px;line-height:1}
+.ebar{position:sticky;top:0;z-index:3;background:var(--bg);margin:calc(-18px - env(safe-area-inset-top,0px)) -14px 12px;padding:calc(env(safe-area-inset-top,0px) + 8px) 14px 8px;border-bottom:1px solid var(--line)}
+.ebar .et{text-align:center;min-width:0}
+.ebar .et b{display:block;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ebar .et small{display:block;color:var(--mute);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ebar .ok{color:var(--acc);font-size:20px;text-align:center}
 #menu{position:fixed;inset:0;z-index:25;background:rgba(0,0,0,.35)}
 #menu .sheet{position:absolute;top:0;left:0;bottom:0;width:min(300px,84vw);background:var(--card);border-right:1px solid var(--line);padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 24px;overflow:auto;display:flex;flex-direction:column;gap:10px}
 #menu .mh{display:flex;align-items:center;justify-content:space-between}
@@ -156,8 +161,7 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 </div>
 <main>
 <div id="tab-calc">
-<div id="ebar" class="card" hidden></div>
-<h1>Calculadora de fórmulas</h1>
+<div id="ebar" class="hdr ebar" hidden></div>
 <p class="sub" id="sb"></p>
 
 <section class="card">
@@ -858,9 +862,9 @@ function rescue(){if(!rows.some(function(r){return r.n||parseFloat(r.p)}))return
   lib.push({id:"f"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:n,cat:"Recuperadas",ts:Date.now(),tot:parseFloat($("tot").value)||0,mode:$("md").value,note:$("nt").value,rows:clone(rows)});saveLib()}
 function ebar(){var b=$("ebar"),x=editId&&findF(editId);
   if(!x){editId=null;b.hidden=true;b.innerHTML="";return}
-  b.hidden=false;b.innerHTML='<div class="bar" style="margin-bottom:8px"><button type="button" data-estop>‹ Volver</button></div><small style="color:var(--mute)">Editando'+(x.cat?' · '+esc(x.cat):'')+'</small><div><b>'+esc(x.name)+'</b></div><p class="msg ok" id="em">Los cambios se guardan solos ✓</p>'}
+  b.hidden=false;b.innerHTML='<button type="button" class="mb" data-estop aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="et"><b>'+esc(x.name)+'</b><small>'+(x.cat?esc(x.cat)+' · ':'')+'Se guarda solo</small></div><span class="ok" title="Guardado" aria-label="Guardado">✓</span>'}
 $("ebar").addEventListener("click",function(e){var t=e.target,x=editId&&findF(editId);if(!x||!t.hasAttribute)return;
-  if(t.hasAttribute("data-estop")){
+  if(t.closest&&t.closest("[data-estop]")){
     var id=x.id;editId=null;ebar();openF=id;renderLib();showTab("for");window.scrollTo(0,0);return}
 });
 $("fnew").onclick=function(){var f=$("fnewf");f.hidden=!f.hidden;if(!f.hidden)$("nn").focus()};
