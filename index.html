@@ -11,14 +11,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <style>
-:root{--bg:#f2f5f3;--card:#fff;--ink:#17302b;--mute:#5f726d;--line:#d5ded9;--acc:#1d6b58;--accbg:#e1efe9;--warn:#9a5b00;--warnbg:#fdf0d5;--bad:#b3261e;
+:root{--bg:#f2f5f3;--card:#fff;--ink:#17302b;--mute:#5f726d;--line:#d5ded9;--acc:#1d6b58;--accbg:#e1efe9;--acc2:#9fcab9;--warn:#9a5b00;--warnbg:#fdf0d5;--bad:#b3261e;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1917;--card:#17252a;--ink:#e3eeea;--mute:#8fa59f;--line:#2b3f3b;--acc:#5fc4a5;--accbg:#183a31;--warn:#f0b955;--warnbg:#3a2d12;--bad:#ff8a80}}
-:root[data-theme="dark"]{--bg:#0f1917;--card:#17252a;--ink:#e3eeea;--mute:#8fa59f;--line:#2b3f3b;--acc:#5fc4a5;--accbg:#183a31;--warn:#f0b955;--warnbg:#3a2d12;--bad:#ff8a80}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1917;--card:#17252a;--ink:#e3eeea;--mute:#8fa59f;--line:#2b3f3b;--acc:#5fc4a5;--accbg:#183a31;--acc2:#2f6b5a;--warn:#f0b955;--warnbg:#3a2d12;--bad:#ff8a80}}
+:root[data-theme="dark"]{--bg:#0f1917;--card:#17252a;--ink:#e3eeea;--mute:#8fa59f;--line:#2b3f3b;--acc:#5fc4a5;--accbg:#183a31;--acc2:#2f6b5a;--warn:#f0b955;--warnbg:#3a2d12;--bad:#ff8a80}
 *{box-sizing:border-box}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.45 "Instrument Sans",system-ui,sans-serif;font-variant-numeric:tabular-nums}
-main{max-width:640px;margin:0 auto;padding:18px 14px 110px}
+main{max-width:640px;margin:0 auto;padding:18px 14px 20px}
+body{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+body.hasbar{padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))}
 h1{font-size:24px;margin:0 0 2px;font-weight:700;letter-spacing:-.01em}
 h2{font-size:17px;margin:0 0 10px;font-weight:600}
 .sub{color:var(--mute);margin:0 0 16px;font-size:14px}
@@ -34,18 +36,41 @@ textarea{min-height:70px;resize:vertical}
 .row.warn{border-color:var(--warn);background:var(--warnbg)}
 .r1{display:flex;gap:8px;margin-bottom:8px}
 .r2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
-.res{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.res div{background:var(--bg);border-radius:8px;padding:6px 8px;font-size:12px;color:var(--mute)}
-.res b{display:block;font-size:16px;color:var(--ink)}
-.res .g b{color:var(--acc)}
+.r1 input{font-weight:600}
+.r3{display:grid;grid-template-columns:1fr 1fr 1.25fr;gap:8px;align-items:end}
+.r3 .g{background:var(--accbg);border-radius:8px;padding:4px 10px;min-height:42px;text-align:right}
+.r3 .g label{margin:0;font-size:12px}
+.r3 .g b{font-size:22px;line-height:1.1;color:var(--acc)}
+.r3 .g small{font-size:13px;color:var(--mute);margin-left:2px}
+.row.warn .r3 .g{background:var(--card)}
 .row.warn .g b{color:var(--warn)}
+.rx{font-size:13px;color:var(--mute);margin-top:6px;text-align:right}
+.rx b{color:var(--ink);font-weight:500}
 .tag{font-size:12px;color:var(--warn);margin-top:6px;display:none}
 .row.warn .tag{display:block}
 button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 12px;min-height:42px}
 button.p{background:var(--acc);color:var(--bg);border-color:var(--acc);font-weight:600}
-.x{width:42px;padding:0;color:var(--bad);flex:none}
+.x{width:42px;padding:0;color:var(--mute);flex:none;border-color:transparent;background:transparent}
+.x:hover,.x:active{color:var(--bad)}
 .bar{display:flex;gap:8px;flex-wrap:wrap}
 .msg{font-size:14px;margin:8px 0 0}
+.addrow{width:100%;border:1.5px dashed var(--acc2);background:transparent;color:var(--acc);font-weight:600;min-height:48px}
+.ghost{border-color:transparent;background:transparent;color:var(--mute);font-size:14px;padding:6px 10px}
+.ghost.bad{color:var(--bad)}
+.sumbar{position:fixed;left:0;right:0;bottom:calc(61px + env(safe-area-inset-bottom,0px));z-index:4;background:var(--card);border-top:1px solid var(--line);box-shadow:0 -4px 14px rgba(0,0,0,.06)}
+.sumbar .in{max-width:640px;margin:0 auto;padding:8px 14px;display:flex;gap:12px;align-items:center}
+.sumbar .st{flex:1;min-width:0;display:flex;gap:16px}
+.sumbar .st div{font-size:12px;color:var(--mute);line-height:1.2}
+.sumbar .st b{display:block;font-size:19px;color:var(--ink)}
+.sumbar .st div:first-child b{color:var(--acc)}
+.sumbar button{flex:none;min-height:48px;padding:0 16px}
+details.set summary{display:flex;align-items:center;gap:8px;list-style:none}
+details.set summary::-webkit-details-marker{display:none}
+details.set summary::after{content:"";width:8px;height:8px;border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);transform:rotate(45deg);margin:0 4px 4px auto;transition:transform .15s}
+details.set[open] summary::after{transform:rotate(-135deg);margin-bottom:0}
+details.set summary small{color:var(--mute);font-weight:400;font-size:13px}
+details.set[open] summary{margin-bottom:10px}
+.totin{font-size:22px;font-weight:600;min-height:52px}
 .ok{color:var(--acc)}.wn{color:var(--warn)}
 .ver{border-top:1px solid var(--line);padding:10px 0}
 .ver small{color:var(--mute)}
@@ -89,8 +114,9 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 #gate .lnk{width:100%;margin-top:8px;border:0;background:transparent;color:var(--acc);min-height:40px}
 .evs{display:flex;gap:6px;margin:4px 0 10px}
 .evs button{flex:1;min-height:44px;font-size:20px;color:var(--mute)}
-.evs button.on{color:#1d6b58;border-color:#1d6b58}
-[hidden]{display:none!important}
+.evs button.on{color:var(--acc);border-color:var(--acc)}
+.evl{margin:8px 0;padding-left:8px;border-left:2px solid var(--acc2)}
+.stars{color:var(--acc)}
 </style>
 </head>
 <body>
@@ -124,31 +150,35 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 <p class="sub" id="sb"></p>
 
 <section class="card">
-  <label for="md">Las partes son de</label>
-  <select id="md" style="margin-bottom:10px"><option value="puro">Material puro (mantiene la proporción olfativa)</option><option value="pesar">Lo que peso del frasco</option></select>
-  <div class="top">
-    <div><label for="tot">Peso total a hacer (g)</label><input id="tot" type="number" inputmode="decimal" step="any" min="0" value="10"></div>
-    <div><label for="mn">Límite de alerta (g)</label><input id="mn" type="number" inputmode="decimal" step="any" min="0" value="0.010"></div>
-  </div>
-  <div class="top" style="margin-top:10px">
-    <div class="sum">Total de partes<b id="sp">0</b></div>
-    <div class="sum">Suma de gramos<b id="sg">0.000</b></div>
-  </div>
+  <label for="tot">Peso total a hacer (g)</label>
+  <input id="tot" class="totin" type="number" inputmode="decimal" step="any" min="0" value="10">
   <p class="msg" id="m1"></p>
   <p class="msg" id="m2"></p>
 </section>
 
+<details class="card set">
+  <summary>Ajustes <small id="setsum"></small></summary>
+  <label for="md">Las partes son de</label>
+  <select id="md" style="margin-bottom:10px"><option value="puro">Material puro (mantiene la proporción olfativa)</option><option value="pesar">Lo que peso del frasco</option></select>
+  <label for="mn">Límite de alerta de la balanza (g)</label>
+  <input id="mn" type="number" inputmode="decimal" step="any" min="0" value="0.010">
+</details>
+
 <section>
   <h2>Materiales</h2>
   <div id="rows"></div>
-  <div class="bar">
-    <button class="p" id="add">Agregar material</button>
-    <button id="wzs">Empezar a pesar</button>
-    <button id="copy">Copiar fórmula</button>
-    <button id="clr">Vaciar tabla</button>
+  <button type="button" class="addrow" id="add">+ Agregar material</button>
+  <div class="bar" style="justify-content:flex-end;margin-top:6px">
+    <button type="button" class="ghost" id="copy">Copiar fórmula</button>
+    <button type="button" class="ghost bad" id="clr">Vaciar tabla</button>
   </div>
   <p class="msg" id="cm"></p>
 </section>
+
+<div class="sumbar"><div class="in">
+  <div class="st"><div>Suma<b><span id="sg">0.000</span> g</b></div><div>Partes<b id="sp">0</b></div></div>
+  <button type="button" class="p" id="wzs">Empezar a pesar</button>
+</div></div>
 
 <datalist id="mats"></datalist>
 
@@ -288,10 +318,11 @@ function render(){
   var h="";
   rows.forEach(function(r,i){
     h+='<div class="row" id="r'+i+'"><div class="r1"><input list="mats" placeholder="Material" aria-label="Material" value="'+esc(r.n)+'" data-i="'+i+'" data-k="n"><button class="x" data-del="'+i+'" aria-label="Quitar material">&#10005;</button></div><div class="mnote" data-o="mn">'+esc(noteFor(r.n))+'</div>'+
-    '<div class="r2"><div><label>Dilución del frasco</label><select data-i="'+i+'" data-k="d">'+
+    '<div class="r3"><div><label>Dilución</label><select data-i="'+i+'" data-k="d" aria-label="Dilución del frasco">'+
     selOpts(r)+'</select></div>'+
-    '<div><label>Partes</label><input type="number" inputmode="decimal" step="any" min="0" value="'+esc(r.p)+'" data-i="'+i+'" data-k="p"></div></div>'+
-    '<div class="res"><div>'+($("md").value==="puro"?"% del puro":"% de lo pesado")+'<b data-o="pc">0%</b></div><div class="g">Pesar (g)<b data-o="g">0.000</b></div><div>Material puro (g)<b data-o="pu">0.000</b></div></div>'+
+    '<div><label>Partes</label><input type="number" inputmode="decimal" step="any" min="0" value="'+esc(r.p)+'" data-i="'+i+'" data-k="p" aria-label="Partes"></div>'+
+    '<div class="g"><label>Pesar</label><b data-o="g">0.000</b><small>g</small></div></div>'+
+    '<div class="rx">'+($("md").value==="puro"?"% del puro":"% de lo pesado")+' <b data-o="pc">0%</b> · puro <b data-o="pu">0.000</b> g</div>'+
     '<div class="tag">Menos del límite de la balanza: sube el peso total.</div></div>';
   });
   $("rows").innerHTML=h;calc();
@@ -319,6 +350,7 @@ function calc(){
   });
   $("sp").textContent=f(S,2).replace(/\.?0+$/,"")||"0";
   $("sg").textContent=f(sg,3);
+  $("setsum").textContent=(mode==="puro"?"Material puro":"Lo que peso")+" · alerta "+f(L,3)+" g";
   var m1=$("m1");m1.className="msg";m1.textContent="";
   if(S===1000){m1.className="msg ok";m1.textContent="Las partes suman exactamente 1000."}
   var m2=$("m2");m2.className="msg";m2.textContent="";
@@ -358,7 +390,10 @@ $("rows").addEventListener("click",function(e){
   rows.splice(+d,1);if(!rows.length)rows.push({n:"",d:100,p:""});render();
 });
 $("add").onclick=function(){rows.push({n:"",d:100,p:""});render();var a=document.querySelectorAll("#rows .row");a[a.length-1].querySelector("input").focus()};
-$("clr").onclick=function(){rows=[{n:"",d:100,p:""}];render()};
+var armC=null;
+$("clr").onclick=function(){var b=this;
+  if(!armC){b.textContent="¿Seguro? Toca otra vez";armC=setTimeout(function(){armC=null;b.textContent="Vaciar tabla"},4000);return}
+  clearTimeout(armC);armC=null;b.textContent="Vaciar tabla";rows=[{n:"",d:100,p:""}];render()};
 $("md").onchange=render;$("tot").oninput=calc;$("mn").oninput=calc;$("dm").oninput=function(){dil();store()};$("ds").oninput=function(){dil();store()};$("nt").oninput=store;
 $("copy").onclick=function(){
   var t=text(),ok=function(){$("cm").className="msg ok";$("cm").textContent="Fórmula copiada."};
@@ -446,6 +481,7 @@ $("fl").addEventListener("click",function(e){
 function showTab(t){
   if(t==="calc"&&!editId)t="for";
   ["calc","mat","for"].forEach(function(k){$("tab-"+k).hidden=k!==t;$("nv-"+k).classList.toggle("on",k===t)});
+  document.body.classList.toggle("hasbar",t==="calc");
   if(t==="mat")renderMats();if(t==="for")renderLib();
   window.scrollTo(0,0);
 }
@@ -659,7 +695,7 @@ var evOpen=null,armE=null;
 function evBlock(x){
   var ev=(x.evals||[]).slice().sort(function(a,b){return b.ts-a.ts});
   var h='<div style="margin-top:12px"><b>Evaluaciones</b>';
-  h+=ev.length?ev.map(function(v){return '<div style="margin:8px 0;padding-left:8px;border-left:2px solid #9fcab9"><div><b>'+esc(v.when||"Otro")+'</b>'+(v.score?' · <span style="color:#1d6b58">'+"★".repeat(v.score)+"☆".repeat(5-v.score)+'</span>':'')+' <small style="color:var(--mute)">'+fdate(v.ts)+'</small> <button type="button" data-evdel="'+x.id+'|'+v.id+'" aria-label="Borrar evaluación" style="min-height:40px;min-width:44px;padding:0 12px;color:var(--bad)">'+(armE===x.id+'|'+v.id?'¿Borrar?':'&#10005;')+'</button></div>'+(v.note?'<div style="white-space:pre-wrap">'+esc(v.note)+'</div>':'')+'</div>'}).join(""):'<p class="msg">Todavía no la has evaluado.</p>';
+  h+=ev.length?ev.map(function(v){return '<div class="evl"><div><b>'+esc(v.when||"Otro")+'</b>'+(v.score?' · <span class="stars">'+"★".repeat(v.score)+"☆".repeat(5-v.score)+'</span>':'')+' <small style="color:var(--mute)">'+fdate(v.ts)+'</small> <button type="button" data-evdel="'+x.id+'|'+v.id+'" aria-label="Borrar evaluación" style="min-height:40px;min-width:44px;padding:0 12px;color:var(--bad)">'+(armE===x.id+'|'+v.id?'¿Borrar?':'&#10005;')+'</button></div>'+(v.note?'<div style="white-space:pre-wrap">'+esc(v.note)+'</div>':'')+'</div>'}).join(""):'<p class="msg">Todavía no la has evaluado.</p>';
   if(evOpen===x.id){
     h+='<div style="margin-top:10px"><label for="ev-w">Cuándo la probaste</label><select id="ev-w"><option>A la hora</option><option selected>Al día</option><option>A la semana</option><option>Otro</option></select>'+
     '<label>Cómo huele</label><div class="evs" id="ev-s" data-score="0">'+[1,2,3,4,5].map(function(n){return '<button type="button" data-evs="'+n+'" aria-label="'+n+' de 5">★</button>'}).join("")+'</div>'+
