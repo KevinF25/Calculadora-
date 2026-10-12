@@ -71,6 +71,17 @@ details.set[open] summary::after{transform:rotate(-135deg);margin-bottom:0}
 details.set summary small{color:var(--mute);font-weight:400;font-size:13px}
 details.set[open] summary{margin-bottom:10px}
 .totin{font-size:22px;font-weight:600;min-height:52px}
+.hdr{display:grid;grid-template-columns:48px 1fr 48px;align-items:center;gap:8px;margin:0 0 12px}
+.hdr h1{margin:0;text-align:center;font-size:20px}
+.hdr button{width:48px;min-height:48px;padding:0;display:flex;align-items:center;justify-content:center}
+.hdr .mb{border-color:transparent;background:transparent;color:var(--ink)}
+.hdr svg{width:24px;height:24px}
+.hdr .add{font-size:26px;line-height:1}
+#menu{position:fixed;inset:0;z-index:25;background:rgba(0,0,0,.35)}
+#menu .sheet{position:absolute;top:0;left:0;bottom:0;width:min(300px,84vw);background:var(--card);border-right:1px solid var(--line);padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 24px;overflow:auto;display:flex;flex-direction:column;gap:10px}
+#menu .mh{display:flex;align-items:center;justify-content:space-between}
+#menu .mh b{font-size:17px}
+#menu .sheet .msg{margin:0}
 .ok{color:var(--acc)}.wn{color:var(--warn)}
 .ver{border-top:1px solid var(--line);padding:10px 0}
 .ver small{color:var(--mute)}
@@ -212,7 +223,7 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 </div>
 
 <div id="tab-mat" hidden>
-<h1>Materiales</h1>
+<div class="hdr"><button type="button" class="mb" data-menu aria-label="Menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><h1>Materiales</h1><span></span></div>
 <p class="sub">Tu biblioteca por familia olfativa. Toca un material para editarlo.</p>
 <input id="mq" type="search" placeholder="Buscar material" aria-label="Buscar material" style="margin-bottom:10px">
 <div class="r1"><input id="mname" placeholder="Nombre del material nuevo" aria-label="Nombre del material"><button class="p" id="ma" style="flex:none">Agregar</button></div>
@@ -221,7 +232,7 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 </div>
 
 <div id="tab-for" hidden>
-<div style="display:flex;align-items:center;justify-content:space-between"><h1>Fórmulas</h1><button type="button" id="fnew" class="p" aria-label="Nueva fórmula" style="min-width:48px;min-height:48px;font-size:26px;line-height:1">+</button></div>
+<div class="hdr"><button type="button" class="mb" data-menu aria-label="Menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><h1>Fórmulas</h1><button type="button" id="fnew" class="p add" aria-label="Nueva fórmula">+</button></div>
 <datalist id="fcats"></datalist>
 <section class="card" id="fnewf" hidden>
   <label for="nn">Nombre</label><input id="nn" placeholder="Ej. Prueba 6">
@@ -229,7 +240,6 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
   <div class="bar" style="margin-top:10px"><button type="button" class="p" id="ncreate">Crear y abrir calculadora</button></div>
   <p class="msg" id="nm" aria-live="polite"></p>
 </section>
-<p class="sub">Toca + para crear una fórmula nueva.</p>
 <p class="msg" id="fm" aria-live="polite"></p>
 <input id="fq" type="search" placeholder="Buscar fórmula" aria-label="Buscar fórmula" style="margin-bottom:6px">
 <div id="fl"></div>
@@ -243,8 +253,11 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
   </div>
 </div>
 
-<p id="sync" class="msg" style="text-align:center;margin:12px 0 8px">Respaldo: comprobando…</p>
-<div class="bar" style="justify-content:center;margin-bottom:24px"><button id="acc" type="button" hidden>Cuenta</button></div>
+<div id="menu" hidden><div class="sheet" role="dialog" aria-label="Menú">
+  <div class="mh"><b>Calculadora de fórmulas</b><button type="button" id="menux" aria-label="Cerrar menú" style="width:44px;padding:0;border-color:transparent;background:transparent">&#10005;</button></div>
+  <p id="sync" class="msg">Respaldo: comprobando…</p>
+  <button id="acc" type="button" hidden>Cuenta</button>
+</div></div>
 <nav class="nav" aria-label="Secciones">
   <button type="button" id="nv-calc" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M8.5 7.5h7M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01"/></svg>Calculadora</button>
   <button type="button" id="nv-mat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19C5 10 10 5 20 5c0 10-5 14-13 14"/><path d="M5 19c3-5 6-8 10-10"/></svg>Materiales</button>
@@ -359,8 +372,11 @@ function calc(){
     if(warnN>0){m2.className="msg wn";m2.textContent="Peso total mínimo sugerido: "+f(need,1)+" g para que la línea más pequeña llegue a "+f(L,3)+" g."}
     else{m2.textContent="Con este total, todas las líneas pasan el límite. Mínimo posible: "+f(need,1)+" g."}
   }
-  store();
+  autoSave();store();
 }
+/* Mientras editas una fórmula guardada, cada cambio se guarda en ella */
+function autoSave(){var x=editId&&findF(editId);if(!x)return;
+  x.rows=clone(rows);x.tot=parseFloat($("tot").value)||0;x.mode=$("md").value;x.note=$("nt").value}
 
 function dil(){
   var m=parseFloat($("dm").value),s=parseFloat($("ds").value),o=$("dr");
@@ -394,7 +410,7 @@ var armC=null;
 $("clr").onclick=function(){var b=this;
   if(!armC){b.textContent="¿Seguro? Toca otra vez";armC=setTimeout(function(){armC=null;b.textContent="Vaciar tabla"},4000);return}
   clearTimeout(armC);armC=null;b.textContent="Vaciar tabla";rows=[{n:"",d:100,p:""}];render()};
-$("md").onchange=render;$("tot").oninput=calc;$("mn").oninput=calc;$("dm").oninput=function(){dil();store()};$("ds").oninput=function(){dil();store()};$("nt").oninput=store;
+$("md").onchange=render;$("tot").oninput=calc;$("mn").oninput=calc;$("dm").oninput=function(){dil();store()};$("ds").oninput=function(){dil();store()};$("nt").oninput=function(){autoSave();store()};
 $("copy").onclick=function(){
   var t=text(),ok=function(){$("cm").className="msg ok";$("cm").textContent="Fórmula copiada."};
   var fb=function(){var a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");ok()}catch(e){$("cm").textContent="No se pudo copiar."}document.body.removeChild(a)};
@@ -486,6 +502,8 @@ function showTab(t){
   window.scrollTo(0,0);
 }
 $("nv-calc").onclick=function(){showTab("calc")};
+document.addEventListener("click",function(e){var t=e.target.closest&&e.target.closest("[data-menu]");if(t)$("menu").hidden=false});
+$("menu").addEventListener("click",function(e){if(e.target===this||e.target.id==="menux"||e.target.id==="acc")this.hidden=true});
 $("nv-mat").onclick=function(){showTab("mat")};
 $("nv-for").onclick=function(){openF=null;evOpen=null;armD=armU=armE=null;renderLib();showTab("for")};
 
@@ -838,17 +856,13 @@ function rescue(){if(!rows.some(function(r){return r.n||parseFloat(r.p)}))return
   var base=(x?"Recuperada: "+x.name:"Fórmula recuperada")+" ("+fdate(Date.now())+")",n=base,k=2;
   while(lib.some(function(v){return v.name.toLowerCase()===n.toLowerCase()}))n=base+" "+(k++);
   lib.push({id:"f"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:n,cat:"Recuperadas",ts:Date.now(),tot:parseFloat($("tot").value)||0,mode:$("md").value,note:$("nt").value,rows:clone(rows)});saveLib()}
-var armV=false;
 function ebar(){var b=$("ebar"),x=editId&&findF(editId);
   if(!x){editId=null;b.hidden=true;b.innerHTML="";return}
-  b.hidden=false;b.innerHTML='<div class="bar" style="margin-bottom:8px"><button type="button" data-estop>‹ Volver</button></div><small style="color:var(--mute)">Editando'+(x.cat?' · '+esc(x.cat):'')+'</small><div><b>'+esc(x.name)+'</b></div><div class="bar" style="margin-top:8px"><button type="button" class="p" data-esave>Guardar cambios</button></div><p class="msg" id="em" aria-live="polite"></p>'}
+  b.hidden=false;b.innerHTML='<div class="bar" style="margin-bottom:8px"><button type="button" data-estop>‹ Volver</button></div><small style="color:var(--mute)">Editando'+(x.cat?' · '+esc(x.cat):'')+'</small><div><b>'+esc(x.name)+'</b></div><p class="msg ok" id="em">Los cambios se guardan solos ✓</p>'}
 $("ebar").addEventListener("click",function(e){var t=e.target,x=editId&&findF(editId);if(!x||!t.hasAttribute)return;
   if(t.hasAttribute("data-estop")){
-    if(dirty()&&!armV){armV=true;setTimeout(function(){armV=false},4000);$("em").className="msg wn";$("em").textContent="Hay cambios sin guardar. Toca Volver otra vez para descartarlos.";return}
-    armV=false;rows=clone(x.rows&&x.rows.length?x.rows:[{n:"",d:100,p:""}]);$("tot").value=x.tot;if(x.mode)$("md").value=x.mode;$("nt").value=x.note||"";render();
     var id=x.id;editId=null;ebar();openF=id;renderLib();showTab("for");window.scrollTo(0,0);return}
-  if(!t.hasAttribute("data-esave"))return;
-  x.rows=clone(rows);x.tot=parseFloat($("tot").value)||0;x.mode=$("md").value;x.note=$("nt").value;saveLib();renderLib();ebar();$("em").className="msg ok";$("em").textContent="Cambios guardados ✓"});
+});
 $("fnew").onclick=function(){var f=$("fnewf");f.hidden=!f.hidden;if(!f.hidden)$("nn").focus()};
 $("ncreate").onclick=function(){var n=$("nn").value.trim(),m=$("nm");m.className="msg";
   if(!n){m.textContent="Ponle un nombre a la fórmula.";return}
