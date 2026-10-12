@@ -174,20 +174,11 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 </section>
 
 <section class="card">
-  <h2>Guardar fórmula</h2>
-  <label for="nt">Notas (qué cambiaste y cómo olía)</label>
+  <h2>Notas</h2>
+  <label for="nt">Qué cambiaste y cómo olía</label>
   <textarea id="nt"></textarea>
-  <label for="vn" style="margin-top:8px">Nombre (opcional)</label>
-  <input id="vn" placeholder="Ej. Prueba 6">
-  <label for="vc" style="margin-top:8px">Categoría o lote (opcional)</label>
-  <input id="vc" list="fcats" placeholder="Ej. Primer lote de prueba">
-  <datalist id="fcats"></datalist>
-  <div class="bar" style="margin-top:8px"><button type="button" class="p" id="sv">Guardar fórmula</button></div>
-  <p class="msg" id="vm" aria-live="polite"></p>
-  <div id="vl"></div>
+  <div hidden><input id="vn"><input id="vc"><button type="button" id="sv"></button><p id="vm"></p><div id="vl"></div></div>
 </section>
-<p id="sync" class="msg" style="text-align:center;margin:12px 0 8px">Respaldo: comprobando…</p>
-<div class="bar" style="justify-content:center;margin-bottom:24px"><button id="acc" type="button" hidden>Cuenta</button></div>
 </div>
 
 <div id="tab-mat" hidden>
@@ -200,8 +191,15 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 </div>
 
 <div id="tab-for" hidden>
-<h1>Fórmulas</h1>
-<p class="sub">Tus fórmulas guardadas. Se guardan desde la calculadora.</p>
+<div style="display:flex;align-items:center;justify-content:space-between"><h1>Fórmulas</h1><button type="button" id="fnew" class="p" aria-label="Nueva fórmula" style="min-width:48px;min-height:48px;font-size:26px;line-height:1">+</button></div>
+<datalist id="fcats"></datalist>
+<section class="card" id="fnewf" hidden>
+  <label for="nn">Nombre</label><input id="nn" placeholder="Ej. Prueba 6">
+  <label for="nl" style="margin-top:8px">Lote (opcional)</label><input id="nl" list="fcats" placeholder="Ej. Primer lote de prueba">
+  <div class="bar" style="margin-top:10px"><button type="button" class="p" id="ncreate">Crear y abrir calculadora</button></div>
+  <p class="msg" id="nm" aria-live="polite"></p>
+</section>
+<p class="sub">Toca + para crear una fórmula nueva.</p>
 <p class="msg" id="fm" aria-live="polite"></p>
 <input id="fq" type="search" placeholder="Buscar fórmula" aria-label="Buscar fórmula" style="margin-bottom:6px">
 <div id="fl"></div>
@@ -215,6 +213,8 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
   </div>
 </div>
 
+<p id="sync" class="msg" style="text-align:center;margin:12px 0 8px">Respaldo: comprobando…</p>
+<div class="bar" style="justify-content:center;margin-bottom:24px"><button id="acc" type="button" hidden>Cuenta</button></div>
 <nav class="nav" aria-label="Secciones">
   <button type="button" id="nv-calc" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M8.5 7.5h7M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01"/></svg>Calculadora</button>
   <button type="button" id="nv-mat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19C5 10 10 5 20 5c0 10-5 14-13 14"/><path d="M5 19c3-5 6-8 10-10"/></svg>Materiales</button>
@@ -425,7 +425,7 @@ function renderLib(){
     return '<div class="fam" style="background:'+(c?'#1d6b58':'#5f726d')+'">'+esc(c||"Sin categoría")+'</div><div class="glist">'+g[c].map(function(x){
       return '<div class="mrow" data-fo="'+x.id+'" role="button" tabindex="0"><b>'+esc(x.name)+'</b><small>'+fdate(x.ts)+'</small></div>'}).join("")+'</div>'}).join("");
   var dx=openF?findF(openF):null;if(!dx)openF=null;
-  [].forEach.call($("tab-for").children,function(c){c.hidden=!!dx&&c.id!=="fl"});
+  [].forEach.call($("tab-for").children,function(c){if(c.id==="fnewf"){if(dx)c.hidden=true;return}c.hidden=!!dx&&c.id!=="fl"});
   if(dx){$("fl").innerHTML=fDet(dx);ebar();return}
   $("fl").innerHTML=h||'<p class="msg">'+(lib.length?"Nada coincide con la búsqueda.":"Todavía no hay fórmulas guardadas.")+'</p>';ebar();
 }
@@ -437,13 +437,14 @@ $("fl").addEventListener("click",function(e){
   if(toggleF(e))return;
   if(fExtra(e))return;
   var t=e.target,o=t.getAttribute("data-fopen"),u=t.getAttribute("data-fup"),d=t.getAttribute("data-fdel"),x;
-  if(o!==null){x=findF(o);if(!x)return;editId=x.id;ebar();rows=clone(x.rows);if(!rows.length)rows=[{n:"",d:100,p:""}];$("tot").value=x.tot;if(x.mode)$("md").value=x.mode;render();showTab("calc");$("cm").className="msg ok";$("cm").textContent="Abierta: "+x.name+".";return}
+  if(o!==null){x=findF(o);if(!x)return;rescue();editId=x.id;rows=clone(x.rows);if(!rows.length)rows=[{n:"",d:100,p:""}];$("tot").value=x.tot;if(x.mode)$("md").value=x.mode;$("nt").value=x.note||"";render();showTab("calc");ebar();window.scrollTo(0,0);$("cm").className="msg ok";$("cm").textContent="Abierta: "+x.name+".";return}
   if(u!==null){x=findF(u);if(!x)return;if(armU!==u){armU=u;armD=null;renderLib();return}
     x.rows=clone(rows);x.tot=parseFloat($("tot").value)||0;x.mode=$("md").value;x.ts=Date.now();armU=null;saveLib();renderLib();$("fm").className="msg ok";$("fm").textContent="Actualizada: "+x.name+".";return}
   if(d!==null){if(armD!==d){armD=d;armU=null;renderLib();return}
     lib=lib.filter(function(a){return a.id!==d});if(editId===d)editId=null;openF=null;armD=null;saveLib();renderLib()}
 });
 function showTab(t){
+  if(t==="calc"&&!editId)t="for";
   ["calc","mat","for"].forEach(function(k){$("tab-"+k).hidden=k!==t;$("nv-"+k).classList.toggle("on",k===t)});
   if(t==="mat")renderMats();if(t==="for")renderLib();
   window.scrollTo(0,0);
@@ -792,16 +793,37 @@ function fDet(x){
 }
 $("fl").addEventListener("click",function(e){if(e.target.getAttribute&&e.target.getAttribute("data-fback")!==null){openF=null;evOpen=null;armD=armU=armE=null;renderLib();window.scrollTo(0,0)}});
 $("fl").addEventListener("change",function(e){var t=e.target,id,x;if(t.getAttribute&&(id=t.getAttribute("data-ffnote"))!==null){x=findF(id);if(x){x.note=t.value;saveLib()}}});
+function sig(rs,tot,mode){return JSON.stringify([(rs||[]).filter(function(r){return r.n||parseFloat(r.p)}).map(function(r){return[r.n,+r.d,String(r.p)]}),parseFloat(tot)||0,mode||"puro"])}
+function dirty(){var x=editId&&findF(editId);return x?sig(rows,$("tot").value,$("md").value)!==sig(x.rows,x.tot,x.mode):false}
+/* Si hay una tabla sin guardar que se iba a pisar, se guarda como "Recuperada" */
+function rescue(){if(!rows.some(function(r){return r.n||parseFloat(r.p)}))return;
+  var x=editId&&findF(editId),cur=sig(rows,$("tot").value,$("md").value);
+  if(x){if(!dirty())return}else if(lib.some(function(v){return sig(v.rows,v.tot,v.mode)===cur}))return;
+  var base=(x?"Recuperada: "+x.name:"Fórmula recuperada")+" ("+fdate(Date.now())+")",n=base,k=2;
+  while(lib.some(function(v){return v.name.toLowerCase()===n.toLowerCase()}))n=base+" "+(k++);
+  lib.push({id:"f"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:n,cat:"Recuperadas",ts:Date.now(),tot:parseFloat($("tot").value)||0,mode:$("md").value,note:$("nt").value,rows:clone(rows)});saveLib()}
+var armV=false;
 function ebar(){var b=$("ebar"),x=editId&&findF(editId);
   if(!x){editId=null;b.hidden=true;b.innerHTML="";return}
-  b.hidden=false;b.innerHTML='<small style="color:var(--mute)">Editando</small><div><b>'+esc(x.name)+'</b></div><div class="bar" style="margin-top:8px"><button type="button" class="p" data-esave>Guardar cambios</button><button type="button" data-estop>Dejar de editar</button></div><p class="msg" id="em" aria-live="polite"></p>'}
+  b.hidden=false;b.innerHTML='<div class="bar" style="margin-bottom:8px"><button type="button" data-estop>‹ Volver</button></div><small style="color:var(--mute)">Editando'+(x.cat?' · '+esc(x.cat):'')+'</small><div><b>'+esc(x.name)+'</b></div><div class="bar" style="margin-top:8px"><button type="button" class="p" data-esave>Guardar cambios</button></div><p class="msg" id="em" aria-live="polite"></p>'}
 $("ebar").addEventListener("click",function(e){var t=e.target,x=editId&&findF(editId);if(!x||!t.hasAttribute)return;
-  if(t.hasAttribute("data-estop")){editId=null;ebar();return}
+  if(t.hasAttribute("data-estop")){
+    if(dirty()&&!armV){armV=true;setTimeout(function(){armV=false},4000);$("em").className="msg wn";$("em").textContent="Hay cambios sin guardar. Toca Volver otra vez para descartarlos.";return}
+    armV=false;rows=clone(x.rows&&x.rows.length?x.rows:[{n:"",d:100,p:""}]);$("tot").value=x.tot;if(x.mode)$("md").value=x.mode;$("nt").value=x.note||"";render();
+    var id=x.id;editId=null;ebar();openF=id;renderLib();showTab("for");window.scrollTo(0,0);return}
   if(!t.hasAttribute("data-esave"))return;
-  if(!rows.some(function(r){return r.n||parseFloat(r.p)})){$("em").className="msg wn";$("em").textContent="La tabla de la calculadora está vacía.";return}
-  x.rows=clone(rows);x.tot=parseFloat($("tot").value)||0;x.mode=$("md").value;saveLib();renderLib();ebar();$("em").className="msg ok";$("em").textContent="Cambios guardados ✓"});
+  x.rows=clone(rows);x.tot=parseFloat($("tot").value)||0;x.mode=$("md").value;x.note=$("nt").value;saveLib();renderLib();ebar();$("em").className="msg ok";$("em").textContent="Cambios guardados ✓"});
+$("fnew").onclick=function(){var f=$("fnewf");f.hidden=!f.hidden;if(!f.hidden)$("nn").focus()};
+$("ncreate").onclick=function(){var n=$("nn").value.trim(),m=$("nm");m.className="msg";
+  if(!n){m.textContent="Ponle un nombre a la fórmula.";return}
+  if(lib.some(function(v){return v.name.toLowerCase()===n.toLowerCase()})){m.className="msg wn";m.textContent="Ya hay una fórmula con ese nombre.";return}
+  rescue();var id="f"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),blank=function(){return[{n:"",d:100,p:""}]};
+  lib.push({id:id,name:n,cat:$("nl").value.trim(),ts:Date.now(),tot:parseFloat($("tot").value)||10,mode:$("md").value,note:"",rows:blank()});
+  editId=id;rows=blank();$("nt").value="";render();saveLib();$("nn").value="";$("nl").value="";$("fnewf").hidden=true;m.textContent="";
+  openF=null;renderLib();showTab("calc");ebar();window.scrollTo(0,0)};
 resetState();redraw();
 initAuth();
+$("nv-calc").hidden=true;showTab("for");
 function flush(){if(!ready)return;saveLocal();if(dbRef&&syncReady){clearTimeout(pushT);push()}}
 document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")flush()});
 window.addEventListener("pagehide",flush);
