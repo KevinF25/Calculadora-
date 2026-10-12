@@ -81,6 +81,9 @@ details.set[open] summary{margin-bottom:10px}
 .ebar .et b{display:block;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ebar .et small{display:block;color:var(--mute);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ebar .ok{color:var(--acc);font-size:20px;text-align:center}
+.modal{position:fixed;inset:0;z-index:22;background:rgba(0,0,0,.4);overflow:auto;padding:calc(env(safe-area-inset-top,0px) + 64px) 16px 24px}
+.modal .mbox{max-width:420px;margin:0 auto;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.modal .wzbtn button{min-height:50px;font-size:17px}
 #menu{position:fixed;inset:0;z-index:25;background:rgba(0,0,0,.35)}
 #menu .sheet{position:absolute;top:0;left:0;bottom:0;width:min(300px,84vw);background:var(--card);border-right:1px solid var(--line);padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 24px;overflow:auto;display:flex;flex-direction:column;gap:10px}
 #menu .mh{display:flex;align-items:center;justify-content:space-between}
@@ -236,12 +239,6 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 <div id="tab-for" hidden>
 <div class="hdr"><button type="button" class="mb" data-menu aria-label="Menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><h1>Fórmulas</h1><button type="button" id="fnew" class="p add" aria-label="Nueva fórmula">+</button></div>
 <datalist id="fcats"></datalist>
-<section class="card" id="fnewf" hidden>
-  <label for="nn">Nombre</label><input id="nn" placeholder="Ej. Prueba 6">
-  <label for="nl" style="margin-top:8px">Lote (opcional)</label><input id="nl" list="fcats" placeholder="Ej. Primer lote de prueba">
-  <div class="bar" style="margin-top:10px"><button type="button" class="p" id="ncreate">Crear y abrir calculadora</button></div>
-  <p class="msg" id="nm" aria-live="polite"></p>
-</section>
 <p class="msg" id="fm" aria-live="polite"></p>
 <input id="fq" type="search" placeholder="Buscar fórmula" aria-label="Buscar fórmula" style="margin-bottom:6px">
 <div id="fl"></div>
@@ -255,6 +252,13 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
   </div>
 </div>
 
+<div id="fnewm" class="modal" hidden><section class="card mbox" id="fnewf" role="dialog" aria-modal="true" aria-labelledby="fnewt">
+  <h2 id="fnewt">Nueva fórmula</h2>
+  <label for="nn">Nombre</label><input id="nn" placeholder="Ej. Prueba 6" enterkeyhint="go">
+  <label for="nl" style="margin-top:10px">Lote (opcional)</label><input id="nl" list="fcats" placeholder="Ej. Primer lote de prueba" enterkeyhint="go">
+  <p class="msg" id="nm" aria-live="polite"></p>
+  <div class="wzbtn" style="margin:14px 0 0"><button type="button" id="ncancel">Cancelar</button><button type="button" class="p" id="ncreate">Crear</button></div>
+</section></div>
 <div id="menu" hidden><div class="sheet" role="dialog" aria-label="Menú">
   <div class="mh"><b>Calculadora de fórmulas</b><button type="button" id="menux" aria-label="Cerrar menú" style="width:44px;padding:0;border-color:transparent;background:transparent">&#10005;</button></div>
   <p id="sync" class="msg">Respaldo: comprobando…</p>
@@ -475,7 +479,7 @@ function renderLib(){
     return '<div class="fam" style="background:'+(c?'#1d6b58':'#5f726d')+'">'+esc(c||"Sin categoría")+'</div><div class="glist">'+g[c].map(function(x){
       return '<div class="mrow" data-fo="'+x.id+'" role="button" tabindex="0"><b>'+esc(x.name)+'</b><small>'+fdate(x.ts)+'</small></div>'}).join("")+'</div>'}).join("");
   var dx=openF?findF(openF):null;if(!dx)openF=null;
-  [].forEach.call($("tab-for").children,function(c){if(c.id==="fnewf"){if(dx)c.hidden=true;return}c.hidden=!!dx&&c.id!=="fl"});
+  [].forEach.call($("tab-for").children,function(c){c.hidden=!!dx&&c.id!=="fl"});
   if(dx){$("fl").innerHTML=fDet(dx);ebar();return}
   $("fl").innerHTML=h||'<p class="msg">'+(lib.length?"Nada coincide con la búsqueda.":"Todavía no hay fórmulas guardadas.")+'</p>';ebar();
 }
@@ -862,13 +866,17 @@ $("ebar").addEventListener("click",function(e){var t=e.target,x=editId&&findF(ed
   if(t.closest&&t.closest("[data-estop]")){
     var id=x.id;editId=null;ebar();openF=id;renderLib();showTab("for");window.scrollTo(0,0);return}
 });
-$("fnew").onclick=function(){var f=$("fnewf");f.hidden=!f.hidden;if(!f.hidden)$("nn").focus()};
+function newClose(){$("fnewm").hidden=true;$("nn").value="";$("nl").value="";$("nm").textContent=""}
+$("fnew").onclick=function(){$("fnewm").hidden=false;$("nn").focus()};
+$("ncancel").onclick=newClose;
+$("fnewm").addEventListener("click",function(e){if(e.target===this)newClose()});
+$("fnewm").addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.tagName==="INPUT")$("ncreate").click();if(e.key==="Escape")newClose()});
 $("ncreate").onclick=function(){var n=$("nn").value.trim(),m=$("nm");m.className="msg";
   if(!n){m.textContent="Ponle un nombre a la fórmula.";return}
   if(lib.some(function(v){return v.name.toLowerCase()===n.toLowerCase()})){m.className="msg wn";m.textContent="Ya hay una fórmula con ese nombre.";return}
   rescue();var id="f"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),blank=function(){return[{n:"",d:100,p:""}]};
   lib.push({id:id,name:n,cat:$("nl").value.trim(),ts:Date.now(),tot:parseFloat($("tot").value)||10,mode:$("md").value,note:"",rows:blank()});
-  editId=id;rows=blank();$("nt").value="";render();saveLib();$("nn").value="";$("nl").value="";$("fnewf").hidden=true;m.textContent="";
+  editId=id;rows=blank();$("nt").value="";render();saveLib();newClose();
   openF=null;renderLib();showTab("calc");ebar();window.scrollTo(0,0)};
 resetState();redraw();
 initAuth();
