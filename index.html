@@ -56,7 +56,6 @@ button.p{background:var(--acc);color:var(--bg);border-color:var(--acc);font-weig
 .msg{font-size:14px;margin:8px 0 0}
 .addrow{width:100%;border:1.5px dashed var(--acc2);background:transparent;color:var(--acc);font-weight:600;min-height:48px}
 .ghost{border-color:transparent;background:transparent;color:var(--mute);font-size:14px;padding:6px 10px}
-.ghost.bad{color:var(--bad)}
 .sumbar{position:fixed;left:0;right:0;bottom:calc(61px + env(safe-area-inset-bottom,0px));z-index:4;background:var(--card);border-top:1px solid var(--line);box-shadow:0 -4px 14px rgba(0,0,0,.06)}
 .sumbar .in{max-width:640px;margin:0 auto;padding:8px 14px;display:flex;gap:12px;align-items:center}
 .sumbar .st{flex:1;min-width:0;display:flex;gap:16px}
@@ -185,7 +184,6 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
   <button type="button" class="addrow" id="add">+ Agregar material</button>
   <div class="bar" style="justify-content:flex-end;margin-top:6px">
     <button type="button" class="ghost" id="copy">Copiar fórmula</button>
-    <button type="button" class="ghost bad" id="clr">Vaciar tabla</button>
   </div>
   <p class="msg" id="cm"></p>
 </section>
@@ -410,10 +408,7 @@ $("rows").addEventListener("click",function(e){
   rows.splice(+d,1);if(!rows.length)rows.push({n:"",d:100,p:""});render();
 });
 $("add").onclick=function(){rows.push({n:"",d:100,p:""});render();var a=document.querySelectorAll("#rows .row");a[a.length-1].querySelector("input").focus()};
-var armC=null;
-$("clr").onclick=function(){var b=this;
-  if(!armC){b.textContent="¿Seguro? Toca otra vez";armC=setTimeout(function(){armC=null;b.textContent="Vaciar tabla"},4000);return}
-  clearTimeout(armC);armC=null;b.textContent="Vaciar tabla";rows=[{n:"",d:100,p:""}];render()};
+
 $("md").onchange=render;$("tot").oninput=calc;$("mn").oninput=calc;$("dm").oninput=function(){dil();store()};$("ds").oninput=function(){dil();store()};$("nt").oninput=function(){autoSave();store()};
 $("copy").onclick=function(){
   var t=text(),ok=function(){$("cm").className="msg ok";$("cm").textContent="Fórmula copiada."};
