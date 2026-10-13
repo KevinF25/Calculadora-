@@ -146,7 +146,45 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 .hdr.two{grid-template-columns:96px 1fr 96px}
 .hdr .rt{display:flex;justify-content:flex-end;align-items:center}
 .hdr .lt{display:flex;align-items:center}
-.ecalc{grid-template-columns:72px 1fr 124px}
+.ecalc{grid-template-columns:52px 1fr 144px}
+.hdr .rt .mb{width:44px}
+.hdr .mb.save{color:var(--acc)}
+.hdr .mb.save:disabled{color:var(--mute);opacity:.45}
+.hdr .mb.save svg{width:26px;height:26px}
+#esub.wn{color:var(--warn)}
+.mlist{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:12px}
+.mrow2{display:flex;align-items:center;gap:10px;padding:11px 10px 11px 16px;border-top:1px solid var(--line);min-height:62px;cursor:pointer}
+.mrow2:first-child{border-top:0}
+.mrow2 .l{flex:1;min-width:0}
+.mrow2 .l b{display:block;font-weight:600;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mrow2 .l small{display:block;color:var(--mute);font-size:13px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mrow2 .g{flex:none;text-align:right;color:var(--mute);font-size:14px}
+.mrow2 .g b{font-size:20px;color:var(--acc);font-weight:700}
+.mrow2.warn .g b{color:var(--warn)}
+.mrow2.warn{background:var(--warnbg)}
+.mrow2 .chev{width:18px;height:18px;color:var(--mute);opacity:.6;flex:none}
+.addline{display:block;width:100%;border:0;border-top:1px solid var(--line);border-radius:0;background:transparent;color:var(--acc);font-weight:600;font-size:17px;min-height:54px;text-align:left;padding:0 16px}
+.mempty{margin:0;padding:18px 16px 6px;color:var(--mute);font-size:15px}
+.fwarn button{border:0;background:none;padding:0;min-height:0;color:inherit;font-weight:700;text-decoration:underline;font-size:inherit}
+.sumbar .st .totb{display:block;border:0;background:transparent;padding:0;min-height:0;text-align:left;font-size:12px;color:var(--mute);line-height:1.2}
+.sumbar .st .totb b{display:block;font-size:19px;color:var(--acc)}
+.totb b::after{content:" ✎";font-size:13px;color:var(--mute);font-weight:400}
+.totrow{display:flex;align-items:center;gap:10px}
+.totrow span{font-size:20px;color:var(--mute)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0}
+.chips button{min-height:38px;padding:0 14px;border-radius:999px;font-size:15px}
+.bsheet{position:fixed;inset:0;z-index:23;background:rgba(0,0,0,.35);display:flex;flex-direction:column;justify-content:flex-end;animation:fadein .18s ease-out}
+.bsheet .bsin{background:var(--card);border-radius:18px 18px 0 0;padding:8px 16px calc(env(safe-area-inset-bottom,0px) + 18px);max-width:640px;width:100%;margin:0 auto;animation:sheetup .26s cubic-bezier(.2,.8,.2,1);max-height:92vh;overflow:auto}
+.bsheet .bsin::before{content:"";display:block;width:38px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 6px}
+.bsh{display:grid;grid-template-columns:80px 1fr 80px;align-items:center;margin-bottom:10px}
+.bsh b{text-align:center;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bsh button{border:0;background:transparent;min-height:44px;padding:0;font-size:17px}
+.bsh .bok{color:var(--acc);font-weight:600;text-align:right}
+.bsh .bdel{color:var(--bad);text-align:left}
+.bsheet .dils{margin-bottom:12px}
+.rinfo{margin-top:12px;color:var(--mute);font-size:15px}
+.rinfo b{color:var(--acc);font-size:18px}
+#toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 70px);transform:translateX(-50%);z-index:40;background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:15px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.2);animation:fadein .15s ease-out;white-space:nowrap}
 .hdr .save{white-space:nowrap;border:0;background:transparent;color:var(--acc);font-weight:600;font-size:17px;padding:0 4px 0 6px;min-height:48px;width:auto}
 .hdr .save:disabled{color:var(--mute);opacity:.55}
 .ilist{padding:0;overflow:hidden}
@@ -224,28 +262,12 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 <main>
 <div id="tab-calc">
 <div id="ebar" class="hdr ebar" hidden></div>
-<p class="sub" id="sb"></p>
-
-<section class="card">
-  <label for="tot">Peso total a hacer (g)</label>
-  <input id="tot" class="totin" type="number" inputmode="decimal" step="any" min="0" value="10">
-  <p class="msg" id="m1"></p>
-  <p class="msg" id="m2"></p>
-</section>
-
-
-<section>
-  <h2>Materiales</h2>
-  <div id="rows"></div>
-  <button type="button" class="addrow" id="add">+ Agregar material</button>
-  <div class="bar" style="justify-content:flex-end;margin-top:6px">
-    <button type="button" class="ghost" id="copy">Copiar fórmula</button>
-  </div>
-  <p class="msg" id="cm"></p>
-</section>
+<div class="fwarn" id="m2" hidden></div>
+<p id="m1" hidden></p><p id="cm" hidden></p><span id="sg" hidden></span>
+<div class="mlist" id="rows"></div>
 
 <div class="sumbar"><div class="in">
-  <div class="st"><div>Suma<b><span id="sg">0.000</span> g</b></div><div>Partes<b id="sp">0</b></div></div>
+  <div class="st"><button type="button" class="totb" id="totb" aria-label="Cambiar el peso total"><span>Total</span><b><span id="totv">10</span> g</b></button><div>Partes<b id="sp">0</b></div></div>
   <button type="button" class="p" id="wzs">Empezar a pesar</button>
 </div></div>
 
@@ -313,6 +335,22 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
   <p class="msg" id="mm" aria-live="polite"></p>
   <div class="wzbtn" style="margin:14px 0 0"><button type="button" id="mcancel">Cancelar</button><button type="button" class="p" id="ma">Agregar</button></div>
 </section></div>
+<div id="totm" class="modal" hidden><section class="card mbox" role="dialog" aria-modal="true" aria-labelledby="tott">
+  <h2 id="tott">Peso total a hacer</h2>
+  <div class="totrow"><input id="tot" class="totin" type="number" inputmode="decimal" step="any" min="0" value="10" aria-label="Peso total en gramos"><span>g</span></div>
+  <div class="chips"><button type="button" data-tq="2">2 g</button><button type="button" data-tq="5">5 g</button><button type="button" data-tq="10">10 g</button><button type="button" data-tq="30">30 g</button><button type="button" data-tq="50">50 g</button><button type="button" data-tq="100">100 g</button></div>
+  <p class="msg" id="totmsg" style="color:var(--mute)"></p>
+  <div class="wzbtn" style="margin:14px 0 0"><button type="button" class="p" id="totok">Listo</button></div>
+</section></div>
+<div id="rowm" class="bsheet" hidden><div class="bsin" role="dialog" aria-modal="true" aria-labelledby="rowt">
+  <div class="bsh"><button type="button" class="bdel" id="rowdel">Quitar</button><b id="rowt">Material</b><button type="button" class="bok" id="rowok">Listo</button></div>
+  <label for="rn">Material</label><input id="rn" list="mats" placeholder="Nombre del material" autocomplete="off">
+  <div class="mnote" id="rnote"></div>
+  <label>Dilución del frasco</label><div class="dils" id="rd"></div>
+  <label for="rp">Partes</label><input id="rp" class="totin" type="number" inputmode="decimal" step="any" min="0" placeholder="0">
+  <div class="rinfo" id="rinfo"></div>
+</div></div>
+<div id="toast" hidden></div>
 <div id="setm" class="modal" hidden><section class="card mbox" role="dialog" aria-modal="true" aria-labelledby="sett">
   <h2 id="sett">Ajustes de la fórmula</h2>
   <label for="md">Las partes son de</label>
@@ -320,6 +358,7 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
   <label for="mn">Límite de alerta de la balanza (g)</label>
   <input id="mn" type="number" inputmode="decimal" step="any" min="0" value="0.010">
   <p class="msg" style="color:var(--mute)">El límite avisa cuando una línea pide menos gramos de los que tu balanza mide bien.</p>
+  <p class="msg" id="sb" style="color:var(--mute)"></p>
   <div class="wzbtn" style="margin:14px 0 0"><button type="button" class="p" id="setok">Listo</button></div>
 </section></div>
 <div id="sheet" hidden></div>
@@ -356,10 +395,8 @@ function avail(n){var m=findMat(n);return m&&m.d.length?m.d:[100,10,1]}
 function noteFor(n){var m=findMat(n);return m&&m.note?m.note:""}
 function selOpts(r){var av=avail(r.n);return [100,10,1].filter(function(v){return av.indexOf(v)>-1||+r.d===v}).map(function(v){return '<option value="'+v+'"'+(+r.d===v?' selected':'')+'>'+v+'%</option>'}).join("")}
 function fillList(){var dl=$("mats");dl.innerHTML=reg.map(function(m){return '<option value="'+esc(m.n)+'">'}).join("")}
-function refreshRow(i){var el=$("r"+i);if(!el)return;var r=rows[i],av=avail(r.n);
-  if(av.indexOf(+r.d)<0)r.d=av[0];
-  el.querySelector("select").innerHTML=selOpts(r);el.querySelector('[data-o="mn"]').textContent=noteFor(r.n)}
-function refreshAll(){rows.forEach(function(r,i){refreshRow(i)});calc()}
+function refreshRow(i){var r=rows[i];if(!r)return;var av=avail(r.n);if(av.indexOf(+r.d)<0)r.d=av[0]}
+function refreshAll(){rows.forEach(function(r,i){refreshRow(i)});render()}
 function famOf(m){return m.fam&&FAM[m.fam]?m.fam:"Sin familia"}
 function pyr(pos,col){
   var P=[["Salida","M12 3 L15.6 9.5 H8.4 Z"],["Corazón","M7.6 11 H16.4 L18.9 15.5 H5.1 Z"],["Fondo","M4.3 17 H19.7 L21.9 21 H2.1 Z"]];
@@ -406,19 +443,46 @@ function f(n,d){return (isFinite(n)?n:0).toFixed(d)}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 
 function render(){
-  var h="";
+  var h="",any=false,mode=$("md").value;
   rows.forEach(function(r,i){
-    h+='<div class="row" id="r'+i+'"><div class="r1"><input list="mats" placeholder="Material" aria-label="Material" value="'+esc(r.n)+'" data-i="'+i+'" data-k="n"><button class="x" data-del="'+i+'" aria-label="Quitar material">&#10005;</button></div><div class="mnote" data-o="mn">'+esc(noteFor(r.n))+'</div>'+
-    '<div class="r3"><div><label>Dilución</label><select data-i="'+i+'" data-k="d" aria-label="Dilución del frasco">'+
-    selOpts(r)+'</select></div>'+
-    '<div><label>Partes</label><input type="number" inputmode="decimal" step="any" min="0" value="'+esc(r.p)+'" data-i="'+i+'" data-k="p" aria-label="Partes"></div>'+
-    '<div class="g"><label>Pesar</label><b data-o="g">0.000</b><small>g</small></div></div>'+
-    '<div class="rx">'+($("md").value==="puro"?"% del puro":"% de lo pesado")+' <b data-o="pc">0%</b> · puro <b data-o="pu">0.000</b> g</div>'+
-    '<div class="tag">Menos del límite de la balanza: sube el peso total.</div></div>';
+    if(!r.n&&!(parseFloat(r.p)>0)&&rowI!==i)return;any=true;
+    h+='<div class="mrow2" id="r'+i+'" data-edit="'+i+'" role="button" tabindex="0"><div class="l"><b>'+(r.n?esc(r.n):'<span style="color:var(--mute)">Material sin nombre</span>')+'</b>'+
+    '<small>'+(+r.d)+'% · '+(r.p===""?"0":esc(r.p))+' partes · <span data-o="pc">0%</span></small></div>'+
+    '<div class="g"><b data-o="g">0.000</b> g<span data-o="pu" hidden></span></div><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></div>';
   });
-  $("rows").innerHTML=h;calc();
+  h+='<button type="button" class="addline" id="add">+ Agregar material</button>';
+  $("rows").innerHTML=(any?'':'<p class="mempty">Todavía no hay materiales en esta fórmula.</p>')+h;calc();
 }
-
+/* Editor de un material: hoja que sube desde abajo, como en iOS */
+var rowI=-1;
+function rowFill(){var r=rows[rowI];if(!r)return;
+  $("rowt").textContent=r.n||"Nuevo material";$("rnote").textContent=noteFor(r.n);
+  var av=avail(r.n);$("rd").innerHTML=[100,10,1].filter(function(v){return av.indexOf(v)>-1||+r.d===v}).map(function(v){return '<label class="'+(+r.d===v?'on':'')+'"><input type="radio" name="rdv" value="'+v+'"'+(+r.d===v?' checked':'')+'>'+v+'%</label>'}).join("");
+  rowInfo()}
+function rowInfo(){var el=$("r"+rowI);if(!el){$("rinfo").textContent="";return}
+  $("rinfo").innerHTML='Pesar <b>'+el.querySelector('[data-o="g"]').textContent+' g</b> del frasco · puro '+el.querySelector('[data-o="pu"]').textContent+' g'}
+function rowOpen(i){rowI=i;var r=rows[i];render();$("rn").value=r.n;$("rp").value=r.p;rowFill();$("rowm").hidden=false;if(!r.n)setTimeout(function(){$("rn").focus()},60)}
+function rowClose(){var r=rows[rowI];$("rowm").hidden=true;var k=rowI;rowI=-1;
+  if(r&&!r.n&&!(parseFloat(r.p)>0)&&rows.length>1)rows.splice(k,1);render()}
+$("rows").addEventListener("click",function(e){var t=e.target;if(!t.closest)return;
+  if(t.closest("#add")){rows=rows.filter(function(r){return r.n||parseFloat(r.p)>0});rows.push({n:"",d:100,p:""});rowOpen(rows.length-1);return}
+  var r=t.closest("[data-edit]");if(r)rowOpen(+r.getAttribute("data-edit"))});
+$("rows").addEventListener("keydown",function(e){if((e.key==="Enter"||e.key===" ")&&e.target.getAttribute&&e.target.getAttribute("data-edit")!==null){e.preventDefault();rowOpen(+e.target.getAttribute("data-edit"))}});
+$("rn").addEventListener("input",function(){var r=rows[rowI];if(!r)return;r.n=this.value;var av=avail(r.n);if(av.indexOf(+r.d)<0)r.d=av[0];render();rowFill()});
+$("rp").addEventListener("input",function(){var r=rows[rowI];if(!r)return;r.p=this.value;render();rowInfo()});
+$("rd").addEventListener("change",function(e){var r=rows[rowI];if(!r||e.target.name!=="rdv")return;r.d=+e.target.value;render();rowFill()});
+$("rowok").onclick=rowClose;
+$("rowm").addEventListener("click",function(e){if(e.target===this)rowClose()});
+$("rowm").addEventListener("keydown",function(e){if(e.key==="Escape")rowClose();if(e.key==="Enter"&&e.target.tagName==="INPUT"&&e.target.id==="rp")rowClose()});
+$("rowdel").onclick=function(){var r=rows[rowI];if(!r)return;var k=rowI;
+  actionSheet(r.n?"¿Quitar "+r.n+" de esta fórmula?":"",[{label:"Quitar de la fórmula",bad:true,fn:function(){$("rowm").hidden=true;rowI=-1;rows.splice(k,1);if(!rows.length)rows.push({n:"",d:100,p:""});render()}}])};
+/* Peso total: ventana con campo grande y atajos */
+function totShow(){$("totv").textContent=(parseFloat($("tot").value)||0).toString()}
+$("totb").onclick=function(){$("totm").hidden=false;var t=$("tot");setTimeout(function(){t.focus();t.select()},60)};
+$("totok").onclick=function(){$("totm").hidden=true};
+$("totm").addEventListener("click",function(e){if(e.target===this){this.hidden=true;return}var q=e.target.getAttribute&&e.target.getAttribute("data-tq");if(q){$("tot").value=q;calc()}});
+$("totm").addEventListener("keydown",function(e){if(e.key==="Enter"||e.key==="Escape")$("totm").hidden=true});
+function toast(t){var el=$("toast");el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){el.hidden=true},1800)}
 function fracs(){
   var mode=$("md").value,W=0,w=rows.map(function(r){var p=parseFloat(r.p)||0;var x=mode==="puro"?p/(r.d/100):p;W+=x;return x});
   return w.map(function(x){return W>0?x/W:0});
@@ -435,24 +499,21 @@ function calc(){
     sg+=g;
     el.querySelector('[data-o="pc"]').textContent=f(pc*100,2)+"%";
     el.querySelector('[data-o="g"]').textContent=f(g,3);
-    el.querySelector('[data-o="pu"]').textContent=f(pu,4);
+    var pe=el.querySelector('[data-o="pu"]');if(pe)pe.textContent=f(pu,4);
     var w=p>0&&g<L;el.classList.toggle("warn",w);if(w)warnN++;
     if(p>0&&(minF===null||fr[i]<minF))minF=fr[i];
   });
   $("sp").textContent=f(S,2).replace(/\.?0+$/,"")||"0";
   $("sg").textContent=f(sg,3);
-  var m1=$("m1");m1.className="msg";m1.textContent="";
-  if(S===1000){m1.className="msg ok";m1.textContent="Las partes suman exactamente 1000."}
-  var m2=$("m2");m2.className="msg";m2.textContent="";
-  if(minF&&L>0){
-    var need=Math.ceil(L/minF*10)/10;
-    if(warnN>0){m2.className="msg wn";m2.textContent="Peso total mínimo sugerido: "+f(need,1)+" g para que la línea más pequeña llegue a "+f(L,3)+" g."}
-    else{m2.textContent="Con este total, todas las líneas pasan el límite. Mínimo posible: "+f(need,1)+" g."}
-  }
+  var m2=$("m2"),need=minF&&L>0?Math.ceil(L/minF*10)/10:0;
+  if(warnN>0&&need){m2.hidden=false;m2.innerHTML=(warnN===1?"Una línea queda":warnN+" líneas quedan")+" por debajo del límite de la balanza ("+f(L,3)+" g). <button type=\"button\" data-need=\""+need+"\">Subir el total a "+f(need,1)+" g</button>"}else{m2.hidden=true;m2.textContent=""}
+  $("totmsg").textContent=need?"Mínimo para que todas las líneas pasen el límite: "+f(need,1)+" g.":"";
+  totShow();
   saveState();store();
 }
 /* La calculadora trabaja sobre un borrador: Guardar lo pasa a la fórmula guardada */
-function saveState(){var b=document.querySelector("#ebar [data-esave]");if(b)b.disabled=!dirty()}
+function saveState(){var b=document.querySelector("#ebar [data-esave]"),d=dirty(),n=rows.filter(function(r){return r.n||parseFloat(r.p)>0}).length;if(b)b.disabled=!d;
+  var e=$("esub");if(e){e.className=d?"wn":"";e.textContent=d?"Cambios sin guardar":n+(n===1?" material":" materiales")}}
 function saveEdit(){var x=editId&&findF(editId);if(!x)return;
   x.rows=clone(rows);x.tot=parseFloat($("tot").value)||0;x.mode=$("md").value;x.mt=Date.now();saveLib();saveState()}
 function discardEdit(){var x=editId&&findF(editId);if(!x)return;
@@ -483,22 +544,13 @@ function renderVers(){
   $("vl").innerHTML=vers.map(function(v,i){return {v:v,i:i}}).reverse().map(function(o){var v=o.v,i=o.i;return '<div class="ver"><b>Versión '+(i+1)+'</b> <small>'+esc(v.date||"")+' · '+f(v.tot,2)+' g</small><p>'+esc(v.note||"(sin notas)")+'</p><div class="bar"><button type="button" data-load="'+i+'">Cargar</button><button type="button" class="x" data-dv="'+i+'" aria-label="Borrar versión">&#10005;</button></div></div>'}).join("");
 }
 
-$("rows").addEventListener("input",function(e){
-  var t=e.target,i=t.getAttribute("data-i");if(i===null)return;
-  rows[i][t.getAttribute("data-k")]=t.getAttribute("data-k")==="d"?+t.value:t.value;if(t.getAttribute("data-k")==="n")refreshRow(+i);calc();
-});
-$("rows").addEventListener("click",function(e){
-  var d=e.target.getAttribute("data-del");if(d===null)return;
-  rows.splice(+d,1);if(!rows.length)rows.push({n:"",d:100,p:""});render();
-});
-$("add").onclick=function(){rows.push({n:"",d:100,p:""});render();var a=document.querySelectorAll("#rows .row");a[a.length-1].querySelector("input").focus()};
 
-$("md").onchange=render;$("tot").oninput=calc;$("mn").oninput=calc;$("dm").oninput=function(){dil();store()};$("ds").oninput=function(){dil();store()};$("nt").oninput=store;
-$("copy").onclick=function(){
-  var t=text(),ok=function(){$("cm").className="msg ok";$("cm").textContent="Fórmula copiada."};
-  var fb=function(){var a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");ok()}catch(e){$("cm").textContent="No se pudo copiar."}document.body.removeChild(a)};
-  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(ok,fb)}else fb();
-};
+$("md").onchange=render;$("m2").addEventListener("click",function(e){var n=e.target.getAttribute&&e.target.getAttribute("data-need");if(n){$("tot").value=n;calc()}});$("tot").oninput=calc;$("mn").oninput=calc;$("dm").oninput=function(){dil();store()};$("ds").oninput=function(){dil();store()};$("nt").oninput=store;
+function shareFormula(){
+  var x=editId&&findF(editId),t=(x?x.name+"\n":"")+text(),ok=function(){toast("Fórmula copiada")};
+  var fb=function(){var a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");ok()}catch(e){toast("No se pudo copiar")}document.body.removeChild(a)};
+  var copy=function(){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(ok,fb)}else fb()};
+  if(navigator.share){navigator.share({title:x?x.name:"Fórmula",text:t}).catch(function(e){if(!e||e.name!=="AbortError")copy()})}else copy()}
 $("sv").onclick=function(){
   var vm=$("vm");
   try{
@@ -583,7 +635,7 @@ $("fl").addEventListener("click",function(e){
   var t=e.target,o=t.getAttribute("data-fopen"),u=t.getAttribute("data-fup"),d=t.getAttribute("data-fdel"),x;
   if(o!==null){x=findF(o);if(!x)return;
     if(editId===x.id){showTab("calc");ebar();window.scrollTo(0,0);return}
-    rescue();editId=x.id;rows=clone(x.rows);if(!rows.length)rows=[{n:"",d:100,p:""}];$("tot").value=x.tot;if(x.mode)$("md").value=x.mode;$("nt").value=x.note||"";render();showTab("calc");ebar();window.scrollTo(0,0);$("cm").className="msg ok";$("cm").textContent="Abierta: "+x.name+".";return}
+    rescue();editId=x.id;rows=clone(x.rows);if(!rows.length)rows=[{n:"",d:100,p:""}];$("tot").value=x.tot;if(x.mode)$("md").value=x.mode;$("nt").value=x.note||"";render();showTab("calc");ebar();window.scrollTo(0,0);return}
   if(u!==null){x=findF(u);if(!x)return;if(armU!==u){armU=u;armD=null;renderLib();return}
     x.rows=clone(rows);x.tot=parseFloat($("tot").value)||0;x.mode=$("md").value;x.ts=Date.now();armU=null;saveLib();renderLib();$("fm").className="msg ok";$("fm").textContent="Actualizada: "+x.name+".";return}
   if(d!==null){if(armD!==d){armD=d;armU=null;renderLib();return}
@@ -995,12 +1047,13 @@ function rescue(){if(!rows.some(function(r){return r.n||parseFloat(r.p)}))return
   lib.push({id:"f"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:n,cat:"Recuperadas",ts:Date.now(),tot:parseFloat($("tot").value)||0,mode:$("md").value,note:$("nt").value,rows:clone(rows)});saveLib()}
 function ebar(){var b=$("ebar"),x=editId&&findF(editId);
   if(!x){editId=null;b.hidden=true;b.innerHTML="";return}
-  b.hidden=false;b.className="hdr ebar ecalc";b.innerHTML='<button type="button" class="mb" data-estop aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="et"><b>'+esc(x.name)+'</b><small>'+(x.cat?esc(x.cat):'Editando')+'</small></div><span class="rt"><button type="button" class="mb" data-eset aria-label="Ajustes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg></button><button type="button" class="save" data-esave>Guardar</button></span>';saveState()}
+  b.hidden=false;b.className="hdr ebar ecalc";b.innerHTML='<button type="button" class="mb" data-estop aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="et"><b>'+esc(x.name)+'</b><small id="esub"></small></div><span class="rt"><button type="button" class="mb" data-eshare aria-label="Compartir fórmula"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5v11M8 7.5l4-4 4 4"/><path d="M8.5 10.5H7a2 2 0 0 0-2 2V19a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6.5a2 2 0 0 0-2-2h-1.5"/></svg></button><button type="button" class="mb" data-eset aria-label="Ajustes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg></button><button type="button" class="mb save" data-esave aria-label="Guardar cambios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button></span>';saveState()}
 $("ebar").addEventListener("click",function(e){var t=e.target,x=editId&&findF(editId);if(!x||!t.hasAttribute)return;
   if(t.closest&&t.closest("[data-estop]")){leaveCalc(function(){
     var id=x.id;editId=null;ebar();openF=id;renderLib();showTab("for");window.scrollTo(0,0);store()});return}
   if(t.closest&&t.closest("[data-eset]")){$("setm").hidden=false;return}
-  if(t.closest&&t.closest("[data-esave]")){saveEdit();var b=t.closest("[data-esave]");b.textContent="✓";b.setAttribute("aria-label","Guardado");setTimeout(function(){if(b.isConnected)b.textContent="Guardar"},1400)}
+  if(t.closest&&t.closest("[data-eshare]")){shareFormula();return}
+  if(t.closest&&t.closest("[data-esave]")){saveEdit();toast("Cambios guardados")}
 });
 $("setok").onclick=function(){$("setm").hidden=true};
 $("setm").addEventListener("click",function(e){if(e.target===this)this.hidden=true});
