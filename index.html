@@ -135,6 +135,13 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 .mrow svg{width:22px;height:22px;flex:none}
 .mpan{padding:10px 12px;background:var(--bg);border:1px solid var(--line);border-top:0}
 .mpan .chk{margin-top:4px}
+.dils{display:flex;gap:8px;margin:4px 0 14px}
+.dils label{flex:1;margin:0;position:relative;display:flex;align-items:center;justify-content:center;min-height:50px;border:1.5px solid var(--line);border-radius:12px;font-size:17px;font-weight:600;color:var(--mute);background:var(--bg);cursor:pointer}
+.dils label.on{border-color:var(--acc);color:var(--acc);background:var(--accbg)}
+.dils input{position:absolute;opacity:0;width:1px;height:1px;min-height:0;pointer-events:none}
+.ebar .mb+.et+span{display:flex;justify-content:center}
+.ebar span svg{width:26px;height:26px}
+button.danger{width:100%;min-height:50px;color:var(--bad);border-color:var(--line);background:var(--card);margin-top:4px}
 #wz{position:fixed;inset:0;z-index:20;background:var(--bg);overflow:auto;padding:calc(env(safe-area-inset-top,0px) + 14px) 16px calc(env(safe-area-inset-bottom,0px) + 24px)}
 #wz .wzin{max-width:640px;margin:0 auto}
 #wz .wzbar{display:flex;gap:8px;align-items:center;margin-bottom:12px}
@@ -252,7 +259,7 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 
 <div id="tab-mat" hidden>
 <div class="hdr"><button type="button" class="mb" data-menu aria-label="Menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><h1>Materiales</h1><span></span></div>
-<p class="sub">Tu biblioteca por familia olfativa. Toca un material para editarlo.</p>
+<p class="sub">Tu biblioteca por familia olfativa. Toca un material para abrirlo.</p>
 <input id="mq" type="search" placeholder="Buscar material" aria-label="Buscar material" style="margin-bottom:10px">
 <div class="r1"><input id="mname" placeholder="Nombre del material nuevo" aria-label="Nombre del material"><button class="p" id="ma" style="flex:none">Agregar</button></div>
 <p class="msg" id="mm"></p>
@@ -324,22 +331,31 @@ function pyr(pos,col){
   var P=[["Salida","M12 3 L15.6 9.5 H8.4 Z"],["Corazón","M7.6 11 H16.4 L18.9 15.5 H5.1 Z"],["Fondo","M4.3 17 H19.7 L21.9 21 H2.1 Z"]];
   return '<svg viewBox="0 0 24 24" aria-hidden="true" style="color:'+col+'">'+P.map(function(q){var on=q[0]===pos;return '<path d="'+q[1]+'" fill="'+(on?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"'+(on?'':' opacity=".4"')+'/>'}).join("")+'</svg>';
 }
-function matPanel(m,i){
-  return '<div class="mpan"><label>Diluciones que tengo</label><div class="chk">'+
-  [100,10,1].map(function(v){return '<label><input type="checkbox" data-mi="'+i+'" data-v="'+v+'"'+(m.d.indexOf(v)>-1?' checked':'')+'>'+v+'%</label>'}).join("")+'</div>'+
-  '<div class="r2"><div><label>Familia</label><select data-mf="'+i+'">'+FAMLIST.map(function(f){return '<option'+(famOf(m)===f?' selected':'')+'>'+f+'</option>'}).join("")+'</select></div>'+
-  '<div><label>Pirámide</label><select data-mp="'+i+'">'+["","Salida","Corazón","Fondo"].map(function(q){return '<option value="'+q+'"'+((m.pos||"")===q?' selected':'')+'>'+(q||"Sin definir")+'</option>'}).join("")+'</select></div></div>'+
-  '<input placeholder="Nota (cómo huele, para qué lo usas)" aria-label="Nota" data-mn="'+i+'" value="'+esc(m.note||"")+'">'+
-  '<div class="bar" style="margin-top:8px"><button type="button" data-md="'+i+'" style="color:var(--bad)">Quitar de mi lista</button></div></div>';
+var armMd=null,matY=0;
+function matPage(m,i){
+  var f=famOf(m),sub=[f==="Sin familia"?"":f,m.pos||""].filter(Boolean).join(" · ")||"Sin familia";
+  return '<div class="hdr ebar"><button type="button" class="mb" data-mback aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="et"><b>'+esc(m.n)+'</b><small>'+esc(sub)+'</small></div><span>'+pyr(m.pos,FAM[f])+'</span></div>'+
+  '<section class="card"><label>Diluciones que tengo</label><div class="dils">'+
+  [100,10,1].map(function(v){var on=m.d.indexOf(v)>-1;return '<label class="'+(on?'on':'')+'"><input type="checkbox" data-mi="'+i+'" data-v="'+v+'"'+(on?' checked':'')+'>'+v+'%</label>'}).join("")+'</div>'+
+  '<div class="r2"><div><label for="mp-f">Familia</label><select id="mp-f" data-mf="'+i+'">'+FAMLIST.map(function(x){return '<option'+(f===x?' selected':'')+'>'+x+'</option>'}).join("")+'</select></div>'+
+  '<div><label for="mp-p">Pirámide</label><select id="mp-p" data-mp="'+i+'">'+["","Salida","Corazón","Fondo"].map(function(q){return '<option value="'+q+'"'+((m.pos||"")===q?' selected':'')+'>'+(q||"Sin definir")+'</option>'}).join("")+'</select></div></div>'+
+  '<label for="mp-n" style="margin-top:4px">Nota</label><textarea id="mp-n" rows="4" placeholder="Cómo huele, para qué lo usas" data-mn="'+i+'">'+esc(m.note||"")+'</textarea>'+
+  '<p class="msg" style="color:var(--mute)">Los cambios se guardan solos.</p></section>'+
+  '<button type="button" class="danger" data-md="'+i+'">'+(armMd===i?"¿Seguro? Toca otra vez":"Quitar de mi lista")+'</button>';
 }
+function openMat(i){matY=window.scrollY;openM=i;armMd=null;renderMats();window.scrollTo(0,0)}
+function closeMat(){openM=-1;armMd=null;renderMats();window.scrollTo(0,matY)}
 function renderMats(){
+  if(openM>=reg.length)openM=-1;
+  [].forEach.call($("tab-mat").children,function(c){c.hidden=openM>=0&&c.id!=="ml"});
+  if(openM>=0){$("ml").innerHTML=matPage(reg[openM],openM);return}
   var q=mq.trim().toLowerCase(),g={};
   reg.forEach(function(m,i){if(q&&(m.n+" "+(m.note||"")).toLowerCase().indexOf(q)<0)return;var f=famOf(m);(g[f]=g[f]||[]).push({m:m,i:i})});
   var h="";
   FAMLIST.forEach(function(f){var a=g[f];if(!a)return;
     a.sort(function(x,y){return x.m.n.localeCompare(y.m.n)});
     h+='<div class="fam" style="background:'+FAM[f]+'">'+f+'</div><div class="glist">'+a.map(function(o){var m=o.m,i=o.i;
-      return '<div class="mrow" data-mo="'+i+'" role="button" tabindex="0"><b>'+esc(m.n)+'</b><small>'+m.d.join(" · ")+'%</small>'+pyr(m.pos,FAM[f])+'</div>'+(openM===i?matPanel(m,i):'')}).join("")+'</div>'});
+      return '<div class="mrow" data-mo="'+i+'" role="button" tabindex="0"><b>'+esc(m.n)+'</b><small>'+m.d.join(" · ")+'%</small>'+pyr(m.pos,FAM[f])+'</div>'}).join("")+'</div>'});
   $("ml").innerHTML=h||'<p class="msg">'+(reg.length?"Nada coincide con la búsqueda.":"Todavía no hay materiales. Agrega el primero arriba.")+'</p>';
 }
 
@@ -464,9 +480,13 @@ $("vl").addEventListener("click",function(e){
 $("ma").onclick=function(){
   var n=$("mname").value.trim(),o=$("mm");o.className="msg";o.textContent="";if(!n)return;
   if(findMat(n)){o.textContent="Ese material ya está en la lista.";return}
-  reg.push({n:n,d:[100,10,1],note:"",fam:"",pos:""});openM=reg.length-1;mq="";$("mq").value="";saveMats();fillList();renderMats();refreshAll();$("mname").value="";
+  reg.push({n:n,d:[100,10,1],note:"",fam:"",pos:""});mq="";$("mq").value="";saveMats();fillList();refreshAll();$("mname").value="";openMat(reg.length-1);
 };
-$("ml").addEventListener("click",function(e){var d=e.target.getAttribute("data-md");if(d===null)return;reg.splice(+d,1);openM=-1;saveMats();fillList();renderMats();refreshAll()});
+$("ml").addEventListener("click",function(e){var t=e.target;
+  if(t.closest&&t.closest("[data-mback]")){closeMat();return}
+  var d=t.getAttribute("data-md");if(d===null)return;d=+d;
+  if(armMd!==d){armMd=d;renderMats();setTimeout(function(){if(armMd===d){armMd=null;renderMats()}},4000);return}
+  reg.splice(d,1);saveMats();fillList();refreshAll();closeMat()});
 $("ml").addEventListener("change",function(e){var i=e.target.getAttribute("data-mi");if(i===null)return;
   var v=+e.target.getAttribute("data-v"),m=reg[+i],k=m.d.indexOf(v);
   if(e.target.checked&&k<0)m.d.push(v);if(!e.target.checked&&k>-1)m.d.splice(k,1);
@@ -474,7 +494,7 @@ $("ml").addEventListener("change",function(e){var i=e.target.getAttribute("data-
 $("ml").addEventListener("change",function(e){var t=e.target,k=t.getAttribute("data-mf"),q=t.getAttribute("data-mp");
   if(k!==null){reg[+k].fam=t.value==="Sin familia"?"":t.value;saveMats();renderMats()}
   if(q!==null){reg[+q].pos=t.value;saveMats();renderMats()}});
-function toggleM(e){var r=e.target.closest&&e.target.closest("[data-mo]");if(!r)return;var i=+r.getAttribute("data-mo");openM=openM===i?-1:i;renderMats()}
+function toggleM(e){var r=e.target.closest&&e.target.closest("[data-mo]");if(!r)return;openMat(+r.getAttribute("data-mo"))}
 $("ml").addEventListener("click",toggleM);
 $("ml").addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){if(e.target.getAttribute&&e.target.getAttribute("data-mo")!==null){e.preventDefault();toggleM(e)}}});
 $("mq").oninput=function(){mq=this.value;renderMats()};
@@ -535,7 +555,7 @@ function closeMenu(){var m=$("menu");if(m.hidden||m.classList.contains("closing"
   if(reduce){m.hidden=true;return}
   m.classList.add("closing");setTimeout(function(){m.hidden=true;m.classList.remove("closing")},180)}
 $("menu").addEventListener("click",function(e){if(e.target===this||e.target.id==="menux"||e.target.id==="acc")closeMenu()});
-$("nv-mat").onclick=function(){showTab("mat")};
+$("nv-mat").onclick=function(){openM=-1;armMd=null;showTab("mat")};
 $("nv-for").onclick=function(){openF=null;evOpen=null;armD=armU=armE=null;renderLib();showTab("for")};
 
 var wz=null,wzLock=null;
