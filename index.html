@@ -143,6 +143,18 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 .dils label.on{border-color:var(--acc);color:var(--acc);background:var(--accbg)}
 .dils input{position:absolute;opacity:0;width:1px;height:1px;min-height:0;pointer-events:none}
 .hdr .mb.bad{color:var(--bad)}
+.hdr.two{grid-template-columns:96px 1fr 96px}
+.hdr .rt{display:flex;justify-content:flex-end;align-items:center}
+.hdr .lt{display:flex;align-items:center}
+.ecalc{grid-template-columns:72px 1fr 124px}
+.hdr .save{white-space:nowrap;border:0;background:transparent;color:var(--acc);font-weight:600;font-size:17px;padding:0 4px 0 6px;min-height:48px;width:auto}
+.hdr .save:disabled{color:var(--mute);opacity:.55}
+.ilist{padding:0;overflow:hidden}
+.ilist>div{display:flex;justify-content:space-between;gap:12px;padding:13px 14px;border-top:1px solid var(--line);font-size:16px}
+.ilist>div:first-child{border-top:0}
+.ilist span{color:var(--mute)}
+.ilist b{font-weight:500;text-align:right}
+.fwarn{background:var(--warnbg);color:var(--warn);border-radius:12px;padding:10px 12px;font-size:14px;margin:0 0 12px}
 .hdr .mb.acc{color:var(--acc)}
 #sheet{position:fixed;inset:0;z-index:28;background:rgba(0,0,0,.35);display:flex;flex-direction:column;justify-content:flex-end;padding:0 10px calc(env(safe-area-inset-bottom,0px) + 10px);animation:fadein .18s ease-out}
 #sheet .sgw{max-width:520px;width:100%;margin:0 auto;animation:sheetup .24s cubic-bezier(.2,.8,.2,1)}
@@ -221,13 +233,6 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
   <p class="msg" id="m2"></p>
 </section>
 
-<details class="card set">
-  <summary>Ajustes <small id="setsum"></small></summary>
-  <label for="md">Las partes son de</label>
-  <select id="md" style="margin-bottom:10px"><option value="puro">Material puro (mantiene la proporción olfativa)</option><option value="pesar">Lo que peso del frasco</option></select>
-  <label for="mn">Límite de alerta de la balanza (g)</label>
-  <input id="mn" type="number" inputmode="decimal" step="any" min="0" value="0.010">
-</details>
 
 <section>
   <h2>Materiales</h2>
@@ -267,22 +272,20 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
   <p class="msg" id="dr">Escribe los dos pesos para ver el porcentaje real.</p>
 </section>
 
-<section class="card">
-  <h2>Notas</h2>
-  <label for="nt">Qué cambiaste y cómo olía</label>
+<section hidden>
   <textarea id="nt"></textarea>
   <div hidden><input id="vn"><input id="vc"><button type="button" id="sv"></button><p id="vm"></p><div id="vl"></div></div>
 </section>
 </div>
 
 <div id="tab-mat" hidden>
-<div class="hdr"><button type="button" class="mb" data-menu aria-label="Menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><h1>Materiales</h1><button type="button" id="mnew" class="mb acc add" aria-label="Nuevo material"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
+<div class="hdr"><button type="button" class="mb" data-menu aria-label="Menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><h1>Materiales</h1><button type="button" id="mnew" class="mb add" aria-label="Nuevo material"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
 <input id="mq" type="search" placeholder="Buscar material" aria-label="Buscar material" style="margin-bottom:10px">
 <div id="ml"></div>
 </div>
 
 <div id="tab-for" hidden>
-<div class="hdr"><button type="button" class="mb" data-menu aria-label="Menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><h1>Fórmulas</h1><button type="button" id="fnew" class="mb acc add" aria-label="Nueva fórmula"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
+<div class="hdr"><button type="button" class="mb" data-menu aria-label="Menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><h1>Fórmulas</h1><button type="button" id="fnew" class="mb add" aria-label="Nueva fórmula"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
 <datalist id="fcats"></datalist>
 <p class="msg" id="fm" aria-live="polite"></p>
 <input id="fq" type="search" placeholder="Buscar fórmula" aria-label="Buscar fórmula" style="margin-bottom:6px">
@@ -309,6 +312,15 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
   <label for="mname">Nombre</label><input id="mname" placeholder="Ej. Ambroxan" enterkeyhint="go" autocomplete="off">
   <p class="msg" id="mm" aria-live="polite"></p>
   <div class="wzbtn" style="margin:14px 0 0"><button type="button" id="mcancel">Cancelar</button><button type="button" class="p" id="ma">Agregar</button></div>
+</section></div>
+<div id="setm" class="modal" hidden><section class="card mbox" role="dialog" aria-modal="true" aria-labelledby="sett">
+  <h2 id="sett">Ajustes de la fórmula</h2>
+  <label for="md">Las partes son de</label>
+  <select id="md" style="margin-bottom:12px"><option value="puro">Material puro (mantiene la proporción olfativa)</option><option value="pesar">Lo que peso del frasco</option></select>
+  <label for="mn">Límite de alerta de la balanza (g)</label>
+  <input id="mn" type="number" inputmode="decimal" step="any" min="0" value="0.010">
+  <p class="msg" style="color:var(--mute)">El límite avisa cuando una línea pide menos gramos de los que tu balanza mide bien.</p>
+  <div class="wzbtn" style="margin:14px 0 0"><button type="button" class="p" id="setok">Listo</button></div>
 </section></div>
 <div id="sheet" hidden></div>
 <div id="menu" hidden><div class="sheet" role="dialog" aria-label="Menú">
@@ -387,9 +399,9 @@ function prep(){
   o.innerHTML="Pesa <b>"+f(m,3)+" g</b> de material y <b>"+f(sv,3)+" g</b> de solvente = "+f(t,3)+" g al "+f(p,2)+"%.<br><span style=\"color:var(--mute)\">Pesa primero el material y después agrega solvente hasta el total. Luego anota lo que pesaste en la sección de abajo.</span>";
 }
 $("pp").oninput=prep;$("pt").oninput=prep;
-function snap(){return {rows:rows,vers:vers,lib:lib,tot:$("tot").value,mode:$("md").value,mn:$("mn").value,nt:$("nt").value,dm:$("dm").value,ds:$("ds").value}}
+function snap(){return {edit:editId,rows:rows,vers:vers,lib:lib,tot:$("tot").value,mode:$("md").value,mn:$("mn").value,nt:$("nt").value,dm:$("dm").value,ds:$("ds").value}}
 function store(){if(!ready)return;try{localStorage.setItem(KEY,JSON.stringify(snap()))}catch(e){}touch()}
-function load(){try{var s=JSON.parse(localStorage.getItem(KEY)||"null");if(s){rows=s.rows&&s.rows.length?s.rows:rows;vers=s.vers||[];lib=s.lib||[];if(s.tot)$("tot").value=s.tot;if(s.mode)$("md").value=s.mode;if(s.mn)$("mn").value=s.mn;if(s.nt)$("nt").value=s.nt;if(s.dm)$("dm").value=s.dm;if(s.ds)$("ds").value=s.ds}}catch(e){}}
+function load(){try{var s=JSON.parse(localStorage.getItem(KEY)||"null");if(s){rows=s.rows&&s.rows.length?s.rows:rows;vers=s.vers||[];lib=s.lib||[];editId=s.edit||null;if(s.tot)$("tot").value=s.tot;if(s.mode)$("md").value=s.mode;if(s.mn)$("mn").value=s.mn;if(s.nt)$("nt").value=s.nt;if(s.dm)$("dm").value=s.dm;if(s.ds)$("ds").value=s.ds}}catch(e){}}
 function f(n,d){return (isFinite(n)?n:0).toFixed(d)}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 
@@ -429,7 +441,6 @@ function calc(){
   });
   $("sp").textContent=f(S,2).replace(/\.?0+$/,"")||"0";
   $("sg").textContent=f(sg,3);
-  $("setsum").textContent=(mode==="puro"?"Material puro":"Lo que peso")+" · alerta "+f(L,3)+" g";
   var m1=$("m1");m1.className="msg";m1.textContent="";
   if(S===1000){m1.className="msg ok";m1.textContent="Las partes suman exactamente 1000."}
   var m2=$("m2");m2.className="msg";m2.textContent="";
@@ -438,11 +449,20 @@ function calc(){
     if(warnN>0){m2.className="msg wn";m2.textContent="Peso total mínimo sugerido: "+f(need,1)+" g para que la línea más pequeña llegue a "+f(L,3)+" g."}
     else{m2.textContent="Con este total, todas las líneas pasan el límite. Mínimo posible: "+f(need,1)+" g."}
   }
-  autoSave();store();
+  saveState();store();
 }
-/* Mientras editas una fórmula guardada, cada cambio se guarda en ella */
-function autoSave(){var x=editId&&findF(editId);if(!x)return;
-  x.rows=clone(rows);x.tot=parseFloat($("tot").value)||0;x.mode=$("md").value;x.note=$("nt").value}
+/* La calculadora trabaja sobre un borrador: Guardar lo pasa a la fórmula guardada */
+function saveState(){var b=document.querySelector("#ebar [data-esave]");if(b)b.disabled=!dirty()}
+function saveEdit(){var x=editId&&findF(editId);if(!x)return;
+  x.rows=clone(rows);x.tot=parseFloat($("tot").value)||0;x.mode=$("md").value;x.mt=Date.now();saveLib();saveState()}
+function discardEdit(){var x=editId&&findF(editId);if(!x)return;
+  rows=clone(x.rows&&x.rows.length?x.rows:[{n:"",d:100,p:""}]);$("tot").value=x.tot;if(x.mode)$("md").value=x.mode;render()}
+/* Salir de la calculadora: si hay cambios sin guardar, pregunta como en iOS */
+function leaveCalc(go){
+  if(!editId||$("tab-calc").hidden||!dirty()){go();return}
+  actionSheet("Tienes cambios sin guardar en esta fórmula.",[
+    {label:"Guardar cambios",fn:function(){saveEdit();go()}},
+    {label:"Descartar cambios",bad:true,fn:function(){discardEdit();go()}}])}
 
 function dil(){
   var m=parseFloat($("dm").value),s=parseFloat($("ds").value),o=$("dr");
@@ -473,7 +493,7 @@ $("rows").addEventListener("click",function(e){
 });
 $("add").onclick=function(){rows.push({n:"",d:100,p:""});render();var a=document.querySelectorAll("#rows .row");a[a.length-1].querySelector("input").focus()};
 
-$("md").onchange=render;$("tot").oninput=calc;$("mn").oninput=calc;$("dm").oninput=function(){dil();store()};$("ds").oninput=function(){dil();store()};$("nt").oninput=function(){autoSave();store()};
+$("md").onchange=render;$("tot").oninput=calc;$("mn").oninput=calc;$("dm").oninput=function(){dil();store()};$("ds").oninput=function(){dil();store()};$("nt").oninput=store;
 $("copy").onclick=function(){
   var t=text(),ok=function(){$("cm").className="msg ok";$("cm").textContent="Fórmula copiada."};
   var fb=function(){var a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");ok()}catch(e){$("cm").textContent="No se pudo copiar."}document.body.removeChild(a)};
@@ -549,8 +569,8 @@ function renderLib(){
       return '<div class="mrow" data-fo="'+x.id+'" role="button" tabindex="0"><b>'+esc(x.name)+'</b><small>'+fdate(x.ts)+'</small></div>'}).join("")+'</div>'}).join("");
   var dx=openF?findF(openF):null;if(!dx)openF=null;
   [].forEach.call($("tab-for").children,function(c){c.hidden=!!dx&&c.id!=="fl"});
-  document.body.classList.toggle("hasbar2",!!dx&&!$("tab-for").hidden);
-  if(dx){$("fl").innerHTML=fDet(dx);ebar();return}
+  document.body.classList.toggle("hasbar2",!!dx&&infoF!==dx.id&&!$("tab-for").hidden);
+  if(dx){$("fl").innerHTML=infoF===dx.id?fInfo(dx):fDet(dx);ebar();return}
   $("fl").innerHTML=h||'<p class="msg">'+(lib.length?"Nada coincide con la búsqueda.":"Todavía no hay fórmulas guardadas.")+'</p>';ebar();
 }
 function saveLib(){store()}
@@ -561,7 +581,9 @@ $("fl").addEventListener("click",function(e){
   if(toggleF(e))return;
   if(fExtra(e))return;
   var t=e.target,o=t.getAttribute("data-fopen"),u=t.getAttribute("data-fup"),d=t.getAttribute("data-fdel"),x;
-  if(o!==null){x=findF(o);if(!x)return;rescue();editId=x.id;rows=clone(x.rows);if(!rows.length)rows=[{n:"",d:100,p:""}];$("tot").value=x.tot;if(x.mode)$("md").value=x.mode;$("nt").value=x.note||"";render();showTab("calc");ebar();window.scrollTo(0,0);$("cm").className="msg ok";$("cm").textContent="Abierta: "+x.name+".";return}
+  if(o!==null){x=findF(o);if(!x)return;
+    if(editId===x.id){showTab("calc");ebar();window.scrollTo(0,0);return}
+    rescue();editId=x.id;rows=clone(x.rows);if(!rows.length)rows=[{n:"",d:100,p:""}];$("tot").value=x.tot;if(x.mode)$("md").value=x.mode;$("nt").value=x.note||"";render();showTab("calc");ebar();window.scrollTo(0,0);$("cm").className="msg ok";$("cm").textContent="Abierta: "+x.name+".";return}
   if(u!==null){x=findF(u);if(!x)return;if(armU!==u){armU=u;armD=null;renderLib();return}
     x.rows=clone(rows);x.tot=parseFloat($("tot").value)||0;x.mode=$("md").value;x.ts=Date.now();armU=null;saveLib();renderLib();$("fm").className="msg ok";$("fm").textContent="Actualizada: "+x.name+".";return}
   if(d!==null){if(armD!==d){armD=d;armU=null;renderLib();return}
@@ -594,8 +616,8 @@ function closeSheet(){$("sheet").hidden=true;$("sheet").innerHTML="";sheetFns=[]
 $("sheet").addEventListener("click",function(e){if(e.target===this){closeSheet();return}
   var b=e.target.closest&&e.target.closest("[data-sa]");if(!b)return;var fn=sheetFns[+b.getAttribute("data-sa")];closeSheet();if(fn)fn()});
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!$("sheet").hidden)closeSheet()});
-$("nv-mat").onclick=function(){openM=-1;armMd=null;showTab("mat")};
-$("nv-for").onclick=function(){openF=null;evOpen=null;armD=armU=armE=null;renderLib();showTab("for")};
+$("nv-mat").onclick=function(){leaveCalc(function(){openM=-1;armMd=null;showTab("mat")})};
+$("nv-for").onclick=function(){leaveCalc(function(){if(editId){editId=null;ebar();store()}openF=null;infoF=null;evOpen=null;armD=armU=armE=null;renderLib();showTab("for")})};
 
 var wz=null,wzLock=null;
 function wzBuild(){
@@ -662,7 +684,8 @@ function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(snap()));localS
 function lockUI(){gen++;clearTimeout(pushT);pushing=false;pendingPush=false;dbRef=null;syncReady=false;ready=false;resetState();redraw()}
 function useSpace(id){lockUI();setNS(id);booting=true;
   try{curTs=+localStorage.getItem(LTS)||0}catch(e){}
-  load();loadMats();redraw();booting=false;ready=true}
+  load();loadMats();redraw();booting=false;ready=true;
+  if(editId&&findF(editId)){showTab("calc");ebar();saveState()}else{editId=null;showTab("for")}}
 function setSync(t,ok){var e=$("sync");if(!e)return;e.textContent=t;e.className="msg"+(ok?" ok":"")}
 function touch(){if(booting||!ready)return;curTs=Date.now();try{localStorage.setItem(LTS,String(curTs))}catch(e){}schedulePush()}
 function schedulePush(){if(!dbRef||!syncReady||!ready)return;clearTimeout(pushT);pushT=setTimeout(push,800)}
@@ -680,7 +703,7 @@ function applyRemote(d){
   if(d.reg&&d.reg.length)reg=d.reg;
   migrate();if(d.lib)lib=d.lib;
   if(d.tot)$("tot").value=d.tot;
-  if(d.mode)$("md").value=d.mode;
+  if(d.mode)$("md").value=d.mode;editId=d.edit&&findF(d.edit)?d.edit:null;
   if(d.mn)$("mn").value=d.mn;if(d.nt!=null)$("nt").value=d.nt;if(d.dm!=null)$("dm").value=d.dm;if(d.ds!=null)$("ds").value=d.ds;
   curTs=d.ts||Date.now();saveLocal();redraw();
 }
@@ -929,18 +952,30 @@ $("fl").addEventListener("click",function(e){var t=e.target,isArm=t.getAttribute
   setTimeout(function(){clearTimeout(armT);if(armD||armU||armE)armT=setTimeout(disarmAll,4000)},0)},true);
 
 /* ===== Pantalla de la fórmula, aviso "Editando" y volver ===== */
+var infoF=null;
+function fInfo(x){
+  var c=calcOf(x),ev=x.evals||[],avg=0;ev.forEach(function(v){avg+=v.score||0});var sc=ev.filter(function(v){return v.score}).length;
+  return '<div class="hdr ebar"><button type="button" class="mb" data-iback aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="et"><b>Información</b><small>'+esc(x.name)+'</small></div><span></span></div>'+
+  '<section class="card ilist"><div><span>Creada</span><b>'+fdate(x.ts)+'</b></div>'+(x.mt?'<div><span>Modificada</span><b>'+fdate(x.mt)+'</b></div>':'')+
+  '<div><span>Peso total</span><b>'+f(x.tot,2)+' g</b></div><div><span>Materiales</span><b>'+c.rows.length+'</b></div>'+
+  '<div><span>Partes de</span><b>'+(x.mode==="pesar"?"lo que se pesa":"material puro")+'</b></div>'+(x.cat?'<div><span>Lote</span><b>'+esc(x.cat)+'</b></div>':'')+
+  (sc?'<div><span>Puntuación media</span><b class="stars">'+(avg/sc).toFixed(1)+' ★</b></div>':'')+'</section>'+
+  '<label for="fd-t">Notas</label><textarea id="fd-t" rows="4" data-ffnote="'+x.id+'" placeholder="Cómo huele, qué cambiarías">'+esc(x.note||"")+'</textarea>'+
+  evBlock(x)+(evOpen===x.id?'':'<button type="button" class="addrow" style="margin-top:12px" data-fev="'+x.id+'">+ Añadir evaluación</button>')+
+  '<p class="msg" id="fd-m"></p>';
+}
 function fDet(x){
   var c=calcOf(x);
-  return '<div class="hdr ebar"><button type="button" class="mb" data-fback aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="et"><b>'+esc(x.name)+'</b><small>'+(x.cat?esc(x.cat)+' · ':'')+f(x.tot,2)+' g</small></div><button type="button" class="mb acc" data-fmore="'+x.id+'" aria-label="Más acciones"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9.2"/><circle cx="7.8" cy="12" r="1.25" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.25" fill="currentColor" stroke="none"/><circle cx="16.2" cy="12" r="1.25" fill="currentColor" stroke="none"/></svg></button></div>'+
-  '<p class="msg" id="fd-m"></p>'+
-  '<p class="finfo">Creada el '+fdate(x.ts)+' · '+(x.mode==="pesar"?"partes de lo que se pesa":"partes de material puro")+'</p>'+
+  var draft=editId===x.id&&dirty();
+  return '<div class="hdr ebar two"><button type="button" class="mb" data-fback aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="et"><b>'+esc(x.name)+'</b><small>'+(x.cat?esc(x.cat)+' · ':'')+f(x.tot,2)+' g</small></div><span class="rt"><button type="button" class="mb acc" data-finfo="'+x.id+'" aria-label="Información"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.2"/><path d="M12 11v5.5"/><circle cx="12" cy="7.6" r="1.1" fill="currentColor" stroke="none"/></svg></button><button type="button" class="mb acc" data-fmore="'+x.id+'" aria-label="Más acciones"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9.2"/><circle cx="7.8" cy="12" r="1.25" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.25" fill="currentColor" stroke="none"/><circle cx="16.2" cy="12" r="1.25" fill="currentColor" stroke="none"/></svg></button></span></div>'+
+  '<p class="msg" id="fd-m"></p>'+(draft?'<p class="fwarn">Tienes cambios sin guardar en la calculadora. Toca Editar para seguir con ellos.</p>':'')+
   '<div class="flines">'+(c.rows.length?c.rows.map(function(r){return '<div><b>'+esc(r.n)+'</b> <small>'+r.d+'% · '+(+r.p.toFixed(2))+' partes</small><div><small>Pesar '+f(r.g,3)+' g · puro '+f(r.pu,4)+' g · '+f(r.pc*100,2)+'%</small></div></div>'}).join(""):'<p class="msg">Sin materiales.</p>')+'</div>'+
-  '<label for="fd-t">Notas</label><textarea id="fd-t" rows="3" data-ffnote="'+x.id+'" placeholder="Notas de la fórmula">'+esc(x.note||"")+'</textarea>'+
-  evBlock(x)+
-  '<div class="sumbar fbar"><div class="in"><button type="button" class="ev" data-fev="'+x.id+'">'+(evOpen===x.id?"Cancelar":"★ Evaluar")+'</button><button type="button" class="p" data-fopen="'+x.id+'">Editar en la calculadora</button></div></div>';
+  '<div class="sumbar fbar"><div class="in"><button type="button" class="p" data-fopen="'+x.id+'">Editar en la calculadora</button></div></div>';
 }
 $("fl").addEventListener("click",function(e){var t=e.target,b;if(!t.closest)return;
-  if(t.closest("[data-fback]")){openF=null;evOpen=null;armD=armU=armE=null;renderLib();window.scrollTo(0,0);return}
+  if(t.closest("[data-fback]")){openF=null;infoF=null;evOpen=null;armD=armU=armE=null;renderLib();window.scrollTo(0,0);return}
+  if((b=t.closest("[data-finfo]"))){infoF=b.getAttribute("data-finfo");evOpen=null;renderLib();window.scrollTo(0,0);return}
+  if(t.closest("[data-iback]")){infoF=null;evOpen=null;renderLib();window.scrollTo(0,0);return}
   if((b=t.closest("[data-fmore]"))){var x=findF(b.getAttribute("data-fmore"));if(!x)return;
     actionSheet("",[
       {label:"Cambiar nombre o lote",fn:function(){renameF(x.id)}},
@@ -960,11 +995,15 @@ function rescue(){if(!rows.some(function(r){return r.n||parseFloat(r.p)}))return
   lib.push({id:"f"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:n,cat:"Recuperadas",ts:Date.now(),tot:parseFloat($("tot").value)||0,mode:$("md").value,note:$("nt").value,rows:clone(rows)});saveLib()}
 function ebar(){var b=$("ebar"),x=editId&&findF(editId);
   if(!x){editId=null;b.hidden=true;b.innerHTML="";return}
-  b.hidden=false;b.innerHTML='<button type="button" class="mb" data-estop aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="et"><b>'+esc(x.name)+'</b><small>'+(x.cat?esc(x.cat)+' · ':'')+'Se guarda solo</small></div><span class="ok" title="Guardado" aria-label="Guardado">✓</span>'}
+  b.hidden=false;b.className="hdr ebar ecalc";b.innerHTML='<button type="button" class="mb" data-estop aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="et"><b>'+esc(x.name)+'</b><small>'+(x.cat?esc(x.cat):'Editando')+'</small></div><span class="rt"><button type="button" class="mb" data-eset aria-label="Ajustes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg></button><button type="button" class="save" data-esave>Guardar</button></span>';saveState()}
 $("ebar").addEventListener("click",function(e){var t=e.target,x=editId&&findF(editId);if(!x||!t.hasAttribute)return;
-  if(t.closest&&t.closest("[data-estop]")){
-    var id=x.id;editId=null;ebar();openF=id;renderLib();showTab("for");window.scrollTo(0,0);return}
+  if(t.closest&&t.closest("[data-estop]")){leaveCalc(function(){
+    var id=x.id;editId=null;ebar();openF=id;renderLib();showTab("for");window.scrollTo(0,0);store()});return}
+  if(t.closest&&t.closest("[data-eset]")){$("setm").hidden=false;return}
+  if(t.closest&&t.closest("[data-esave]")){saveEdit();var b=t.closest("[data-esave]");b.textContent="✓";b.setAttribute("aria-label","Guardado");setTimeout(function(){if(b.isConnected)b.textContent="Guardar"},1400)}
 });
+$("setok").onclick=function(){$("setm").hidden=true};
+$("setm").addEventListener("click",function(e){if(e.target===this)this.hidden=true});
 var renId=null;
 function newClose(){$("fnewm").hidden=true;$("nn").value="";$("nl").value="";$("nm").textContent="";renId=null;$("fnewt").textContent="Nueva fórmula";$("ncreate").textContent="Crear"}
 $("fnew").onclick=function(){renId=null;$("fnewm").hidden=false;$("nn").focus()};
@@ -984,7 +1023,7 @@ $("ncreate").onclick=function(){var n=$("nn").value.trim(),m=$("nm");m.className
   openF=null;renderLib();showTab("calc");ebar();window.scrollTo(0,0)};
 resetState();redraw();
 initAuth();
-$("nv-calc").hidden=true;showTab("for");
+$("nv-calc").hidden=true;if(!editId)showTab("for");
 function flush(){if(!ready)return;saveLocal();if(dbRef&&syncReady){clearTimeout(pushT);push()}}
 document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")flush()});
 window.addEventListener("pagehide",flush);
