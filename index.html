@@ -34,7 +34,7 @@ html,body,*{scrollbar-width:none;-ms-overflow-style:none}
 body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.45 "Instrument Sans",system-ui,sans-serif;font-variant-numeric:tabular-nums}
 main{max-width:640px;margin:0 auto;padding:18px 14px 20px}
 body{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
-body.hasbar{padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))}
+body.hasbar,body.hasbar2{padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))}
 h1{font-size:24px;margin:0 0 2px;font-weight:700;letter-spacing:-.01em}
 h2{font-size:17px;margin:0 0 10px;font-weight:600}
 .sub{color:var(--mute);margin:0 0 16px;font-size:14px}
@@ -109,7 +109,7 @@ details.set[open] summary{margin-bottom:10px}
 @keyframes slidein{from{transform:translateX(-100%)}}
 @keyframes slideout{to{transform:translateX(-100%)}}
 @keyframes popin{from{opacity:0;transform:translateY(-8px) scale(.98)}}
-@keyframes tabin{from{opacity:0;transform:translateY(6px)}}
+@keyframes tabin{from{opacity:0}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 #menu .sheet{position:absolute;top:0;left:0;bottom:0;width:min(300px,84vw);background:var(--card);box-shadow:4px 0 24px rgba(0,0,0,.18);border-right:1px solid var(--line);padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 24px;overflow:auto;display:flex;flex-direction:column;gap:10px}
 #menu .mh{display:flex;align-items:center;justify-content:space-between}
@@ -142,9 +142,24 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 .dils label{flex:1;margin:0;position:relative;display:flex;align-items:center;justify-content:center;min-height:50px;border:1.5px solid var(--line);border-radius:12px;font-size:17px;font-weight:600;color:var(--mute);background:var(--bg);cursor:pointer}
 .dils label.on{border-color:var(--acc);color:var(--acc);background:var(--accbg)}
 .dils input{position:absolute;opacity:0;width:1px;height:1px;min-height:0;pointer-events:none}
-.ebar .mb+.et+span{display:flex;justify-content:center}
-.ebar span svg{width:26px;height:26px}
-button.danger{width:100%;min-height:50px;color:var(--bad);border-color:var(--line);background:var(--card);margin-top:4px}
+.hdr .mb.bad{color:var(--bad)}
+.hdr .mb.acc{color:var(--acc)}
+#sheet{position:fixed;inset:0;z-index:28;background:rgba(0,0,0,.35);display:flex;flex-direction:column;justify-content:flex-end;padding:0 10px calc(env(safe-area-inset-bottom,0px) + 10px);animation:fadein .18s ease-out}
+#sheet .sgw{max-width:520px;width:100%;margin:0 auto;animation:sheetup .24s cubic-bezier(.2,.8,.2,1)}
+#sheet .sg{background:var(--card);border-radius:14px;overflow:hidden;margin-top:8px}
+#sheet .st{font-size:13px;line-height:1.35;color:var(--mute);text-align:center;padding:14px 16px}
+#sheet .sg button{display:block;width:100%;border:0;border-top:1px solid var(--line);border-radius:0;background:transparent;min-height:56px;font-size:19px;color:var(--acc)}
+#sheet .sg button:first-child{border-top:0}
+#sheet .sg .st+button{border-top:1px solid var(--line)}
+#sheet .sg button.bad{color:var(--bad)}
+#sheet .sg.cancel button{font-weight:600}
+@keyframes sheetup{from{transform:translateY(100%)}}
+.finfo{font-size:13px;color:var(--mute);margin:0 0 6px}
+.flines{margin:0 0 14px}
+.flines>div{padding:9px 0;border-bottom:1px solid var(--line)}
+.flines small{color:var(--mute)}
+.fbar .in button.ev{flex:none;min-height:48px;padding:0 14px}
+.fbar .in button.p{flex:1}
 #wz{position:fixed;inset:0;z-index:20;background:var(--bg);overflow:auto;padding:calc(env(safe-area-inset-top,0px) + 14px) 16px calc(env(safe-area-inset-bottom,0px) + 24px)}
 #wz .wzin{max-width:640px;margin:0 auto}
 #wz .wzbar{display:flex;gap:8px;align-items:center;margin-bottom:12px}
@@ -292,6 +307,7 @@ button.danger{width:100%;min-height:50px;color:var(--bad);border-color:var(--lin
   <p class="msg" id="nm" aria-live="polite"></p>
   <div class="wzbtn" style="margin:14px 0 0"><button type="button" id="ncancel">Cancelar</button><button type="button" class="p" id="ncreate">Crear</button></div>
 </section></div>
+<div id="sheet" hidden></div>
 <div id="menu" hidden><div class="sheet" role="dialog" aria-label="Menú">
   <div class="mh"><b>Calculadora de fórmulas</b><button type="button" id="menux" aria-label="Cerrar menú" style="width:44px;padding:0;border-color:transparent;background:transparent">&#10005;</button></div>
   <p id="sync" class="msg">Respaldo: comprobando…</p>
@@ -337,14 +353,13 @@ function pyr(pos,col){
 var armMd=null,matY=0;
 function matPage(m,i){
   var f=famOf(m),sub=[f==="Sin familia"?"":f,m.pos||""].filter(Boolean).join(" · ")||"Sin familia";
-  return '<div class="hdr ebar"><button type="button" class="mb" data-mback aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="et"><b>'+esc(m.n)+'</b><small>'+esc(sub)+'</small></div><span>'+pyr(m.pos,FAM[f])+'</span></div>'+
+  return '<div class="hdr ebar"><button type="button" class="mb" data-mback aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="et"><b>'+esc(m.n)+'</b><small>'+esc(sub)+'</small></div><button type="button" class="mb bad" data-mdel="'+i+'" aria-label="Quitar de mi lista"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M5.5 7l1 12a2 2 0 0 0 2 1.8h7a2 2 0 0 0 2-1.8l1-12M9 7V4.8A.8.8 0 0 1 9.8 4h4.4a.8.8 0 0 1 .8.8V7"/></svg></button></div>'+
   '<section class="card"><label>Diluciones que tengo</label><div class="dils">'+
   [100,10,1].map(function(v){var on=m.d.indexOf(v)>-1;return '<label class="'+(on?'on':'')+'"><input type="checkbox" data-mi="'+i+'" data-v="'+v+'"'+(on?' checked':'')+'>'+v+'%</label>'}).join("")+'</div>'+
   '<div class="r2"><div><label for="mp-f">Familia</label><select id="mp-f" data-mf="'+i+'">'+FAMLIST.map(function(x){return '<option'+(f===x?' selected':'')+'>'+x+'</option>'}).join("")+'</select></div>'+
   '<div><label for="mp-p">Pirámide</label><select id="mp-p" data-mp="'+i+'">'+["","Salida","Corazón","Fondo"].map(function(q){return '<option value="'+q+'"'+((m.pos||"")===q?' selected':'')+'>'+(q||"Sin definir")+'</option>'}).join("")+'</select></div></div>'+
   '<label for="mp-n" style="margin-top:4px">Nota</label><textarea id="mp-n" rows="4" placeholder="Cómo huele, para qué lo usas" data-mn="'+i+'">'+esc(m.note||"")+'</textarea>'+
-  '<p class="msg" style="color:var(--mute)">Los cambios se guardan solos.</p></section>'+
-  '<button type="button" class="danger" data-md="'+i+'">'+(armMd===i?"¿Seguro? Toca otra vez":"Quitar de mi lista")+'</button>';
+  '<p class="msg" style="color:var(--mute)">Los cambios se guardan solos.</p></section>';
 }
 function openMat(i){matY=window.scrollY;openM=i;armMd=null;renderMats();window.scrollTo(0,0)}
 function closeMat(){openM=-1;armMd=null;renderMats();window.scrollTo(0,matY)}
@@ -487,9 +502,9 @@ $("ma").onclick=function(){
 };
 $("ml").addEventListener("click",function(e){var t=e.target;
   if(t.closest&&t.closest("[data-mback]")){closeMat();return}
-  var d=t.getAttribute("data-md");if(d===null)return;d=+d;
-  if(armMd!==d){armMd=d;renderMats();setTimeout(function(){if(armMd===d){armMd=null;renderMats()}},4000);return}
-  reg.splice(d,1);saveMats();fillList();refreshAll();closeMat()});
+  var b=t.closest&&t.closest("[data-mdel]");if(!b)return;var d=+b.getAttribute("data-mdel"),m=reg[d];if(!m)return;
+  actionSheet("¿Quitar "+m.n+" de tu lista de materiales? Las fórmulas que ya lo usan no cambian.",[{label:"Quitar de mi lista",bad:true,fn:function(){
+    var k=reg.indexOf(m);if(k<0)return;reg.splice(k,1);saveMats();fillList();refreshAll();closeMat()}}])});
 $("ml").addEventListener("change",function(e){var i=e.target.getAttribute("data-mi");if(i===null)return;
   var v=+e.target.getAttribute("data-v"),m=reg[+i],k=m.d.indexOf(v);
   if(e.target.checked&&k<0)m.d.push(v);if(!e.target.checked&&k>-1)m.d.splice(k,1);
@@ -526,6 +541,7 @@ function renderLib(){
       return '<div class="mrow" data-fo="'+x.id+'" role="button" tabindex="0"><b>'+esc(x.name)+'</b><small>'+fdate(x.ts)+'</small></div>'}).join("")+'</div>'}).join("");
   var dx=openF?findF(openF):null;if(!dx)openF=null;
   [].forEach.call($("tab-for").children,function(c){c.hidden=!!dx&&c.id!=="fl"});
+  document.body.classList.toggle("hasbar2",!!dx&&!$("tab-for").hidden);
   if(dx){$("fl").innerHTML=fDet(dx);ebar();return}
   $("fl").innerHTML=h||'<p class="msg">'+(lib.length?"Nada coincide con la búsqueda.":"Todavía no hay fórmulas guardadas.")+'</p>';ebar();
 }
@@ -547,7 +563,7 @@ function showTab(t){
   if(t==="calc"&&!editId)t="for";
   ["calc","mat","for"].forEach(function(k){var el=$("tab-"+k),was=el.hidden;el.hidden=k!==t;$("nv-"+k).classList.toggle("on",k===t);
     if(k===t&&was){el.classList.remove("tabin");void el.offsetWidth;el.classList.add("tabin")}});
-  document.body.classList.toggle("hasbar",t==="calc");
+  document.body.classList.toggle("hasbar",t==="calc");if(t!=="for")document.body.classList.remove("hasbar2");
   if(t==="mat")renderMats();if(t==="for")renderLib();
   window.scrollTo(0,0);
 }
@@ -558,6 +574,18 @@ function closeMenu(){var m=$("menu");if(m.hidden||m.classList.contains("closing"
   if(reduce){m.hidden=true;return}
   m.classList.add("closing");setTimeout(function(){m.hidden=true;m.classList.remove("closing")},180)}
 $("menu").addEventListener("click",function(e){if(e.target===this||e.target.id==="menux"||e.target.id==="acc")closeMenu()});
+/* Hoja de acciones al estilo iOS: aparece desde abajo, con Cancelar aparte */
+var sheetFns=[];
+function actionSheet(title,acts){
+  sheetFns=acts.map(function(a){return a.fn});
+  $("sheet").innerHTML='<div class="sgw" role="dialog" aria-modal="true"><div class="sg">'+(title?'<div class="st">'+esc(title)+'</div>':'')+
+    acts.map(function(a,i){return '<button type="button" data-sa="'+i+'"'+(a.bad?' class="bad"':'')+'>'+esc(a.label)+'</button>'}).join("")+
+    '</div><div class="sg cancel"><button type="button" data-sa="-1">Cancelar</button></div></div>';
+  $("sheet").hidden=false}
+function closeSheet(){$("sheet").hidden=true;$("sheet").innerHTML="";sheetFns=[]}
+$("sheet").addEventListener("click",function(e){if(e.target===this){closeSheet();return}
+  var b=e.target.closest&&e.target.closest("[data-sa]");if(!b)return;var fn=sheetFns[+b.getAttribute("data-sa")];closeSheet();if(fn)fn()});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!$("sheet").hidden)closeSheet()});
 $("nv-mat").onclick=function(){openM=-1;armMd=null;showTab("mat")};
 $("nv-for").onclick=function(){openF=null;evOpen=null;armD=armU=armE=null;renderLib();showTab("for")};
 
@@ -784,7 +812,7 @@ function evBlock(x){
 function fExtra(e){
   var t=e.target,a;if(!t.getAttribute)return false;
   if((a=t.getAttribute("data-evs"))!==null){var box=t.parentNode;box.setAttribute("data-score",a);[].forEach.call(box.children,function(b){b.classList.toggle("on",+b.getAttribute("data-evs")<=+a)});return true}
-  if((a=t.getAttribute("data-fev"))!==null){evOpen=evOpen===a?null:a;renderLib();return true}
+  if((a=t.getAttribute("data-fev"))!==null){evOpen=evOpen===a?null:a;renderLib();if(evOpen&&$("ev-w"))$("ev-w").scrollIntoView({block:"center",behavior:"smooth"});return true}
   if((a=t.getAttribute("data-evsave"))!==null){var x=findF(a);if(!x)return true;
     var sc=+$("ev-s").getAttribute("data-score"),nt=$("ev-n").value.trim();
     if(!sc&&!nt){$("ev-m").textContent="Pon una calificación o una nota.";return true}
@@ -792,13 +820,15 @@ function fExtra(e){
     evOpen=null;saveLib();renderLib();return true}
   if((a=t.getAttribute("data-evdel"))!==null){var q=a.split("|"),y=findF(q[0]);
     if(!y)return true;if(armE!==a){armE=a;renderLib();return true}armE=null;y.evals=(y.evals||[]).filter(function(v){return v.id!==q[1]});saveLib();renderLib();return true}
-  if((a=t.getAttribute("data-fdup"))!==null){var s0=findF(a);if(!s0)return true;
-    var nm=s0.name+" (copia)",k=2;while(lib.some(function(v){return v.name.toLowerCase()===nm.toLowerCase()}))nm=s0.name+" (copia "+(k++)+")";
-    var id="f"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-    lib.push({id:id,name:nm,cat:s0.cat||"",ts:Date.now(),tot:s0.tot,mode:s0.mode,note:s0.note||"",rows:clone(s0.rows||[])});
-    openF=id;armD=armU=null;evOpen=null;saveLib();renderLib();$("fd-m").className="msg ok";$("fd-m").textContent="Duplicada ✓ Esta es la copia.";window.scrollTo(0,0);return true}
+  if((a=t.getAttribute("data-fdup"))!==null){dupF(a);return true}
   if((a=t.getAttribute("data-fpdf"))!==null){var z=findF(a);if(z)exportPDF(z);return true}
   return false}
+function dupF(a){var s0=findF(a);if(!s0)return;
+  var nm=s0.name+" (copia)",k=2;while(lib.some(function(v){return v.name.toLowerCase()===nm.toLowerCase()}))nm=s0.name+" (copia "+(k++)+")";
+  var id="f"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  lib.push({id:id,name:nm,cat:s0.cat||"",ts:Date.now(),tot:s0.tot,mode:s0.mode,note:s0.note||"",rows:clone(s0.rows||[])});
+  openF=id;armD=armU=null;evOpen=null;saveLib();renderLib();$("fd-m").className="msg ok";$("fd-m").textContent="Duplicada ✓ Esta es la copia.";window.scrollTo(0,0)}
+function delF(id){lib=lib.filter(function(a){return a.id!==id});if(editId===id)editId=null;openF=null;evOpen=null;armD=armU=armE=null;saveLib();renderLib();window.scrollTo(0,0)}
 /* Cálculo de una fórmula guardada (misma matemática que la calculadora, pero con los datos de ESA fórmula) */
 function calcOf(x){
   var mode=x.mode||"puro",T=parseFloat(x.tot)||0,S=0,W=0;
@@ -893,18 +923,23 @@ $("fl").addEventListener("click",function(e){var t=e.target,isArm=t.getAttribute
 /* ===== Pantalla de la fórmula, aviso "Editando" y volver ===== */
 function fDet(x){
   var c=calcOf(x);
-  return '<div class="bar" style="margin-bottom:10px"><button type="button" data-fback>‹ Volver</button></div>'+
-  '<label for="fd-n">Nombre</label><input id="fd-n" data-ffn="'+x.id+'" value="'+esc(x.name)+'">'+
-  '<label for="fd-c">Categoría</label><input id="fd-c" list="fcats" data-ffc="'+x.id+'" value="'+esc(x.cat||"")+'" placeholder="Ej. Skin scent">'+
+  return '<div class="hdr ebar"><button type="button" class="mb" data-fback aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="et"><b>'+esc(x.name)+'</b><small>'+(x.cat?esc(x.cat)+' · ':'')+f(x.tot,2)+' g</small></div><button type="button" class="mb acc" data-fmore="'+x.id+'" aria-label="Más acciones"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9.2"/><circle cx="7.8" cy="12" r="1.25" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.25" fill="currentColor" stroke="none"/><circle cx="16.2" cy="12" r="1.25" fill="currentColor" stroke="none"/></svg></button></div>'+
   '<p class="msg" id="fd-m"></p>'+
-  '<small style="color:var(--mute)">Creada el '+fdate(x.ts)+' · '+f(x.tot,2)+' g en total · '+(x.mode==="pesar"?"partes de lo que se pesa":"partes de material puro")+'</small>'+
-  '<div style="margin:8px 0 12px">'+(c.rows.length?c.rows.map(function(r){return '<div style="padding:7px 0;border-bottom:1px solid var(--line,#d5e0da)"><b>'+esc(r.n)+'</b> <small style="color:var(--mute)">'+r.d+'% · '+(+r.p.toFixed(2))+' partes</small><div><small style="color:var(--mute)">Pesar '+f(r.g,3)+' g · puro '+f(r.pu,4)+' g · '+f(r.pc*100,2)+'%</small></div></div>'}).join(""):'<p class="msg">Sin materiales.</p>')+'</div>'+
+  '<p class="finfo">Creada el '+fdate(x.ts)+' · '+(x.mode==="pesar"?"partes de lo que se pesa":"partes de material puro")+'</p>'+
+  '<div class="flines">'+(c.rows.length?c.rows.map(function(r){return '<div><b>'+esc(r.n)+'</b> <small>'+r.d+'% · '+(+r.p.toFixed(2))+' partes</small><div><small>Pesar '+f(r.g,3)+' g · puro '+f(r.pu,4)+' g · '+f(r.pc*100,2)+'%</small></div></div>'}).join(""):'<p class="msg">Sin materiales.</p>')+'</div>'+
   '<label for="fd-t">Notas</label><textarea id="fd-t" rows="3" data-ffnote="'+x.id+'" placeholder="Notas de la fórmula">'+esc(x.note||"")+'</textarea>'+
-  '<div class="bar" style="margin-top:10px"><button type="button" class="p" data-fopen="'+x.id+'">Editar en la calculadora</button></div>'+
-  '<div class="bar" style="margin-top:8px"><button type="button" data-fev="'+x.id+'">'+(evOpen===x.id?"Cancelar evaluación":"Evaluar")+'</button><button type="button" data-fdup="'+x.id+'">Duplicar</button><button type="button" data-fpdf="'+x.id+'">Exportar PDF</button></div>'+evBlock(x)+
-  '<div class="bar" style="margin-top:14px"><button type="button" data-fdel="'+x.id+'" style="color:var(--bad)">'+(armD===x.id?"¿Seguro? Toca otra vez":"Borrar")+'</button></div>';
+  evBlock(x)+
+  '<div class="sumbar fbar"><div class="in"><button type="button" class="ev" data-fev="'+x.id+'">'+(evOpen===x.id?"Cancelar":"★ Evaluar")+'</button><button type="button" class="p" data-fopen="'+x.id+'">Editar en la calculadora</button></div></div>';
 }
-$("fl").addEventListener("click",function(e){if(e.target.getAttribute&&e.target.getAttribute("data-fback")!==null){openF=null;evOpen=null;armD=armU=armE=null;renderLib();window.scrollTo(0,0)}});
+$("fl").addEventListener("click",function(e){var t=e.target,b;if(!t.closest)return;
+  if(t.closest("[data-fback]")){openF=null;evOpen=null;armD=armU=armE=null;renderLib();window.scrollTo(0,0);return}
+  if((b=t.closest("[data-fmore]"))){var x=findF(b.getAttribute("data-fmore"));if(!x)return;
+    actionSheet("",[
+      {label:"Cambiar nombre o lote",fn:function(){renameF(x.id)}},
+      {label:"Duplicar",fn:function(){dupF(x.id)}},
+      {label:"Exportar PDF",fn:function(){exportPDF(x)}},
+      {label:"Borrar fórmula",bad:true,fn:function(){actionSheet("¿Borrar "+x.name+"? No se puede deshacer.",[{label:"Borrar fórmula",bad:true,fn:function(){delF(x.id)}}])}}
+    ])}});
 $("fl").addEventListener("change",function(e){var t=e.target,id,x;if(t.getAttribute&&(id=t.getAttribute("data-ffnote"))!==null){x=findF(id);if(x){x.note=t.value;saveLib()}}});
 function sig(rs,tot,mode){return JSON.stringify([(rs||[]).filter(function(r){return r.n||parseFloat(r.p)}).map(function(r){return[r.n,+r.d,String(r.p)]}),parseFloat(tot)||0,mode||"puro"])}
 function dirty(){var x=editId&&findF(editId);return x?sig(rows,$("tot").value,$("md").value)!==sig(x.rows,x.tot,x.mode):false}
@@ -922,13 +957,18 @@ $("ebar").addEventListener("click",function(e){var t=e.target,x=editId&&findF(ed
   if(t.closest&&t.closest("[data-estop]")){
     var id=x.id;editId=null;ebar();openF=id;renderLib();showTab("for");window.scrollTo(0,0);return}
 });
-function newClose(){$("fnewm").hidden=true;$("nn").value="";$("nl").value="";$("nm").textContent=""}
-$("fnew").onclick=function(){$("fnewm").hidden=false;$("nn").focus()};
+var renId=null;
+function newClose(){$("fnewm").hidden=true;$("nn").value="";$("nl").value="";$("nm").textContent="";renId=null;$("fnewt").textContent="Nueva fórmula";$("ncreate").textContent="Crear"}
+$("fnew").onclick=function(){renId=null;$("fnewm").hidden=false;$("nn").focus()};
+function renameF(id){var x=findF(id);if(!x)return;renId=id;$("fnewt").textContent="Cambiar nombre";$("ncreate").textContent="Guardar";$("nn").value=x.name;$("nl").value=x.cat||"";$("nm").textContent="";$("fnewm").hidden=false;$("nn").focus()}
 $("ncancel").onclick=newClose;
 $("fnewm").addEventListener("click",function(e){if(e.target===this)newClose()});
 $("fnewm").addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.tagName==="INPUT")$("ncreate").click();if(e.key==="Escape")newClose()});
 $("ncreate").onclick=function(){var n=$("nn").value.trim(),m=$("nm");m.className="msg";
   if(!n){m.textContent="Ponle un nombre a la fórmula.";return}
+  if(renId){var rx=findF(renId);if(!rx){newClose();return}
+    if(lib.some(function(v){return v!==rx&&v.name.toLowerCase()===n.toLowerCase()})){m.className="msg wn";m.textContent="Ya hay una fórmula con ese nombre.";return}
+    rx.name=n;rx.cat=$("nl").value.trim();newClose();saveLib();renderLib();return}
   if(lib.some(function(v){return v.name.toLowerCase()===n.toLowerCase()})){m.className="msg wn";m.textContent="Ya hay una fórmula con ese nombre.";return}
   rescue();var id="f"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),blank=function(){return[{n:"",d:100,p:""}]};
   lib.push({id:id,name:n,cat:$("nl").value.trim(),ts:Date.now(),tot:parseFloat($("tot").value)||10,mode:$("md").value,note:"",rows:blank()});
