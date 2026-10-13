@@ -28,6 +28,9 @@ button,.mrow,.nav,.fam,summary,label{-webkit-user-select:none;user-select:none;-
 button{transition:opacity .12s,transform .12s}
 button:active:not(:disabled),.mrow:active{opacity:.6}
 #wz,#gate,.modal,#menu .sheet{overscroll-behavior:contain}
+/* Sin barra de scroll a la derecha, como en las apps del iPhone */
+html,body,*{scrollbar-width:none;-ms-overflow-style:none}
+::-webkit-scrollbar{display:none;width:0;height:0;background:transparent}
 body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.45 "Instrument Sans",system-ui,sans-serif;font-variant-numeric:tabular-nums}
 main{max-width:640px;margin:0 auto;padding:18px 14px 20px}
 body{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
