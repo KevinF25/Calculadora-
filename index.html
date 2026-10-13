@@ -533,7 +533,7 @@ function dil(){
 
 function text(){
   var T=parseFloat($("tot").value)||0,S=0,mode=$("md").value,fr=fracs();rows.forEach(function(r){S+=parseFloat(r.p)||0});
-  var t="Total: "+f(T,3)+" g | Partes de "+(mode==="puro"?"material puro":"lo pesado")+": "+S+"\n";
+  var t="Total: "+f(T,3)+" g | Partes de "+(mode==="puro"?"material puro":"lo pesado")+": "+(f(S,4).replace(/\.?0+$/,"")||"0")+"\n";
   rows.forEach(function(r,i){var p=parseFloat(r.p)||0;if(!r.n&&!p)return;var g=fr[i]*T;
     t+=(r.n||"(sin nombre)")+" ("+r.d+"%): "+p+" partes, "+f(g,3)+" g de dilución, "+f(g*r.d/100,4)+" g puro\n"});
   return t;
