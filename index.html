@@ -89,7 +89,7 @@ details.set[open] summary{margin-bottom:10px}
 .hdr button{width:48px;min-height:48px;padding:0;display:flex;align-items:center;justify-content:center}
 .hdr .mb{border-color:transparent;background:transparent;color:var(--ink)}
 .hdr svg{width:24px;height:24px}
-.hdr .add{font-size:26px;line-height:1}
+.hdr .add svg{width:28px;height:28px}
 .ebar .et{text-align:center;min-width:0}
 .ebar .et b{display:block;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ebar .et small{display:block;color:var(--mute);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -276,16 +276,13 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 </div>
 
 <div id="tab-mat" hidden>
-<div class="hdr"><button type="button" class="mb" data-menu aria-label="Menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><h1>Materiales</h1><span></span></div>
-<p class="sub">Tu biblioteca por familia olfativa. Toca un material para abrirlo.</p>
+<div class="hdr"><button type="button" class="mb" data-menu aria-label="Menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><h1>Materiales</h1><button type="button" id="mnew" class="mb acc add" aria-label="Nuevo material"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
 <input id="mq" type="search" placeholder="Buscar material" aria-label="Buscar material" style="margin-bottom:10px">
-<div class="r1"><input id="mname" placeholder="Nombre del material nuevo" aria-label="Nombre del material"><button class="p" id="ma" style="flex:none">Agregar</button></div>
-<p class="msg" id="mm"></p>
 <div id="ml"></div>
 </div>
 
 <div id="tab-for" hidden>
-<div class="hdr"><button type="button" class="mb" data-menu aria-label="Menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><h1>Fórmulas</h1><button type="button" id="fnew" class="p add" aria-label="Nueva fórmula">+</button></div>
+<div class="hdr"><button type="button" class="mb" data-menu aria-label="Menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><h1>Fórmulas</h1><button type="button" id="fnew" class="mb acc add" aria-label="Nueva fórmula"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
 <datalist id="fcats"></datalist>
 <p class="msg" id="fm" aria-live="polite"></p>
 <input id="fq" type="search" placeholder="Buscar fórmula" aria-label="Buscar fórmula" style="margin-bottom:6px">
@@ -306,6 +303,12 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
   <label for="nl" style="margin-top:10px">Lote (opcional)</label><input id="nl" list="fcats" placeholder="Ej. Primer lote de prueba" enterkeyhint="go">
   <p class="msg" id="nm" aria-live="polite"></p>
   <div class="wzbtn" style="margin:14px 0 0"><button type="button" id="ncancel">Cancelar</button><button type="button" class="p" id="ncreate">Crear</button></div>
+</section></div>
+<div id="mnewm" class="modal" hidden><section class="card mbox" role="dialog" aria-modal="true" aria-labelledby="mnewt">
+  <h2 id="mnewt">Nuevo material</h2>
+  <label for="mname">Nombre</label><input id="mname" placeholder="Ej. Ambroxan" enterkeyhint="go" autocomplete="off">
+  <p class="msg" id="mm" aria-live="polite"></p>
+  <div class="wzbtn" style="margin:14px 0 0"><button type="button" id="mcancel">Cancelar</button><button type="button" class="p" id="ma">Agregar</button></div>
 </section></div>
 <div id="sheet" hidden></div>
 <div id="menu" hidden><div class="sheet" role="dialog" aria-label="Menú">
@@ -495,10 +498,15 @@ $("vl").addEventListener("click",function(e){
   if(d!==null){vers.splice(+d,1);renderVers();store()}
 });
 
+function mnewClose(){$("mnewm").hidden=true;$("mname").value="";$("mm").textContent=""}
+$("mnew").onclick=function(){$("mnewm").hidden=false;$("mname").focus()};
+$("mcancel").onclick=mnewClose;
+$("mnewm").addEventListener("click",function(e){if(e.target===this)mnewClose()});
+$("mnewm").addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.id==="mname")$("ma").click();if(e.key==="Escape")mnewClose()});
 $("ma").onclick=function(){
-  var n=$("mname").value.trim(),o=$("mm");o.className="msg";o.textContent="";if(!n)return;
-  if(findMat(n)){o.textContent="Ese material ya está en la lista.";return}
-  reg.push({n:n,d:[100,10,1],note:"",fam:"",pos:""});mq="";$("mq").value="";saveMats();fillList();refreshAll();$("mname").value="";openMat(reg.length-1);
+  var n=$("mname").value.trim(),o=$("mm");o.className="msg";o.textContent="";if(!n){o.textContent="Escribe el nombre del material.";return}
+  if(findMat(n)){o.className="msg wn";o.textContent="Ese material ya está en la lista.";return}
+  reg.push({n:n,d:[100,10,1],note:"",fam:"",pos:""});mq="";$("mq").value="";saveMats();fillList();refreshAll();mnewClose();openMat(reg.length-1);
 };
 $("ml").addEventListener("click",function(e){var t=e.target;
   if(t.closest&&t.closest("[data-mback]")){closeMat();return}
