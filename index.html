@@ -17,10 +17,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <style>
-:root{--bg:#f2f5f3;--card:#fff;--ink:#17302b;--mute:#5f726d;--line:#d5ded9;--acc:#1d6b58;--accbg:#e1efe9;--acc2:#9fcab9;--bgt:rgba(242,245,243,.78);--cardt:rgba(255,255,255,.88);--shadow:0 1px 2px rgba(23,48,43,.05),0 4px 16px rgba(23,48,43,.06);--warn:#9a5b00;--warnbg:#fdf0d5;--bad:#b3261e;
+:root{--bg:#f2f5f3;--card:#fff;--ink:#17302b;--mute:#5f726d;--line:#d5ded9;--acc:#1d6b58;--accbg:#e1efe9;--acc2:#9fcab9;--py1:#b5dfcf;--py2:#4a9e83;--py3:#1d5e4d;--pyt1:#17302b;--pyt3:#fff;--bgt:rgba(242,245,243,.78);--cardt:rgba(255,255,255,.88);--shadow:0 1px 2px rgba(23,48,43,.05),0 4px 16px rgba(23,48,43,.06);--warn:#9a5b00;--warnbg:#fdf0d5;--bad:#b3261e;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1917;--card:#17252a;--ink:#e3eeea;--mute:#8fa59f;--line:#2b3f3b;--acc:#5fc4a5;--accbg:#183a31;--acc2:#2f6b5a;--bgt:rgba(15,25,23,.76);--cardt:rgba(23,37,42,.78);--shadow:none;--warn:#f0b955;--warnbg:#3a2d12;--bad:#ff8a80}}
-:root[data-theme="dark"]{--bg:#0f1917;--card:#17252a;--ink:#e3eeea;--mute:#8fa59f;--line:#2b3f3b;--acc:#5fc4a5;--accbg:#183a31;--acc2:#2f6b5a;--bgt:rgba(15,25,23,.76);--cardt:rgba(23,37,42,.78);--shadow:none;--warn:#f0b955;--warnbg:#3a2d12;--bad:#ff8a80}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1917;--card:#17252a;--ink:#e3eeea;--mute:#8fa59f;--line:#2b3f3b;--acc:#5fc4a5;--accbg:#183a31;--acc2:#2f6b5a;--py1:#2c5e50;--py2:#4fae8f;--py3:#a3e3cb;--pyt1:#fff;--pyt3:#0f1917;--bgt:rgba(15,25,23,.76);--cardt:rgba(23,37,42,.78);--shadow:none;--warn:#f0b955;--warnbg:#3a2d12;--bad:#ff8a80}}
+:root[data-theme="dark"]{--bg:#0f1917;--card:#17252a;--ink:#e3eeea;--mute:#8fa59f;--line:#2b3f3b;--acc:#5fc4a5;--accbg:#183a31;--acc2:#2f6b5a;--py1:#2c5e50;--py2:#4fae8f;--py3:#a3e3cb;--pyt1:#fff;--pyt3:#0f1917;--bgt:rgba(15,25,23,.76);--cardt:rgba(23,37,42,.78);--shadow:none;--warn:#f0b955;--warnbg:#3a2d12;--bad:#ff8a80}
 *{box-sizing:border-box}
 html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 72px);-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;overscroll-behavior-y:none}
 body{touch-action:manipulation;overscroll-behavior-y:none}
@@ -188,6 +188,53 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 .hdr .save{white-space:nowrap;border:0;background:transparent;color:var(--acc);font-weight:600;font-size:17px;padding:0 4px 0 6px;min-height:48px;width:auto}
 .hdr .save:disabled{color:var(--mute);opacity:.55}
 .ilist{padding:0;overflow:hidden}
+.anseg{display:flex;gap:6px;overflow-x:auto;margin:0 0 12px;padding-bottom:2px}
+.anseg button{flex:none;min-height:36px;padding:0 14px;border-radius:999px;font-size:15px}
+.anseg button.on{background:var(--acc);border-color:var(--acc);color:var(--bg);font-weight:600}
+.ansec{font-size:13px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.04em;margin:18px 4px 6px}
+.ansub{font-size:13px;color:var(--mute);margin:-2px 4px 8px}
+.alist{padding:0;overflow:hidden}
+.alist>div,.alist>button{display:flex;align-items:center;gap:10px;padding:11px 14px;border:0;border-top:1px solid var(--line);width:100%;background:transparent;text-align:left;border-radius:0;min-height:52px}
+.alist>:first-child{border-top:0}
+.alist .l{flex:1;min-width:0}
+.alist .l b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.alist .l small{color:var(--mute);font-size:13px}
+.alist .r{flex:none;text-align:right;font-variant-numeric:tabular-nums}
+.alist .r b{font-size:17px}
+.freq{width:46px;height:6px;border-radius:3px;background:var(--line);overflow:hidden;flex:none}
+.freq i{display:block;height:100%;background:var(--acc);border-radius:3px}
+.alink{color:var(--acc);font-weight:600;font-size:17px}
+.alink svg{width:18px;height:18px;vertical-align:-3px;color:var(--mute)}
+.alist.sbars>div{display:block;padding:10px 14px;border-top:1px solid var(--line);cursor:pointer}
+.alist.sbars>div:first-child{border-top:0}
+.sbars .nm{display:flex;justify-content:space-between;gap:8px;font-size:14px;margin-bottom:5px}
+.sbars .nm b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sbars .nm small{color:var(--mute);flex:none}
+.sbar{display:flex;gap:2px;height:22px}
+.sbar i{display:flex;align-items:center;justify-content:center;font-style:normal;font-size:11px;font-weight:700;color:#fff;min-width:0;overflow:hidden;white-space:nowrap}
+.sbar i:first-child{border-radius:6px 0 0 6px}.sbar i:last-child{border-radius:0 6px 6px 0}.sbar i:only-child{border-radius:6px}
+.sbar i.lt{color:#17302b}
+.sdet{font-size:13px;color:var(--mute);margin-top:6px}
+.sdet[hidden]{display:none}
+.leg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--mute);margin:0 4px 8px}
+.leg span{display:inline-flex;align-items:center;gap:5px}
+.leg i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.pick>div{cursor:pointer}
+.pick .ck{width:26px;height:26px;color:var(--line);flex:none}
+.pick .on .ck{color:var(--acc)}.pick .on .ck circle{fill:var(--acc)}
+.pick .ck path{opacity:0}.pick .on .ck path{opacity:1}
+.cmpt{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:15px}
+.cmpt th{font-size:12px;color:var(--mute);font-weight:600;text-align:right;padding:10px 8px 8px;vertical-align:bottom}
+.cmpt th:first-child,.cmpt td:first-child{text-align:left;padding-left:14px}
+.cmpt td{padding:10px 8px;border-top:1px solid var(--line);text-align:right}
+.cmpt td:first-child{font-weight:600;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cmpt td:last-child,.cmpt th:last-child{padding-right:14px}
+.cmpt .na{color:var(--mute)}
+.cmpt .up{color:var(--acc);font-weight:600}.cmpt .dn{color:var(--warn);font-weight:600}
+.cmpt .ctag{font-size:12px;font-weight:600;color:var(--mute)}
+.simil{display:flex;align-items:baseline;gap:8px;padding:14px}
+.simil b{font-size:30px;color:var(--acc);white-space:nowrap}
+.simil span{color:var(--mute);font-size:14px}
 .ilist>div{display:flex;justify-content:space-between;gap:12px;padding:13px 14px;border-top:1px solid var(--line);font-size:16px}
 .ilist>div:first-child{border-top:0}
 .ilist span{color:var(--mute)}
@@ -307,7 +354,7 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 </div>
 
 <div id="tab-for" hidden>
-<div class="hdr"><button type="button" class="mb" data-menu aria-label="Menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><h1>Fórmulas</h1><button type="button" id="fnew" class="mb add" aria-label="Nueva fórmula"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
+<div class="hdr two"><button type="button" class="mb" data-menu aria-label="Menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><h1>Fórmulas</h1><span class="rt"><button type="button" class="mb" id="fana" aria-label="Análisis y comparar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M5 20V12M10 20V5M15 20v-6M20 20V9"/></svg></button><button type="button" id="fnew" class="mb add" aria-label="Nueva fórmula"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></span></div>
 <datalist id="fcats"></datalist>
 <p class="msg" id="fm" aria-live="polite"></p>
 <input id="fq" type="search" placeholder="Buscar fórmula" aria-label="Buscar fórmula" style="margin-bottom:6px">
@@ -619,6 +666,8 @@ function renderLib(){
   var h=keys.map(function(c){g[c].sort(function(a,b){return b.ts-a.ts});
     return '<div class="fam" style="background:'+(c?'#1d6b58':'#5f726d')+'">'+esc(c||"Sin categoría")+'</div><div class="glist">'+g[c].map(function(x){
       return '<div class="mrow" data-fo="'+x.id+'" role="button" tabindex="0"><b>'+esc(x.name)+'</b><small>'+fdate(x.ts)+'</small></div>'}).join("")+'</div>'}).join("");
+  if(view){var vh=view==="ana"?anaHTML():view==="pick"?pickHTML():cmpHTML();
+    if(view){[].forEach.call($("tab-for").children,function(c){c.hidden=c.id!=="fl"});document.body.classList.remove("hasbar2");$("fl").innerHTML=vh;ebar();return}}
   var dx=openF?findF(openF):null;if(!dx)openF=null;
   [].forEach.call($("tab-for").children,function(c){c.hidden=!!dx&&c.id!=="fl"});
   document.body.classList.toggle("hasbar2",!!dx&&infoF!==dx.id&&!$("tab-for").hidden);
@@ -669,7 +718,7 @@ $("sheet").addEventListener("click",function(e){if(e.target===this){closeSheet()
   var b=e.target.closest&&e.target.closest("[data-sa]");if(!b)return;var fn=sheetFns[+b.getAttribute("data-sa")];closeSheet();if(fn)fn()});
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!$("sheet").hidden)closeSheet()});
 $("nv-mat").onclick=function(){leaveCalc(function(){openM=-1;armMd=null;showTab("mat")})};
-$("nv-for").onclick=function(){leaveCalc(function(){if(editId){editId=null;ebar();store()}openF=null;infoF=null;evOpen=null;armD=armU=armE=null;renderLib();showTab("for")})};
+$("nv-for").onclick=function(){leaveCalc(function(){view=null;if(editId){editId=null;ebar();store()}openF=null;infoF=null;evOpen=null;armD=armU=armE=null;renderLib();showTab("for")})};
 
 var wz=null,wzLock=null;
 function wzBuild(){
@@ -1005,6 +1054,70 @@ $("fl").addEventListener("click",function(e){var t=e.target,isArm=t.getAttribute
 
 /* ===== Pantalla de la fórmula, aviso "Editando" y volver ===== */
 var infoF=null;
+/* ===== Análisis y comparación de fórmulas ===== */
+var view=null,anaCat="",pickSel=[],pickBack=null,cmpIds=[],cmpBack=null;
+/* Proporción de material puro de cada material (suma 100 %), igual para cualquier peso total o dilución */
+function pureMix(x){var c=calcOf(x),T=0,m={};c.rows.forEach(function(r){T+=r.pu});
+  c.rows.forEach(function(r){var k=r.n.trim().toLowerCase();if(!m[k])m[k]={n:r.n.trim(),v:0};m[k].v+=T>0?r.pu/T:0});return m}
+function evAvg(x){var e=(x.evals||[]).filter(function(v){return v.score});if(!e.length)return 0;var t=0;e.forEach(function(v){t+=v.score});return t/e.length}
+function simil(a,b){var A=pureMix(a),B=pureMix(b),d=0,k;for(k in A)d+=Math.abs(A[k].v-(B[k]?B[k].v:0));for(k in B)if(!A[k])d+=B[k].v;return Math.max(0,1-d/2)}
+var PYR=[["Salida","var(--py1)","var(--pyt1)"],["Corazón","var(--py2)","#fff"],["Fondo","var(--py3)","var(--pyt3)"],["Sin definir","var(--line)","var(--ink)"]];
+function splitBy(x,key){var m=pureMix(x),o={};for(var k in m){var mt=findMat(m[k].n),c;
+  if(key==="pos")c=mt&&mt.pos?mt.pos:"Sin definir";else c=mt?famOf(mt):"Sin familia";o[c]=(o[c]||0)+m[k].v}return o}
+function barHTML(parts){return '<div class="sbar">'+parts.filter(function(p){return p.v>0.0005}).map(function(p){var w=(p.v*100).toFixed(2);
+  return '<i style="flex:'+w+' 1 0;background:'+p.c+';color:'+(p.lt||'#fff')+'" title="'+esc(p.k)+': '+f(p.v*100,1)+' %">'+(p.v>=0.12?Math.round(p.v*100)+'%':'')+'</i>'}).join("")+'</div>'}
+function barRows(fs,key){
+  var defs=key==="pos"?PYR.map(function(p){return{k:p[0],c:p[1],lt:p[2]}}):FAMLIST.map(function(k){return{k:k,c:FAM[k],lt:"#fff"}});
+  var avg={},n=0;
+  var rowsH=fs.map(function(x,ix){var o=splitBy(x,key);n++;for(var k in o)avg[k]=(avg[k]||0)+o[k];
+    var parts=defs.map(function(d){return{k:d.k,c:d.c,lt:d.lt,v:o[d.k]||0}});
+    return '<div data-sbar="'+key+ix+'"><div class="nm"><b>'+esc(x.name)+'</b><small>'+(x.cat?esc(x.cat):'')+'</small></div>'+barHTML(parts)+
+      '<div class="sdet" hidden>'+parts.filter(function(p){return p.v>0.0005}).map(function(p){return esc(p.k)+' '+f(p.v*100,1)+' %'}).join(' · ')+'</div></div>'}).join("");
+  var ap=defs.map(function(d){return{k:d.k,c:d.c,lt:d.lt,v:n?(avg[d.k]||0)/n:0}});
+  var used=defs.filter(function(d){return avg[d.k]>0});
+  return '<div class="leg">'+used.map(function(d){return '<span><i style="background:'+d.c+'"></i>'+esc(d.k)+'</span>'}).join("")+'</div>'+
+    '<section class="card alist sbars" style="padding:0">'+(fs.length>1?'<div data-sbar="'+key+'avg"><div class="nm"><b>Promedio</b><small>'+fs.length+' fórmulas</small></div>'+barHTML(ap)+
+    '<div class="sdet" hidden>'+ap.filter(function(p){return p.v>0.0005}).map(function(p){return esc(p.k)+' '+f(p.v*100,1)+' %'}).join(' · ')+'</div></div>':'')+rowsH+'</section>'}
+function anaHTML(){
+  var cats={};lib.forEach(function(x){if(x.cat)cats[x.cat]=1});var ck=Object.keys(cats).sort();if(anaCat&&!cats[anaCat])anaCat="";
+  var fs=lib.filter(function(x){return(!anaCat||x.cat===anaCat)&&calcOf(x).rows.length}).sort(function(a,b){return b.ts-a.ts}),N=fs.length;
+  var h='<div class="hdr ebar"><button type="button" class="mb" data-vback aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="et"><b>Análisis</b><small>'+N+(N===1?' fórmula':' fórmulas')+'</small></div><span></span></div>';
+  if(ck.length)h+='<div class="anseg">'+['<button type="button" data-acat=""'+(anaCat?'':' class="on"')+'>Todas</button>'].concat(ck.map(function(c){return '<button type="button" data-acat="'+esc(c)+'"'+(anaCat===c?' class="on"':'')+'>'+esc(c)+'</button>'})).join("")+'</div>';
+  h+='<section class="card alist"><button type="button" data-apick><span class="l alink">Comparar fórmulas</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;color:var(--mute)" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></section>';
+  if(!N)return h+'<p class="msg">Todavía no hay fórmulas con materiales'+(anaCat?' en este lote':'')+'.</p>';
+  var st={};fs.forEach(function(x){var m=pureMix(x);for(var k in m){var e=st[k]||(st[k]={n:m[k].n,c:0,mn:1,mx:0,t:0});e.c++;e.t+=m[k].v;if(m[k].v<e.mn)e.mn=m[k].v;if(m[k].v>e.mx)e.mx=m[k].v}});
+  var all=Object.keys(st).map(function(k){return st[k]}).sort(function(a,b){return b.c-a.c||b.t-a.t});
+  function item(e){return '<div><div class="l"><b>'+esc(e.n)+'</b><small>en '+e.c+' de '+N+' · '+(e.c>1?f(e.mn*100,1)+'–'+f(e.mx*100,1)+' %':f(e.mx*100,1)+' %')+'</small></div><div class="freq" aria-hidden="true"><i style="width:'+(e.c/N*100)+'%"></i></div><div class="r"><b>'+f(e.t/e.c*100,1)+'</b><small> %</small></div></div>'}
+  var core=all.filter(function(e){return e.c===N}),freq=all.filter(function(e){return e.c<N&&e.c/N>0.5}),occ=all.filter(function(e){return e.c/N<=0.5&&e.c<N});
+  h+='<p class="ansec">Tu estructura</p><p class="ansub">Proporción de material puro. El número de la derecha es la media en las fórmulas donde aparece.</p>';
+  if(N>1)h+='<p class="ansec" style="margin-top:10px">En todas ('+core.length+')</p>'+(core.length?'<section class="card alist">'+core.map(item).join("")+'</section>':'<p class="ansub">Ningún material se repite en todas.</p>');
+  else h+='<section class="card alist">'+all.map(item).join("")+'</section>';
+  if(N>1&&freq.length)h+='<p class="ansec">Frecuentes ('+freq.length+')</p><section class="card alist">'+freq.map(item).join("")+'</section>';
+  if(N>1&&occ.length)h+='<p class="ansec">Ocasionales ('+occ.length+')</p><section class="card alist">'+occ.map(item).join("")+'</section>';
+  h+='<p class="ansec">Pirámide</p><p class="ansub">Toca una barra para ver los números.</p>'+barRows(fs,"pos");
+  h+='<p class="ansec">Familias</p>'+barRows(fs,"fam");
+  return h}
+function pickHTML(){
+  var fs=lib.filter(function(x){return calcOf(x).rows.length}).sort(function(a,b){return b.ts-a.ts}),ok=pickSel.length>=2;
+  return '<div class="hdr ebar ecalc"><button type="button" class="mb" data-vback aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="et"><b>Comparar</b><small>Elige 2 o 3 fórmulas</small></div><span class="rt"><button type="button" class="save" data-pgo'+(ok?'':' disabled')+'>Comparar</button></span></div>'+
+  (fs.length<2?'<p class="msg">Necesitas al menos dos fórmulas con materiales.</p>':'<section class="card alist pick">'+fs.map(function(x){var on=pickSel.indexOf(x.id)>-1;
+    return '<div data-pk="'+x.id+'" class="'+(on?'on':'')+'" role="checkbox" aria-checked="'+on+'" tabindex="0"><svg class="ck" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M7.5 12.3l3 3 6-6.3" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="l"><b>'+esc(x.name)+'</b><small>'+(x.cat?esc(x.cat)+' · ':'')+fdate(x.ts)+'</small></div></div>'}).join("")+'</section>')}
+function cmpHTML(){
+  var fs=cmpIds.map(findF).filter(Boolean);if(fs.length<2){view=null;return ""}
+  var mx=fs.map(pureMix),keys={};mx.forEach(function(m){for(var k in m)keys[k]=m[k].n});
+  var ks=Object.keys(keys).sort(function(a,b){var A=0,B=0;mx.forEach(function(m){A=Math.max(A,m[a]?m[a].v:0);B=Math.max(B,m[b]?m[b].v:0)});return B-A});
+  var two=fs.length===2;
+  var h='<div class="hdr ebar"><button type="button" class="mb" data-vback aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="et"><b>Comparar</b><small>'+fs.map(function(x){return esc(x.name)}).join(" · ")+'</small></div><span></span></div>';
+  if(two)h+='<section class="card simil"><b>'+Math.round(simil(fs[0],fs[1])*100)+' %</b><span>de parecido en proporción de material puro</span></section>';
+  else h+='<section class="card alist">'+[[0,1],[0,2],[1,2]].map(function(p){return '<div><div class="l"><b>'+esc(fs[p[0]].name)+' · '+esc(fs[p[1]].name)+'</b><small>parecido</small></div><div class="r"><b>'+Math.round(simil(fs[p[0]],fs[p[1]])*100)+'</b><small> %</small></div></div>'}).join("")+'</section>';
+  h+='<section class="card" style="padding:0;overflow:hidden"><table class="cmpt"><thead><tr><th>% del puro</th>'+fs.map(function(x){var a=evAvg(x);return '<th>'+esc(x.name.length>12?x.name.slice(0,11)+'…':x.name)+(a?'<br><span class="stars">'+a.toFixed(1)+' ★</span>':'')+'</th>'}).join("")+(two?'<th>Cambio</th>':'')+'</tr></thead><tbody>'+
+  ks.map(function(k){var v=mx.map(function(m){return m[k]?m[k].v:null});
+    var d='';if(two){if(v[0]===null)d='<span class="ctag">nuevo</span>';else if(v[1]===null)d='<span class="ctag">quitado</span>';else{var x=(v[1]-v[0])*100;d=Math.abs(x)<0.05?'<span class="na">=</span>':'<span class="'+(x>0?'up':'dn')+'">'+(x>0?'▲ +':'▼ ')+f(x,1)+'</span>'}}
+    return '<tr><td>'+esc(keys[k])+'</td>'+v.map(function(z){return '<td'+(z===null?' class="na">—':'>'+f(z*100,1))+'</td>'}).join("")+(two?'<td>'+d+'</td>':'')+'</tr>'}).join("")+'</tbody></table></section>';
+  h+='<p class="ansec">Pirámide</p>'+barRows(fs,"pos")+'<p class="ansec">Familias</p>'+barRows(fs,"fam");
+  return h}
+$("fl").addEventListener("keydown",function(e){if((e.key==="Enter"||e.key===" ")&&e.target.getAttribute&&e.target.getAttribute("data-pk")!==null){e.preventDefault();e.target.click()}});
+$("fana").onclick=function(){view="ana";renderLib();window.scrollTo(0,0)};
 function fInfo(x){
   var c=calcOf(x),ev=x.evals||[],avg=0;ev.forEach(function(v){avg+=v.score||0});var sc=ev.filter(function(v){return v.score}).length;
   return '<div class="hdr ebar"><button type="button" class="mb" data-iback aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="et"><b>Información</b><small>'+esc(x.name)+'</small></div><span></span></div>'+
@@ -1025,6 +1138,14 @@ function fDet(x){
   '<div class="sumbar fbar"><div class="in"><button type="button" class="p" data-fopen="'+x.id+'">Editar en la calculadora</button></div></div>';
 }
 $("fl").addEventListener("click",function(e){var t=e.target,b;if(!t.closest)return;
+  if(view){
+    if(t.closest("[data-vback]")){if(view==="cmp"){view=cmpBack}else if(view==="pick"){view=pickBack}else view=null;renderLib();window.scrollTo(0,0);return}
+    if((b=t.closest("[data-acat]"))){anaCat=b.getAttribute("data-acat");renderLib();return}
+    if(t.closest("[data-apick]")){pickSel=[];pickBack="ana";view="pick";renderLib();window.scrollTo(0,0);return}
+    if((b=t.closest("[data-pk]"))){var id=b.getAttribute("data-pk"),k=pickSel.indexOf(id);if(k>-1)pickSel.splice(k,1);else{if(pickSel.length>=3)pickSel.shift();pickSel.push(id)}renderLib();return}
+    if(t.closest("[data-pgo]")){if(pickSel.length<2)return;cmpIds=pickSel.slice();cmpBack="pick";view="cmp";renderLib();window.scrollTo(0,0);return}
+    if((b=t.closest("[data-sbar]"))){var dd=b.querySelector(".sdet");if(dd)dd.hidden=!dd.hidden;return}
+    return}
   if(t.closest("[data-fback]")){openF=null;infoF=null;evOpen=null;armD=armU=armE=null;renderLib();window.scrollTo(0,0);return}
   if((b=t.closest("[data-finfo]"))){infoF=b.getAttribute("data-finfo");evOpen=null;renderLib();window.scrollTo(0,0);return}
   if(t.closest("[data-iback]")){infoF=null;evOpen=null;renderLib();window.scrollTo(0,0);return}
@@ -1032,6 +1153,7 @@ $("fl").addEventListener("click",function(e){var t=e.target,b;if(!t.closest)retu
     actionSheet("",[
       {label:"Cambiar nombre o lote",fn:function(){renameF(x.id)}},
       {label:"Duplicar",fn:function(){dupF(x.id)}},
+      {label:"Comparar con…",fn:function(){pickSel=[x.id];pickBack=null;view="pick";renderLib();window.scrollTo(0,0)}},
       {label:"Exportar PDF",fn:function(){exportPDF(x)}},
       {label:"Borrar fórmula",bad:true,fn:function(){actionSheet("¿Borrar "+x.name+"? No se puede deshacer.",[{label:"Borrar fórmula",bad:true,fn:function(){delF(x.id)}}])}}
     ])}});
