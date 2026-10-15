@@ -192,19 +192,9 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 .imode{display:flex;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:2px;margin:0 0 6px}
 .imode button{flex:1;border:0;border-radius:8px;background:transparent;min-height:36px;font-size:15px;color:var(--mute)}
 .imode button.on{background:var(--card);color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.12)}
-.irow{padding:12px 14px;border-top:1px solid var(--line)}
-.irow:first-child{border-top:0}
-.irow .t{display:flex;gap:8px;align-items:center}
-.irow .t input{flex:1;font-weight:600}
-.irow .t button{flex:none;width:40px;min-height:40px;padding:0;border-color:transparent;background:transparent;color:var(--mute)}
-.irow .b{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;align-items:end}
-.irow .b.np{grid-template-columns:2fr 1fr}
-.irow .b label{margin-bottom:2px;font-size:12px}
-.irow .res{text-align:right;font-variant-numeric:tabular-nums}
-.irow .res b{display:block;font-size:19px;color:var(--acc)}
-.irow .res small{color:var(--mute);font-size:12px}
-.irow.bad .res b{color:var(--warn);font-size:14px}
-.irow .ot{margin-top:6px}
+.mrow2.bad{background:var(--warnbg)}
+.mrow2.bad .g b{color:var(--warn);font-size:15px}
+.mlist .isum{border-top:1px solid var(--line)}
 .inew{font-size:11px;font-weight:700;color:var(--warn);margin-left:6px;text-transform:uppercase}
 .isum{display:flex;justify-content:space-between;padding:12px 14px;font-size:14px;color:var(--mute);border-top:1px solid var(--line)}
 .isum b{color:var(--ink)}
@@ -421,6 +411,15 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
   <label>Dilución del frasco</label><div class="dils" id="rd"></div>
   <label for="rp">Partes</label><input id="rp" class="totin" type="number" inputmode="decimal" step="any" min="0" placeholder="0">
   <div class="rinfo" id="rinfo"></div>
+</div></div>
+<div id="impm" class="bsheet" hidden><div class="bsin" role="dialog" aria-modal="true" aria-labelledby="int">
+  <div class="bsh"><button type="button" class="bdel" id="indel">Quitar</button><b id="int">Material</b><button type="button" class="bok" id="inok">Listo</button></div>
+  <label for="in_n">Material</label><input id="in_n" list="mats" placeholder="Nombre del material" autocomplete="off">
+  <div class="mnote" id="in_new"></div>
+  <div id="in_dw"><label>Dilución en la receta</label><div class="dils" id="in_d"></div>
+  <div id="in_ow" hidden><label for="in_do">Dilución de la receta (%)</label><input id="in_do" type="number" inputmode="decimal" step="any" min="0" max="100" placeholder="Ej. 50" style="margin-bottom:12px"></div></div>
+  <label for="in_p">Partes en la receta</label><input id="in_p" class="totin" type="number" inputmode="decimal" step="any" min="0" placeholder="0">
+  <div class="rinfo" id="in_info"></div>
 </div></div>
 <div id="toast" hidden></div>
 <div id="setm" class="modal" hidden><section class="card mbox" role="dialog" aria-modal="true" aria-labelledby="sett">
@@ -744,7 +743,7 @@ $("sheet").addEventListener("click",function(e){if(e.target===this){closeSheet()
   var b=e.target.closest&&e.target.closest("[data-sa]");if(!b)return;var fn=sheetFns[+b.getAttribute("data-sa")];closeSheet();if(fn)fn()});
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!$("sheet").hidden)closeSheet()});
 $("nv-mat").onclick=function(){leaveCalc(function(){openM=-1;armMd=null;showTab("mat")})};
-$("nv-for").onclick=function(){leaveCalc(function(){view=null;imp=null;if(editId){editId=null;ebar();store()}openF=null;infoF=null;evOpen=null;armD=armU=armE=null;renderLib();showTab("for")})};
+$("nv-for").onclick=function(){leaveCalc(function(){view=null;imp=null;$("impm").hidden=true;if(editId){editId=null;ebar();store()}openF=null;infoF=null;evOpen=null;armD=armU=armE=null;renderLib();showTab("for")})};
 
 var wz=null,wzLock=null;
 function wzBuild(){
@@ -1160,25 +1159,42 @@ function impHTML(){var c=impCalc(),pz=imp.mode==="puro";
   var h='<div class="hdr ebar ecalc"><button type="button" class="mb" data-iback2 aria-label="Cancelar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="et"><b>Importar receta</b><small>'+esc(imp.name)+'</small></div><span class="rt"><button type="button" class="save" data-igo'+(c.ok&&!c.bad?'':' disabled')+'>Importar</button></span></div>';
   h+='<label>Las partes de la receta son</label><div class="imode"><button type="button" data-imode="pesar" class="'+(pz?'':'on')+'">Tal como se pesa</button><button type="button" data-imode="puro" class="'+(pz?'on':'')+'">De material puro</button></div>';
   h+='<p class="ansub" style="margin:4px 4px 12px">'+(pz?'Las partes ya son de material puro: solo se ajustan para sumar 1000.':'Cada material se convierte a puro (partes × dilución) y todo se ajusta para sumar 1000.')+'</p>';
-  h+='<section class="card" style="padding:0;overflow:hidden">'+imp.rows.map(function(r,i){
-    var known=!r.n.trim()||!!findMat(r.n);
-    return '<div class="irow" data-ir="'+i+'"><div class="t"><input list="mats" placeholder="Material" aria-label="Material" value="'+esc(r.n)+'" data-if="n" data-ii="'+i+'"><button type="button" data-idel="'+i+'" aria-label="Quitar línea">&#10005;</button></div>'+
-    (known?'':'<span class="inew">Nuevo en tu lista</span>')+
-    '<div class="b'+(pz?' np':'')+'">'+(pz?'':'<div><label>Dilución</label><select data-if="dsel" data-ii="'+i+'">'+["100","10","1","otro"].map(function(v){return '<option value="'+v+'"'+(r.dsel===v?' selected':'')+'>'+(v==="otro"?"Otra…":v+"%")+'</option>'}).join("")+'</select></div>')+
-    '<div><label>Partes</label><input type="number" inputmode="decimal" step="any" min="0" value="'+esc(r.p)+'" data-if="p" data-ii="'+i+'" aria-label="Partes"></div>'+
-    '<div class="res"><small>En puro</small><b data-iout="'+i+'">—</b></div></div>'+
-    (!pz&&r.dsel==="otro"?'<div class="ot"><label>Dilución de la receta (%)</label><input type="number" inputmode="decimal" step="any" min="0" max="100" placeholder="Ej. 50" value="'+esc(r.dother)+'" data-if="dother" data-ii="'+i+'"></div>':'')+'</div>'}).join("")+
-    '<button type="button" class="addline" data-iadd>+ Agregar material</button>'+
-    '<div class="isum" id="isum"></div></section>';
+  var any=false;
+  h+='<div class="mlist">'+imp.rows.map(function(r,i){var p=impPart(r);if(!r.n.trim()&&!(p>0)&&impI!==i)return "";any=true;
+    var d=impDil(r),known=!r.n.trim()||!!findMat(r.n);
+    return '<div class="mrow2" data-iedit="'+i+'" data-ir="'+i+'" role="button" tabindex="0"><div class="l"><b>'+(r.n.trim()?esc(r.n):'<span style="color:var(--mute)">Material sin nombre</span>')+(known?'':'<span class="inew">Nuevo</span>')+'</b>'+
+      '<small>'+(pz?'':(isNaN(d)?'¿%?':f(d,2).replace(/\.?0+$/,"")+'%')+' · ')+(p>0?f(p,4).replace(/\.?0+$/,""):'0')+' partes en la receta</small></div>'+
+      '<div class="g"><b data-iout="'+i+'">—</b><small style="display:block;font-size:12px">en puro</small></div><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></div>'}).join("")+
+    (any?'':'<p class="mempty">Agrega los materiales de la receta tal como vienen.</p>')+
+    '<button type="button" class="addline" data-iadd>+ Agregar material</button><div class="isum" id="isum"></div></div>';
   return h}
 function impUpdate(){var c=impCalc();
   imp.rows.forEach(function(r,i){var el=document.querySelector('[data-iout="'+i+'"]'),row=document.querySelector('[data-ir="'+i+'"]');if(!el)return;
     var p=impPart(r),v=impPure(r),bad=p>0&&(isNaN(v)||!r.n.trim());row.classList.toggle("bad",bad);
-    el.textContent=!(p>0)?"—":isNaN(v)?"Dilución no válida":!r.n.trim()?"Falta el nombre":f(v*c.fac,1)});
+    el.textContent=!(p>0)?"—":isNaN(v)?"% no válido":!r.n.trim()?"Sin nombre":f(v*c.fac,1)});
   var s=$("isum");if(s)s.innerHTML=c.ok?'<span>'+(imp.mode==="puro"?'Suma de la receta':'En puro antes de ajustar')+' <b>'+f(c.S,2).replace(/\.?0+$/,"")+'</b></span><span>× '+f(c.fac,4).replace(/\.?0+$/,"")+' → <b>1000</b></span>':'<span>Escribe los materiales y sus partes.</span>';
   var g=document.querySelector("[data-igo]");if(g)g.disabled=!(c.ok&&!c.bad)}
-function impOpen(name,cat){imp={name:name,cat:cat,mode:"pesar",rows:[{n:"",dsel:"100",dother:"",p:""}]};view="imp";renderLib();window.scrollTo(0,0);
-  setTimeout(function(){var e=document.querySelector('[data-if="n"]');if(e)e.focus()},80)}
+var impI=-1;
+function impOpen(name,cat){imp={name:name,cat:cat,mode:"pesar",rows:[]};view="imp";renderLib();window.scrollTo(0,0);impAdd()}
+function impAdd(){imp.rows=imp.rows.filter(function(r){return r.n.trim()||impPart(r)>0});imp.rows.push({n:"",dsel:"100",dother:"",p:""});impEdit(imp.rows.length-1)}
+function impFill(){var r=imp.rows[impI];if(!r)return;var pz=imp.mode==="puro";
+  $("int").textContent=r.n.trim()||"Nuevo material";$("in_new").textContent=r.n.trim()&&!findMat(r.n)?"No está en tu lista de Materiales: al importar podrás agregarlo.":"";
+  $("in_dw").hidden=pz;
+  $("in_d").innerHTML=["100","10","1","otro"].map(function(v){return '<label class="'+(r.dsel===v?'on':'')+'"><input type="radio" name="idv" value="'+v+'"'+(r.dsel===v?' checked':'')+'>'+(v==="otro"?"Otra":v+"%")+'</label>'}).join("");
+  $("in_ow").hidden=r.dsel!=="otro";impInfo()}
+function impInfo(){var r=imp.rows[impI];if(!r)return;var p=impPart(r),v=impPure(r),c=impCalc();
+  $("in_info").innerHTML=!(p>0)?"Escribe las partes tal como vienen en la receta.":isNaN(v)?'<span style="color:var(--warn)">La dilución debe ser mayor que 0 % y como mucho 100 %.</span>':
+    (imp.mode==="puro"?"":f(p,4).replace(/\.?0+$/,"")+" × "+f(impDil(r),2).replace(/\.?0+$/,"")+" % = "+f(v,4).replace(/\.?0+$/,"")+" en puro · ")+'tras ajustar a 1000: <b>'+f(v*c.fac,1)+'</b>'}
+function impEdit(i){impI=i;var r=imp.rows[i];renderLib();$("in_n").value=r.n;$("in_p").value=r.p;$("in_do").value=r.dother;impFill();$("impm").hidden=false;if(!r.n)setTimeout(function(){$("in_n").focus()},60)}
+function impClose(){$("impm").hidden=true;var r=imp&&imp.rows[impI],k=impI;impI=-1;if(r&&!r.n.trim()&&!(impPart(r)>0))imp.rows.splice(k,1);if(imp)renderLib()}
+$("in_n").addEventListener("input",function(){var r=imp&&imp.rows[impI];if(!r)return;r.n=this.value;renderLib();impFill()});
+$("in_p").addEventListener("input",function(){var r=imp&&imp.rows[impI];if(!r)return;r.p=this.value;renderLib();impInfo()});
+$("in_do").addEventListener("input",function(){var r=imp&&imp.rows[impI];if(!r)return;r.dother=this.value;renderLib();impInfo()});
+$("in_d").addEventListener("change",function(e){var r=imp&&imp.rows[impI];if(!r||e.target.name!=="idv")return;r.dsel=e.target.value;renderLib();impFill();if(r.dsel==="otro")$("in_do").focus()});
+$("inok").onclick=impClose;
+$("impm").addEventListener("click",function(e){if(e.target===this)impClose()});
+$("impm").addEventListener("keydown",function(e){if(e.key==="Escape")impClose();if(e.key==="Enter"&&e.target.id==="in_p")impClose()});
+$("indel").onclick=function(){var r=imp&&imp.rows[impI];if(!r)return;var k=impI;$("impm").hidden=true;impI=-1;imp.rows.splice(k,1);renderLib()};
 function impSave(){var c=impCalc();if(!c.ok||c.bad)return;var out=impResult();
   var id="f"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
   var orig={mode:imp.mode,rows:imp.rows.filter(function(r){return impPart(r)>0&&r.n.trim()}).map(function(r){return{n:r.n.trim(),d:imp.mode==="puro"?null:impDil(r),p:impPart(r)}})};
@@ -1192,11 +1208,7 @@ $("nimp").onclick=function(){var n=$("nn").value.trim(),m=$("nm");m.className="m
   if(!n){m.textContent="Ponle un nombre a la receta.";$("nn").focus();return}
   if(lib.some(function(v){return v.name.toLowerCase()===n.toLowerCase()})){m.className="msg wn";m.textContent="Ya hay una fórmula con ese nombre.";return}
   var cat=$("nl").value.trim();newClose();if(!$("tab-for").hidden||true){openF=null;infoF=null}impOpen(n,cat)};
-$("fl").addEventListener("input",function(e){if(view!=="imp"||!imp)return;var t=e.target,k=t.getAttribute&&t.getAttribute("data-if");if(!k)return;var r=imp.rows[+t.getAttribute("data-ii")];if(!r)return;
-  r[k]=t.value;if(k==="dsel"){renderLib();return}
-  if(k==="n"){var row=t.closest(".irow"),known=!t.value.trim()||!!findMat(t.value),tag=row.querySelector(".inew");if(known&&tag)tag.remove();if(!known&&!tag){var sp=document.createElement("span");sp.className="inew";sp.textContent="Nuevo en tu lista";row.querySelector(".t").after(sp)}}
-  impUpdate()});
-$("fl").addEventListener("change",function(e){if(view==="imp"&&e.target.getAttribute&&e.target.getAttribute("data-if")==="dsel"){var r=imp.rows[+e.target.getAttribute("data-ii")];if(r&&r.dsel!==e.target.value){r.dsel=e.target.value;renderLib()}}});
+$("fl").addEventListener("keydown",function(e){if(view==="imp"&&(e.key==="Enter"||e.key===" ")&&e.target.getAttribute&&e.target.getAttribute("data-iedit")!==null){e.preventDefault();impEdit(+e.target.getAttribute("data-iedit"))}});
 $("fana").onclick=function(){view="ana";renderLib();window.scrollTo(0,0)};
 function fInfo(x){
   var c=calcOf(x),ev=x.evals||[],avg=0;ev.forEach(function(v){avg+=v.score||0});var sc=ev.filter(function(v){return v.score}).length;
@@ -1223,8 +1235,8 @@ $("fl").addEventListener("click",function(e){var t=e.target,b;if(!t.closest)retu
   if(view==="imp"){
     if(t.closest("[data-iback2]")){var c0=impCalc();if(c0.src>0){actionSheet("¿Descartar esta receta? No se guardará.",[{label:"Descartar receta",bad:true,fn:function(){imp=null;view=null;renderLib();window.scrollTo(0,0)}}])}else{imp=null;view=null;renderLib()}return}
     if((b=t.closest("[data-imode]"))){imp.mode=b.getAttribute("data-imode");renderLib();return}
-    if(t.closest("[data-iadd]")){imp.rows.push({n:"",dsel:"100",dother:"",p:""});renderLib();var ins=document.querySelectorAll('[data-if="n"]');if(ins.length)ins[ins.length-1].focus();return}
-    if((b=t.closest("[data-idel]"))){imp.rows.splice(+b.getAttribute("data-idel"),1);if(!imp.rows.length)imp.rows.push({n:"",dsel:"100",dother:"",p:""});renderLib();return}
+    if(t.closest("[data-iadd]")){impAdd();return}
+    if((b=t.closest("[data-iedit]"))){impEdit(+b.getAttribute("data-iedit"));return}
     if(t.closest("[data-igo]")){impSave();return}
     return}
   if(view){
