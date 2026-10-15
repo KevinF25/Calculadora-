@@ -511,6 +511,8 @@ function snap(){return {edit:editId,rows:rows,vers:vers,lib:lib,tot:$("tot").val
 function store(){if(!ready)return;try{localStorage.setItem(KEY,JSON.stringify(snap()))}catch(e){}touch()}
 function load(){try{var s=JSON.parse(localStorage.getItem(KEY)||"null");if(s){rows=s.rows&&s.rows.length?s.rows:rows;vers=s.vers||[];lib=s.lib||[];editId=s.edit||null;if(s.tot)$("tot").value=s.tot;if(s.mode)$("md").value=s.mode;if(s.mn)$("mn").value=s.mn;if(s.nt)$("nt").value=s.nt;if(s.dm)$("dm").value=s.dm;if(s.ds)$("ds").value=s.ds}}catch(e){}}
 function f(n,d){return (isFinite(n)?n:0).toFixed(d)}
+/* Partes para mostrar: 1 decimal (hasta 3 en trazas menores de 1). Lo guardado no cambia. */
+function fp(v){v=parseFloat(v);if(!isFinite(v)||!v)return "0";var d=Math.abs(v)<1?3:1;return String(+v.toFixed(d))}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 
 function render(){
@@ -518,7 +520,7 @@ function render(){
   rows.forEach(function(r,i){
     if(!r.n&&!(parseFloat(r.p)>0)&&rowI!==i)return;any=true;
     h+='<div class="mrow2" id="r'+i+'" data-edit="'+i+'" role="button" tabindex="0"><div class="l"><b>'+(r.n?esc(r.n):'<span style="color:var(--mute)">Material sin nombre</span>')+'</b>'+
-    '<small>'+(+r.d)+'% · '+(r.p===""?"0":esc(r.p))+' partes · <span data-o="pc">0%</span></small></div>'+
+    '<small>'+(+r.d)+'% · '+fp(r.p)+' partes · <span data-o="pc">0%</span></small></div>'+
     '<div class="g"><b data-o="g">0.000</b> g<span data-o="pu" hidden></span></div><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></div>';
   });
   h+='<button type="button" class="addline" id="add">+ Agregar material</button>';
@@ -606,7 +608,7 @@ function text(){
   var T=parseFloat($("tot").value)||0,S=0,mode=$("md").value,fr=fracs();rows.forEach(function(r){S+=parseFloat(r.p)||0});
   var t="Total: "+f(T,3)+" g | Partes de "+(mode==="puro"?"material puro":"lo pesado")+": "+(f(S,4).replace(/\.?0+$/,"")||"0")+"\n";
   rows.forEach(function(r,i){var p=parseFloat(r.p)||0;if(!r.n&&!p)return;var g=fr[i]*T;
-    t+=(r.n||"(sin nombre)")+" ("+r.d+"%): "+p+" partes, "+f(g,3)+" g de dilución, "+f(g*r.d/100,4)+" g puro\n"});
+    t+=(r.n||"(sin nombre)")+" ("+r.d+"%): "+fp(p)+" partes, "+f(g,3)+" g de dilución, "+f(g*r.d/100,4)+" g puro\n"});
   return t;
 }
 
@@ -1029,7 +1031,7 @@ function buildPDF(x){
     if(y+22>PH-64){np();head()}
     var nm=r.n;while(nm.length>1&&tw(nm,10.5)>186){nm=nm.slice(0,-1)}if(nm!==r.n)nm=nm.replace(/\s+$/,"")+"…";
     var b=y+15;T(nm,M+8,b,10.5,false,DK);T(f2(r.d,0).replace(/\.0+$/,"")+"%",cx.d,b,10.5,false,DK,"r");
-    T(f2(r.p,2).replace(/\.?0+$/,"")||"0",cx.p,b,10.5,false,DK,"r");T(f2(r.g,3),cx.g,b,10.5,false,DK,"r");T(f2(r.pu,4),cx.pu,b,10.5,false,DK,"r");T(f2(r.pc*100,2),cx.pc,b,10.5,false,DK,"r");
+    T(fp(r.p),cx.p,b,10.5,false,DK,"r");T(f2(r.g,3),cx.g,b,10.5,false,DK,"r");T(f2(r.pu,4),cx.pu,b,10.5,false,DK,"r");T(f2(r.pc*100,2),cx.pc,b,10.5,false,DK,"r");
     L(M,y+22,PW-M,y+22,"#d5e0da",0.5);y+=22;sg+=r.g;sp+=r.p;spc+=r.pc;
   });
   if(!c.rows.length){T("(sin materiales)",M+8,y+15,10.5,false,MU);y+=22}
@@ -1228,7 +1230,7 @@ function fDet(x){
   var draft=editId===x.id&&dirty();
   return '<div class="hdr ebar two"><button type="button" class="mb" data-fback aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="et"><b>'+esc(x.name)+'</b><small>'+(x.cat?esc(x.cat)+' · ':'')+f(x.tot,2)+' g</small></div><span class="rt"><button type="button" class="mb acc" data-finfo="'+x.id+'" aria-label="Información"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.2"/><path d="M12 11v5.5"/><circle cx="12" cy="7.6" r="1.1" fill="currentColor" stroke="none"/></svg></button><button type="button" class="mb acc" data-fmore="'+x.id+'" aria-label="Más acciones"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9.2"/><circle cx="7.8" cy="12" r="1.25" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.25" fill="currentColor" stroke="none"/><circle cx="16.2" cy="12" r="1.25" fill="currentColor" stroke="none"/></svg></button></span></div>'+
   '<p class="msg" id="fd-m"></p>'+(draft?'<p class="fwarn">Tienes cambios sin guardar en la calculadora. Toca Editar para seguir con ellos.</p>':'')+
-  '<div class="flines">'+(c.rows.length?c.rows.map(function(r){return '<div><b>'+esc(r.n)+'</b> <small>'+r.d+'% · '+(+r.p.toFixed(2))+' partes</small><div><small>Pesar '+f(r.g,3)+' g · puro '+f(r.pu,4)+' g · '+f(r.pc*100,2)+'%</small></div></div>'}).join(""):'<p class="msg">Sin materiales.</p>')+'</div>'+
+  '<div class="flines">'+(c.rows.length?c.rows.map(function(r){return '<div><b>'+esc(r.n)+'</b> <small>'+r.d+'% · '+fp(r.p)+' partes</small><div><small>Pesar '+f(r.g,3)+' g · puro '+f(r.pu,4)+' g · '+f(r.pc*100,2)+'%</small></div></div>'}).join(""):'<p class="msg">Sin materiales.</p>')+'</div>'+
   '<div class="sumbar fbar"><div class="in"><button type="button" class="p" data-fopen="'+x.id+'">Editar en la calculadora</button></div></div>';
 }
 $("fl").addEventListener("click",function(e){var t=e.target,b;if(!t.closest)return;
