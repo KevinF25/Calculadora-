@@ -917,7 +917,7 @@ function wzAdjust(){var cur=wz.items[wz.i];wz.k=wzKmax();
 function wzRec(){return{k:wz.k,rows:wz.items.slice().sort(function(a,b){return a.ix-b.ix}).map(function(y){return{n:y.n,d:y.d,g:y.g0,r:wzR(y)}})}}
 /* Estadísticas de una pesada: compara el % de material puro de cada uno en el lote con el de la fórmula */
 function pesStats(p){var k=p.k||1,ST=0,SR=0,GT=0,RT=0,na=0;
-  var rs=(p.rows||[]).map(function(r){var g=r.g*k,v=r.r!=null?r.r:g,d=(r.d||100)/100;if(r.r==null)na++;ST+=r.g*d;SR+=v*d;GT+=g;RT+=v;return{n:r.n,d:r.d||100,g:g,r:r.r,pt:r.g*d,pr:v*d}});
+  var rs=(p.rows||[]).map(function(r){var g=r.g*k,v=r.r!=null?r.r:g,d=(r.d||100)/100;if(r.r==null)na++;ST+=r.g*d;SR+=v*d;GT+=g;RT+=v;return{n:r.n,d:r.d||100,g0:r.g,g:g,r:r.r,pt:r.g*d,pr:v*d}});
   /* Referencia: el grupo más grande de materiales pesados en la misma proporción (±2 %); en empate, el más cercano al objetivo.
      Así, si todo se pesó un 10 % de más el olor no cambia, y el error queda en el material que se desvió (también con solo 2) */
   var q=rs.filter(function(x){return x.pt>0}).map(function(x){return x.pr/x.pt}),m=k,best=-1;
@@ -926,11 +926,16 @@ function pesStats(p){var k=p.k||1,ST=0,SR=0,GT=0,RT=0,na=0;
   var nd=0,bad=false;rs.forEach(function(x){x.st=ST>0?x.pt/ST:0;x.sr=SR>0?x.pr/SR:0;x.dev=x.pt>0&&m>0?x.pr/x.pt/m-1:0;x.c=devCls(x.dev);if(x.c!=="ok")nd++;if(x.c==="bad")bad=true});
   return{rows:rs,GT:GT,RT:RT,nd:nd,na:na,c:nd?(bad?"bad":"wn"):"ok",k:k}}
 function pesTag(s){return s.c==="ok"?"✓ Fiel":"⚠ "+s.nd+(s.nd===1?" desviado":" desviados")}
-function pesBody(p){var s=pesStats(p);
+function pesBody(p){var s=pesStats(p),adj=s.k>1.0005,G0=0,cause=null;
+  s.rows.forEach(function(x){G0+=x.g0});
+  /* El material que provocó el ajuste: el que más se pasó respecto a su objetivo original */
+  if(adj)s.rows.forEach(function(x){if(x.r!=null&&x.g0>0&&x.r/x.g0>=s.k*0.995&&(!cause||x.r/x.g0>cause.r/cause.g0))cause=x});
   var h='<section class="card wzv '+s.c+'"><span class="ic" aria-hidden="true">'+(s.c==="ok"?"✓":"!")+'</span><span><b>'+(s.c==="ok"?"Lote fiel a la fórmula":s.nd+(s.nd===1?" material se desvió":" materiales se desviaron"))+'</b>'+
-    '<small>Pesaste '+f(s.RT,2)+' g de '+f(s.GT,2)+' g'+(s.k>1.0005?' · ajustado ×'+f(s.k,2):'')+(s.na?' · '+s.na+' sin anotar':'')+'</small></span></section>';
+    '<small>Pesaste '+f(s.RT,2)+' g (la fórmula era de '+f(G0,2)+' g)'+(s.na?' · '+s.na+' sin anotar':'')+'</small>'+
+    (adj?'<small>Ajustado ×'+f(s.k,2)+(cause?' porque te pasaste con '+esc(cause.n):'')+': el resto se subió para mantener la proporción.</small>':'')+'</span></section>';
   h+='<p class="ansec">Material por material</p><section class="card ilist pesl">'+s.rows.map(function(x){
-    return '<div><span class="l"><b>'+esc(x.n)+' <i>'+x.d+'%</i></b><small>Objetivo '+f(x.g,3)+' g · '+(x.r!=null?'pesado '+f(x.r,3)+' g':'sin anotar')+'</small>'+(x.c!=="ok"?'<small>Puro en el lote '+f(x.sr*100,2)+' % (fórmula '+f(x.st*100,2)+' %)</small>':'')+'</span><span class="pv '+x.c+'">'+pct(x.dev)+'</span></div>'}).join("")+'</section>'+
+    return '<div><span class="l"><b>'+esc(x.n)+' <i>'+x.d+'%</i></b>'+(x===cause?'<small>Objetivo '+f(x.g0,3)+' g · pesado '+f(x.r,3)+' g ('+pct(x.r/x.g0-1)+')</small><small>Por eso se ajustó el resto</small>'
+      :'<small>Objetivo '+f(x.g0,3)+' g'+(adj?' → '+f(x.g,3)+' g ajustado':'')+' · '+(x.r!=null?'pesado '+f(x.r,3)+' g':'sin anotar')+'</small>')+(x.c!=="ok"?'<small>Puro en el lote '+f(x.sr*100,2)+' % (fórmula '+f(x.st*100,2)+' %)</small>':'')+'</span><span class="pv '+x.c+'">'+pct(x.dev)+'</span></div>'}).join("")+'</section>'+
     '<p class="ansub">La desviación compara la proporción de material puro de cada uno con la del resto del lote: si todo se pesa un poco de más por igual, el olor no cambia. Verde hasta 2 %, ámbar hasta 5 %, rojo más.'+(s.na?' Lo que no anotaste cuenta como pesado justo.':'')+'</p>';
   return h}
 function wzRender(){
