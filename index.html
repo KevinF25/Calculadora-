@@ -918,8 +918,11 @@ function wzRec(){return{k:wz.k,rows:wz.items.slice().sort(function(a,b){return a
 /* Estadísticas de una pesada: compara el % de material puro de cada uno en el lote con el de la fórmula */
 function pesStats(p){var k=p.k||1,ST=0,SR=0,GT=0,RT=0,na=0;
   var rs=(p.rows||[]).map(function(r){var g=r.g*k,v=r.r!=null?r.r:g,d=(r.d||100)/100;if(r.r==null)na++;ST+=r.g*d;SR+=v*d;GT+=g;RT+=v;return{n:r.n,d:r.d||100,g:g,r:r.r,pt:r.g*d,pr:v*d}});
-  /* Se compara con la mediana: si todo se pesó un 10 % de más la proporción no cambia, y el error queda en el material que se desvió */
-  var q=rs.filter(function(x){return x.pt>0}).map(function(x){return x.pr/x.pt}).sort(function(a,b){return a-b}),m=q.length?(q.length%2?q[(q.length-1)/2]:(q[q.length/2-1]+q[q.length/2])/2):1;
+  /* Referencia: el grupo más grande de materiales pesados en la misma proporción (±2 %); en empate, el más cercano al objetivo.
+     Así, si todo se pesó un 10 % de más el olor no cambia, y el error queda en el material que se desvió (también con solo 2) */
+  var q=rs.filter(function(x){return x.pt>0}).map(function(x){return x.pr/x.pt}),m=k,best=-1;
+  q.forEach(function(a){var g=q.filter(function(b){return Math.abs(b/a-1)<=.02});
+    if(g.length>best||(g.length===best&&Math.abs(a/k-1)<Math.abs(m/k-1))){best=g.length;m=a}});
   var nd=0,bad=false;rs.forEach(function(x){x.st=ST>0?x.pt/ST:0;x.sr=SR>0?x.pr/SR:0;x.dev=x.pt>0&&m>0?x.pr/x.pt/m-1:0;x.c=devCls(x.dev);if(x.c!=="ok")nd++;if(x.c==="bad")bad=true});
   return{rows:rs,GT:GT,RT:RT,nd:nd,na:na,c:nd?(bad?"bad":"wn"):"ok",k:k}}
 function pesTag(s){return s.c==="ok"?"✓ Fiel":"⚠ "+s.nd+(s.nd===1?" desviado":" desviados")}
