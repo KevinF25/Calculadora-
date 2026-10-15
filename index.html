@@ -16,6 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="catalogo.js"></script>
 <style>
 :root{--bg:#f2f5f3;--card:#fff;--ink:#17302b;--mute:#5f726d;--line:#d5ded9;--acc:#1d6b58;--accbg:#e1efe9;--acc2:#9fcab9;--py1:#b5dfcf;--py2:#4a9e83;--py3:#1d5e4d;--pyt1:#17302b;--pyt3:#fff;--bgt:rgba(242,245,243,.78);--cardt:rgba(255,255,255,.88);--shadow:0 1px 2px rgba(23,48,43,.05),0 4px 16px rgba(23,48,43,.06);--warn:#9a5b00;--warnbg:#fdf0d5;--bad:#b3261e;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -205,6 +206,10 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 .chip{display:inline-flex;align-items:center;gap:2px;padding:3px 4px 3px 10px;border-radius:999px;background:var(--accbg);color:var(--ink);font-size:14px}
 .chip button{border:0;background:transparent;min-height:26px;width:26px;padding:0;color:var(--mute);font-size:12px}
 .pots{display:flex;gap:6px}
+.catprev{font-size:14px;margin-top:8px;line-height:1.4}
+.catprev b{color:var(--acc)}
+.srclink{display:inline-block;margin-top:10px;color:var(--acc);font-weight:600;font-size:15px;text-decoration:none}
+.cupd{border:1px solid var(--line);border-radius:14px;background:var(--card);text-align:center;margin-bottom:14px}
 .pots button{flex:1;min-height:44px;border-radius:10px;font-size:17px;font-weight:600;color:var(--mute)}
 .pots button.on{background:var(--acc);border-color:var(--acc);color:var(--bg)}
 .lnkb{display:block;width:100%;margin-top:10px;border:0;background:transparent;color:var(--acc);font-weight:600;min-height:44px}
@@ -412,7 +417,8 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 </section></div>
 <div id="mnewm" class="modal" hidden><section class="card mbox" role="dialog" aria-modal="true" aria-labelledby="mnewt">
   <h2 id="mnewt">Nuevo material</h2>
-  <label for="mname">Nombre</label><input id="mname" placeholder="Ej. Ambroxan" enterkeyhint="go" autocomplete="off">
+  <label for="mname">Nombre</label><input id="mname" list="mcatdl" placeholder="Busca en el catálogo o escribe uno nuevo" enterkeyhint="go" autocomplete="off"><datalist id="mcatdl"></datalist>
+  <div class="catprev" id="mcatp"></div>
   <p class="msg" id="mm" aria-live="polite"></p>
   <div class="wzbtn" style="margin:14px 0 0"><button type="button" id="mcancel">Cancelar</button><button type="button" class="p" id="ma">Agregar</button></div>
 </section></div>
@@ -470,7 +476,7 @@ var rows=[{n:"",d:100,p:""}];
 var vers=[];var lib=[];
 var $=function(i){return document.getElementById(i)};
 var reg=[],MK="perfcalc-mats-v1";
-var FAM={"Ámbar":"#a68540","Almizcle":"#3f6191","Amaderado":"#805f3b","Cítrico":"#7d8f2a","Floral":"#a8506b","Modificador":"#5a5a5e","Sin familia":"#5f726d"};
+var FAM={"Ámbar":"#8f6f2c","Almizcle":"#3f6191","Amaderado":"#805f3b","Cítrico":"#66751f","Floral":"#a8506b","Verde":"#3d7a52","Aromático":"#6a5a9a","Especiado":"#a1452b","Frutal":"#b0581f","Gourmand":"#8a4b63","Resinoso":"#7a6526","Acuático":"#2c7487","Animálico":"#5c4339","Modificador":"#5a5a5e","Sin familia":"#5f726d"};
 var FAMLIST=Object.keys(FAM);
 var DEFF={"Ambroxan":"Ámbar","Ambrofix":"Ámbar","Ambrocenide":"Ámbar","Absolute Ambergris":"Ámbar","Bacdanol":"Amaderado","Bergamot Superior Oil FCF":"Cítrico","Cashmeran":"Amaderado","Galaxolide":"Almizcle","Habanolide":"Almizcle","Hedione":"Modificador","Helvetolide":"Almizcle","Iso E Super":"Amaderado","Javanol":"Amaderado","Musk R1":"Almizcle","Vetiveryl Acetate":"Amaderado","Ambrettolide":"Almizcle"};
 var DEFP={"Bergamot Superior Oil FCF":"Salida","Hedione":"Corazón","Ambroxan":"Fondo","Ambrofix":"Fondo","Ambrocenide":"Fondo","Absolute Ambergris":"Fondo","Cashmeran":"Corazón","Iso E Super":"Fondo","Javanol":"Corazón","Habanolide":"Fondo","Helvetolide":"Corazón","Galaxolide":"Corazón","Musk R1":"Fondo","Vetiveryl Acetate":"Fondo","Bacdanol":"Fondo","Ambrettolide":"Corazón"};
@@ -486,9 +492,22 @@ var FICHA={
  "Ambrocenide":{fam:"Ámbar",pos:"Fondo",tags:["ámbar","madera","seco","ambergris","almizcle","brillante","difusivo"],pot:5,dur:"",uso:"en trazas",ifra:"",info:"Se nota en todo el recorrido, de salida a fondo. Potencia 7/10 sola, impacto 10/10 en mezcla: usar en trazas."}
 };
 var NOTOWN=["Ambroxan","Absolute Ambergris","Bacdanol","Bergamot Superior Oil FCF","Galaxolide","Musk R1","Vetiveryl Acetate","Ambrettolide"];
+var CAT=(typeof CATALOGO!=="undefined"&&CATALOGO)||[];
+function catFind(n){n=(n||"").trim().toLowerCase();if(!n)return null;var a=null;
+  for(var i=0;i<CAT.length;i++){if(CAT[i].n.toLowerCase()===n)return CAT[i];if(!a&&(CAT[i].alias||[]).some(function(x){return x.toLowerCase()===n}))a=CAT[i]}return a}
+var CATF=["tags","pot","dur","uso","ifra","info","cas","fuente"];
+/* Copia los datos del catálogo en un material; con soloVacios no pisa lo que ya tenga */
+function catApply(m,c,soloVacios){if(!c)return;
+  if(!soloVacios||!m.fam)m.fam=c.fam;if(!soloVacios||!m.pos)m.pos=c.pos;
+  CATF.forEach(function(k){var v=m[k],e=v==null||v===""||(Array.isArray(v)&&!v.length);if(!soloVacios||e)m[k]=Array.isArray(c[k])?c[k].slice():c[k]})}
+function newMat(n,own){var m={n:n,d:[100,10,1],note:"",fam:"",pos:"",own:own,tags:[],catv:1};catApply(m,catFind(n),false);return m}
 function migrate(){reg.forEach(function(m){
   var fc=FICHA[m.n];if(fc&&m.seedv!==1){m.fam=fc.fam;m.pos=fc.pos;m.tags=fc.tags.slice();m.pot=fc.pot;m.dur=fc.dur;m.uso=fc.uso;m.ifra=fc.ifra;m.info=fc.info;m.seedv=1}
-  if(m.own===undefined)m.own=NOTOWN.indexOf(m.n)<0;if(!m.tags)m.tags=[];if(m.fam===undefined)m.fam=DEFF[m.n]||"";if(m.pos===undefined)m.pos=DEFP[m.n]||""})}
+  if(m.own===undefined)m.own=NOTOWN.indexOf(m.n)<0;if(!m.tags)m.tags=[];
+  if(m.catv!==1&&CAT.length){var cc=catFind(m.n);if(cc){
+    if(m.seedv===1){["dur","uso","ifra","cas","fuente"].forEach(function(k){if(!m[k])m[k]=cc[k]})}
+    else{var dflt=MATS.indexOf(m.n)>-1;if(dflt){m.fam=cc.fam;m.pos=cc.pos}catApply(m,cc,true)}}
+    m.catv=1}if(m.fam===undefined)m.fam=DEFF[m.n]||"";if(m.pos===undefined)m.pos=DEFP[m.n]||""})}
 var openM=-1,mq="",mown="";
 function saveMats(){if(!ready)return;try{localStorage.setItem(MK,JSON.stringify(reg))}catch(e){}touch()}
 function loadMats(){var ok=false;try{var m=JSON.parse(localStorage.getItem(MK)||"null");if(m&&m.length){reg=m;ok=true}}catch(e){}
@@ -498,11 +517,13 @@ function findMat(n){n=(n||"").trim().toLowerCase();if(!n)return null;for(var i=0
 function avail(n){var m=findMat(n);return m&&m.d.length?m.d:[100,10,1]}
 function noteFor(n){var m=findMat(n);return m&&m.note?m.note:""}
 function selOpts(r){var av=avail(r.n);return [100,10,1].filter(function(v){return av.indexOf(v)>-1||+r.d===v}).map(function(v){return '<option value="'+v+'"'+(+r.d===v?' selected':'')+'>'+v+'%</option>'}).join("")}
-function fillList(){var dl=$("mats");dl.innerHTML=reg.map(function(m){return '<option value="'+esc(m.n)+'">'}).join("")}
+function fillList(){var dl=$("mats"),seen={};dl.innerHTML=reg.map(function(m){seen[m.n.toLowerCase()]=1;return '<option value="'+esc(m.n)+'">'}).join("")+
+  CAT.filter(function(c){return !seen[c.n.toLowerCase()]}).map(function(c){return '<option value="'+esc(c.n)+'" label="'+esc(c.fam+" · del catálogo")+'">'}).join("");
+  var mc=$("mcatdl");if(mc)mc.innerHTML=CAT.filter(function(c){return !seen[c.n.toLowerCase()]}).map(function(c){return '<option value="'+esc(c.n)+'">'}).join("")}
 function refreshRow(i){var r=rows[i];if(!r)return;var av=avail(r.n);if(av.indexOf(+r.d)<0)r.d=av[0]}
 function refreshAll(){rows.forEach(function(r,i){refreshRow(i)});render()}
 function owns(n){var m=findMat(n);return !m||m.own!==false}
-function allTags(){var o={};reg.forEach(function(m){(m.tags||[]).forEach(function(t){o[t]=1})});return Object.keys(o).sort(function(a,b){return a.localeCompare(b)})}
+function allTags(){var o={};reg.forEach(function(m){(m.tags||[]).forEach(function(t){o[t]=1})});CAT.forEach(function(c){c.tags.forEach(function(t){o[t]=1})});return Object.keys(o).sort(function(a,b){return a.localeCompare(b)})}
 function famOf(m){return m.fam&&FAM[m.fam]?m.fam:"Sin familia"}
 function pyr(pos,col){
   var P=[["Salida","M12 3 L15.6 9.5 H8.4 Z"],["Corazón","M7.6 11 H16.4 L18.9 15.5 H5.1 Z"],["Fondo","M4.3 17 H19.7 L21.9 21 H2.1 Z"]];
@@ -525,7 +546,10 @@ function matPage(m,i){
   '<label for="mp-du">Duración en tira</label><input id="mp-du" data-mx="dur" placeholder="Ej. más de 172 h" value="'+esc(m.dur||"")+'">'+
   '<label for="mp-us" style="margin-top:10px">Uso típico</label><input id="mp-us" data-mx="uso" placeholder="Ej. 0.5–2 % del concentrado" value="'+esc(m.uso||"")+'">'+
   '<label for="mp-if" style="margin-top:10px">Límite IFRA</label><input id="mp-if" data-mx="ifra" placeholder="Ej. 3.8 % en producto final" value="'+esc(m.ifra||"")+'">'+
-  '<label for="mp-in" style="margin-top:10px">Información de la ficha</label><textarea id="mp-in" rows="3" data-mx="info" placeholder="Matices, comportamiento, avisos">'+esc(m.info||"")+'</textarea></section>'+
+  '<label for="mp-cas" style="margin-top:10px">CAS</label><input id="mp-cas" data-mx="cas" placeholder="Ej. 54464-57-2" value="'+esc(m.cas||"")+'" inputmode="text">'+
+  '<label for="mp-in" style="margin-top:10px">Información de la ficha</label><textarea id="mp-in" rows="3" data-mx="info" placeholder="Matices, comportamiento, avisos">'+esc(m.info||"")+'</textarea>'+
+  (m.fuente&&/^https:\/\//.test(m.fuente)?'<a class="srclink" href="'+esc(m.fuente)+'" target="_blank" rel="noopener">Ver ficha de origen ↗</a>':'')+'</section>'+
+  (catFind(m.n)?'<button type="button" class="addline cupd" data-mcat="'+i+'">Actualizar con los datos del catálogo</button>':'')+
   '<p class="ansec">Mis notas</p><section class="card"><textarea id="mp-n" rows="3" placeholder="Cómo huele, para qué lo usas" data-mn="'+i+'" aria-label="Mis notas">'+esc(m.note||"")+'</textarea>'+
   '<p class="msg" style="color:var(--mute)">Los cambios se guardan solos.</p></section>';
 }
@@ -692,7 +716,9 @@ $("vl").addEventListener("click",function(e){
   if(d!==null){vers.splice(+d,1);renderVers();store()}
 });
 
-function mnewClose(){$("mnewm").hidden=true;$("mname").value="";$("mm").textContent=""}
+function mnewClose(){$("mnewm").hidden=true;$("mname").value="";$("mm").textContent="";$("mcatp").innerHTML=""}
+function catPrev(c){return c?'<b>Del catálogo:</b> '+esc(c.fam)+' · '+esc(c.pos)+' · '+esc(c.tags.slice(0,4).join(", "))+(c.n.toLowerCase()!==$("mname").value.trim().toLowerCase()?'<br><small>Se guardará como '+esc(c.n)+'</small>':''):'<span style="color:var(--mute)">No está en el catálogo: lo crearás vacío y podrás rellenarlo.</span>'}
+$("mname").addEventListener("input",function(){var v=this.value.trim();$("mcatp").innerHTML=v?catPrev(catFind(v)):""});
 $("mnew").onclick=function(){$("mnewm").hidden=false;$("mname").focus()};
 $("mcancel").onclick=mnewClose;
 $("mnewm").addEventListener("click",function(e){if(e.target===this)mnewClose()});
@@ -700,7 +726,8 @@ $("mnewm").addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.i
 $("ma").onclick=function(){
   var n=$("mname").value.trim(),o=$("mm");o.className="msg";o.textContent="";if(!n){o.textContent="Escribe el nombre del material.";return}
   if(findMat(n)){o.className="msg wn";o.textContent="Ese material ya está en la lista.";return}
-  reg.push({n:n,d:[100,10,1],note:"",fam:"",pos:"",own:true,tags:[]});mq="";$("mq").value="";saveMats();fillList();refreshAll();mnewClose();openMat(reg.length-1);
+  var c=catFind(n);if(c&&!findMat(c.n))n=c.n;if(findMat(n)){o.className="msg wn";o.textContent="Ese material ya está en la lista.";return}
+  reg.push(newMat(n,true));mq="";$("mq").value="";saveMats();fillList();refreshAll();mnewClose();openMat(reg.length-1);
 };
 $("ml").addEventListener("click",function(e){var t=e.target;
   if(t.closest&&t.closest("[data-mback]")){closeMat();return}
@@ -731,6 +758,7 @@ $("ml").addEventListener("change",function(e){var t=e.target;
 $("ml").addEventListener("click",function(e){var t=e.target,b;if(!t.closest)return;
   if((b=t.closest("[data-mown2]"))){mown=b.getAttribute("data-mown2");renderMats();return}
   var m=reg[openM];if(!m)return;
+  if((b=t.closest("[data-mcat]"))){var cc=catFind(m.n);if(!cc)return;actionSheet("Se reemplazarán familia, rol, etiquetas, potencia y datos técnicos por los del catálogo. Se mantienen tus diluciones, tus notas y si lo tienes.",[{label:"Actualizar con el catálogo",fn:function(){catApply(m,cc,false);saveMats();renderMats();toast("Actualizado")}}]);return}
   if((b=t.closest("[data-mtdel]"))){m.tags.splice(+b.getAttribute("data-mtdel"),1);saveMats();renderMats();return}
   if((b=t.closest("[data-mpot]"))){var v=+b.getAttribute("data-mpot");m.pot=m.pot===v?null:v;saveMats();renderMats();return}});
 
@@ -1268,7 +1296,7 @@ function impSave(){var c=impCalc();if(!c.ok||c.bad)return;var out=impResult();
   var unk=[];out.forEach(function(o){if(!findMat(o.n)&&unk.indexOf(o.n)<0)unk.push(o.n)});
   saveLib();imp=null;view=null;openF=id;infoF=null;renderLib();window.scrollTo(0,0);toast("Receta importada");
   if(unk.length)setTimeout(function(){actionSheet(unk.length===1?unk[0]+" no está en tu lista de Materiales. ¿Quieres agregarlo?":unk.length+" materiales no están en tu lista de Materiales ("+unk.join(", ")+"). ¿Quieres agregarlos?",[
-    {label:"Agregar a Materiales",fn:function(){unk.forEach(function(n){reg.push({n:n,d:[100,10,1],note:"",fam:"",pos:"",own:false,tags:[]})});saveMats();fillList();toast("Agregado a Materiales")}}])},350)}
+    {label:"Agregar a Materiales",fn:function(){unk.forEach(function(n){reg.push(newMat(n,false))});saveMats();fillList();toast("Agregado a Materiales")}}])},350)}
 $("nimp").onclick=function(){var n=$("nn").value.trim(),m=$("nm");m.className="msg";
   if(!n){m.textContent="Ponle un nombre a la receta.";$("nn").focus();return}
   if(lib.some(function(v){return v.name.toLowerCase()===n.toLowerCase()})){m.className="msg wn";m.textContent="Ya hay una fórmula con ese nombre.";return}

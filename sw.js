@@ -1,7 +1,7 @@
 /* Funciona sin internet: con conexión siempre usa la versión más nueva y la guarda;
    sin conexión (o si la red tarda demasiado) usa la copia guardada en el teléfono. */
-var CACHE = "formulas-v1";
-var CORE = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "apple-touch-icon.png",
+var CACHE = "formulas-v2";
+var CORE = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "apple-touch-icon.png", "catalogo.js",
   "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"];
 
 self.addEventListener("install", function (e) {
