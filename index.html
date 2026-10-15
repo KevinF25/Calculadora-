@@ -210,8 +210,6 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 .sbar.mini i:first-child{border-radius:3px 0 0 3px}.sbar.mini i:last-child{border-radius:0 3px 3px 0}.sbar.mini i:only-child{border-radius:3px}
 .leg.mini{margin:6px 0 0;font-size:12px;gap:4px 10px}
 .leg.mini i{width:8px;height:8px}
-.cfam{margin:0 2px 12px}
-.cfam:empty{display:none}
 .mrow2{box-shadow:inset 4px 0 0 var(--fc,transparent)}
 .fprint{padding:12px 14px}
 .fpl{font-size:12px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
@@ -359,7 +357,6 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 <div id="ebar" class="hdr ebar" hidden></div>
 <div class="fwarn" id="m2" hidden></div>
 <p id="m1" hidden></p><p id="cm" hidden></p><span id="sg" hidden></span>
-<div class="cfam" id="cfam"></div>
 <div class="mlist" id="rows"></div>
 
 <div class="sumbar"><div class="in">
@@ -666,7 +663,6 @@ function calc(){
   if(warnN>0&&need){m2.hidden=false;m2.innerHTML=(warnN===1?"Una línea queda":warnN+" líneas quedan")+" por debajo del límite de la balanza ("+f(L,3)+" g). <button type=\"button\" data-need=\""+need+"\">Subir el total a "+f(need,1)+" g</button>"}else{m2.hidden=true;m2.textContent=""}
   $("totmsg").textContent=need?"Mínimo para que todas las líneas pasen el límite: "+f(need,1)+" g.":"";
   totShow();
-  var cf=$("cfam");if(cf){var tmp={rows:rows,tot:T,mode:mode},bar=S>0?famBar(tmp,"fam"):"";cf.innerHTML=bar?bar+famLeg(tmp,"fam"):""}
   saveState();store();
 }
 /* La calculadora trabaja sobre un borrador: Guardar lo pasa a la fórmula guardada */
@@ -1329,7 +1325,7 @@ function fInfo(x){
   '<div><span>Peso total</span><b>'+f(x.tot,2)+' g</b></div><div><span>Materiales</span><b>'+c.rows.length+'</b></div>'+
   '<div><span>Partes de</span><b>'+(x.mode==="pesar"?"lo que se pesa":"material puro")+'</b></div>'+(x.cat?'<div><span>Lote</span><b>'+esc(x.cat)+'</b></div>':'')+
   (sc?'<div><span>Puntuación media</span><b class="stars">'+(avg/sc).toFixed(1)+' ★</b></div>':'')+'</section>'+
-  '<label for="fd-t">Notas</label><textarea id="fd-t" rows="4" data-ffnote="'+x.id+'" placeholder="Cómo huele, qué cambiarías">'+esc(x.note||"")+'</textarea>'+
+  (c.rows.length?'<section class="card fprint"><div class="fpl">Familias</div>'+famBar(x,"fam")+famLeg(x,"fam")+'<div class="fpl" style="margin-top:10px">Pirámide</div>'+famBar(x,"pos")+famLeg(x,"pos")+'</section>':'')+'<label for="fd-t">Notas</label><textarea id="fd-t" rows="4" data-ffnote="'+x.id+'" placeholder="Cómo huele, qué cambiarías">'+esc(x.note||"")+'</textarea>'+
   (x.orig&&x.orig.rows&&x.orig.rows.length?'<p class="ansec">Receta original</p><p class="ansub">Tal como venía ('+(x.orig.mode==="puro"?'partes de material puro':'partes tal como se pesa')+'). Solo para consultar: no se usa en los cálculos.</p><section class="card orig">'+
     x.orig.rows.map(function(r){return '<div><b>'+esc(r.n)+'</b><span>'+(r.d!=null?f(r.d,2).replace(/\.?0+$/,"")+' % · ':'')+f(r.p,4).replace(/\.?0+$/,"")+' partes</span></div>'}).join("")+'</section>':'')+
   evBlock(x)+(evOpen===x.id?'':'<button type="button" class="addrow" style="margin-top:12px" data-fev="'+x.id+'">+ Añadir evaluación</button>')+
@@ -1340,7 +1336,7 @@ function fDet(x){
   var draft=editId===x.id&&dirty();
   return '<div class="hdr ebar two"><button type="button" class="mb" data-fback aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="et"><b>'+esc(x.name)+'</b><small>'+(x.cat?esc(x.cat)+' · ':'')+f(x.tot,2)+' g</small></div><span class="rt"><button type="button" class="mb acc" data-finfo="'+x.id+'" aria-label="Información"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.2"/><path d="M12 11v5.5"/><circle cx="12" cy="7.6" r="1.1" fill="currentColor" stroke="none"/></svg></button><button type="button" class="mb acc" data-fmore="'+x.id+'" aria-label="Más acciones"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9.2"/><circle cx="7.8" cy="12" r="1.25" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.25" fill="currentColor" stroke="none"/><circle cx="16.2" cy="12" r="1.25" fill="currentColor" stroke="none"/></svg></button></span></div>'+
   '<p class="msg" id="fd-m"></p>'+(draft?'<p class="fwarn">Tienes cambios sin guardar en la calculadora. Toca Editar para seguir con ellos.</p>':'')+
-  (c.rows.length?'<section class="card fprint"><div class="fpl">Familias</div>'+famBar(x,"fam")+famLeg(x,"fam")+'<div class="fpl" style="margin-top:10px">Pirámide</div>'+famBar(x,"pos")+famLeg(x,"pos")+'</section>':'')+
+  
   '<div class="flines">'+(c.rows.length?c.rows.map(function(r){return '<div><b><i class="fdot" style="background:'+famColor(r.n)+'"></i>'+esc(r.n)+'</b> <small>'+r.d+'% · '+fp(r.p)+' partes</small><div><small>Pesar '+f(r.g,3)+' g · puro '+f(r.pu,4)+' g · '+f(r.pc*100,2)+'%</small></div></div>'}).join(""):'<p class="msg">Sin materiales.</p>')+'</div>'+
   '<div class="sumbar fbar"><div class="in"><button type="button" class="p" data-fopen="'+x.id+'">Editar en la calculadora</button></div></div>';
 }
