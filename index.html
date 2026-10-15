@@ -303,17 +303,45 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 .flines small{color:var(--mute)}
 .fbar .in button.ev{flex:none;min-height:48px;padding:0 14px}
 .fbar .in button.p{flex:1}
-#wz{position:fixed;inset:0;z-index:20;background:var(--bg);overflow:auto;padding:calc(env(safe-area-inset-top,0px) + 14px) 16px calc(env(safe-area-inset-bottom,0px) + 24px)}
+#wz{position:fixed;inset:0;z-index:20;background:var(--bg);overflow:auto;padding:0 16px calc(env(safe-area-inset-bottom,0px) + 24px)}
 #wz .wzin{max-width:640px;margin:0 auto}
-#wz .wzbar{display:flex;gap:8px;align-items:center;margin-bottom:12px}
-#wz .wzbar select{flex:1}
+#wz .wzh{margin:0 -16px 12px}
+.wzpg{display:flex;justify-content:space-between;font-size:14px;color:var(--mute);margin:0 2px}
+.wzk{color:var(--warn);font-weight:600}
 .wzbig{font-size:56px;font-weight:700;color:var(--acc);line-height:1.1;margin:6px 0}
 .wzbig small{font-size:24px;color:var(--mute);font-weight:500}
-.wzprog{height:6px;background:var(--line);border-radius:3px;margin:6px 0 16px;overflow:hidden}
-.wzprog i{display:block;height:100%;background:var(--acc)}
+.wzprog{height:6px;background:var(--line);border-radius:3px;margin:6px 0 14px;overflow:hidden}
+.wzprog i{display:block;height:100%;background:var(--acc);transition:width .25s}
 .wzbtn{display:flex;gap:10px;margin:14px 0}
 .wzbtn button{flex:1;min-height:58px;font-size:18px}
-.wzt{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:4px 8px;font-size:14px;border-top:1px solid var(--line);padding:8px 0}
+.wzc{box-shadow:inset 4px 0 0 var(--fc,transparent),var(--shadow);margin-bottom:0}
+.wzn{font-size:28px;font-weight:700;line-height:1.15}
+.wzr{display:flex;align-items:center;gap:10px}
+.wzr input{flex:1;min-height:56px;font-size:24px;font-weight:600}
+.wzr span{font-size:20px;color:var(--mute)}
+.wzst{margin-top:10px;padding:11px 12px;border-radius:12px;font-weight:600;font-size:16px}
+.wzst.ok,.wzv.ok .ic{background:var(--accbg);color:var(--acc)}
+.wzst.wn,.wzv.wn .ic{background:var(--warnbg);color:var(--warn)}
+.wzst.bad,.wzv.bad .ic{background:color-mix(in srgb,var(--bad) 15%,transparent);color:var(--bad)}
+.wzhint{font-size:14px;color:var(--mute);margin:8px 2px 0}
+.wzadj{width:100%;margin-top:10px;min-height:50px;background:var(--acc);color:var(--bg);border-color:var(--acc);font-weight:600;font-size:17px}
+.wzv{display:flex;gap:12px;align-items:center}
+.wzv .ic{flex:none;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700}
+.wzv b{display:block;font-size:18px}
+.wzv small{display:block;color:var(--mute);font-size:14px;margin-top:2px}
+.pesl>div{align-items:center}
+.pesl .l{flex:1;min-width:0;color:var(--ink)}
+.pesl .l b{display:block;text-align:left;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pesl .l b i{font-style:normal;font-weight:400;color:var(--mute);font-size:14px}
+.pesl .l small{display:block;color:var(--mute);font-size:13px;margin-top:2px}
+.pesl>div[role=button]{cursor:pointer}
+.pv{flex:none;font-weight:600;font-size:14px;white-space:nowrap;color:var(--mute)}
+.pv.ok{color:var(--acc)}.pv.wn{color:var(--warn)}.pv.bad{color:var(--bad)}
+.wzl{margin-top:4px}
+.wzl>div{cursor:pointer}
+.wzl>div.cur{background:var(--accbg)}
+.pchev{flex:none;width:16px;height:16px;color:var(--mute);margin-left:-4px}
+.evp{color:var(--mute);font-size:13px}
 #gate{position:fixed;inset:0;z-index:30;background:var(--bg);overflow:auto;display:flex;padding:calc(env(safe-area-inset-top,0px) + 24px) 16px calc(env(safe-area-inset-bottom,0px) + 24px)}
 #gate .gwrap{max-width:420px;width:100%;margin:auto}
 #gate .gdrop{width:52px;height:52px;color:var(--acc);margin-bottom:10px}
@@ -410,10 +438,15 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 
 <div id="wz" hidden>
   <div class="wzin">
-    <div class="wzbar"><button type="button" id="wzx">Cerrar</button><select id="wzo" aria-label="Orden"><option value="tabla">Orden de la tabla</option><option value="desc">Más pesado primero</option><option value="asc">Más ligero primero</option></select></div>
+    <div class="hdr ebar wzh"><button type="button" class="mb" id="wzx" aria-label="Cerrar"></button><div class="et"><b id="wzt">Pesando</b><small id="wzf"></small></div><button type="button" class="mb" id="wzo" aria-label="Orden para pesar"></button></div>
     <div id="wzb"></div>
   </div>
 </div>
+
+<div id="pesm" class="bsheet" hidden><div class="bsin" role="dialog" aria-modal="true" aria-labelledby="pest">
+  <div class="bsh"><button type="button" class="bdel" id="pesdel">Borrar</button><b id="pest">Pesada</b><button type="button" class="bok" id="pesok">Listo</button></div>
+  <div id="pesb"></div>
+</div></div>
 
 <div id="fnewm" class="modal" hidden><section class="card mbox" id="fnewf" role="dialog" aria-modal="true" aria-labelledby="fnewt">
   <h2 id="fnewt">Nueva fórmula</h2>
@@ -846,54 +879,109 @@ document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!$("sheet")
 $("nv-mat").onclick=function(){leaveCalc(function(){openM=-1;armMd=null;showTab("mat")})};
 $("nv-for").onclick=function(){leaveCalc(function(){view=null;imp=null;$("impm").hidden=true;if(editId){editId=null;ebar();store()}openF=null;infoF=null;evOpen=null;armD=armU=armE=null;renderLib();showTab("for")})};
 
-var wz=null,wzLock=null;
+var wz=null,wzLock=null,wzOrd="tabla";
+var IC_X='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+var IC_SORT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M3.5 16.5L7 20l3.5-3.5M17 20V4M13.5 7.5L17 4l3.5 3.5"/></svg>';
 function wzBuild(){
-  var T=parseFloat($("tot").value)||0,fr=fracs(),it=[],old={};
-  if(wz)wz.items.forEach(function(x){old[x.n+"|"+x.d]=x});
-  rows.forEach(function(r,i){var g=fr[i]*T;if(r.n&&g>0){var o=old[r.n+"|"+(+r.d)];it.push({n:r.n,d:+r.d,g:g,note:noteFor(r.n),done:o?o.done:false,real:o?o.real:""})}});
-  var m=$("wzo").value;
-  if(m==="desc")it.sort(function(a,b){return b.g-a.g});
-  if(m==="asc")it.sort(function(a,b){return a.g-b.g});
-  return it;
-}
+  var T=parseFloat($("tot").value)||0,fr=fracs(),it=[];
+  rows.forEach(function(r,i){var g=fr[i]*T;if(r.n&&g>0)it.push({ix:it.length,n:r.n,d:+r.d||100,g0:g,note:noteFor(r.n),done:false,top:false,real:"",as:null})});
+  return wzSort(it)}
+function wzSort(it){return it.sort(function(a,b){return wzOrd==="desc"?b.g0-a.g0:wzOrd==="asc"?a.g0-b.g0:a.ix-b.ix})}
+function wzG(x){return x.g0*wz.k}
+function wzR(x){var s=String(x.real==null?"":x.real).replace(",",".").trim(),v=parseFloat(s);return s!==""&&isFinite(v)&&v>=0?v:null}
+function wzV(x){var r=wzR(x);return r!==null?r:(x.done&&x.as!=null?x.as:null)}
+/* Desviación: verde hasta 2 %, ámbar hasta 5 %, rojo por encima */
+function devCls(d){var a=Math.abs(d);return a<=.02?"ok":a<=.05?"wn":"bad"}
+function pct(d){var a=Math.abs(d*100);return a<.05?"0.0 %":(d>0?"+":"−")+f(a,1)+" %"}
+function fdt(ts){try{return fdate(ts)+", "+new Date(ts).toLocaleTimeString("es",{hour:"2-digit",minute:"2-digit"})}catch(e){return fdate(ts)}}
+/* Factor para "Ajustar el resto": el mayor exceso, para no tener que quitar material de ningún frasco */
+function wzKmax(){var k=wz.k;wz.items.forEach(function(y){var v=wzV(y);if(v!==null&&y.g0>0)k=Math.max(k,v/y.g0)});return k}
+function wzInd(x){
+  var r=wzR(x),g=wzG(x);
+  if(r===null)return '<p class="wzhint">'+(x.top?'Por el ajuste, este material necesita más: llega hasta '+f(g,3)+' g.':'Escribe lo que marcó la báscula, o dale a Listo si pesaste justo lo indicado.')+'</p>';
+  var d=g>0?r/g-1:0,c=devCls(d);
+  if(c==="ok")return '<div class="wzst ok">✓ Bien · '+pct(d)+'</div>';
+  if(d<0)return '<div class="wzst '+c+'">Te faltan '+f(g-r,3)+' g ('+pct(d)+')</div><p class="wzhint">Añade un poco más hasta llegar a '+f(g,3)+' g.</p>';
+  var k=wzKmax(),nt=0;wz.items.forEach(function(y){nt+=y.g0*k});
+  return '<div class="wzst '+c+'">Te pasaste '+f(r-g,3)+' g ('+pct(d)+')</div>'+
+    '<button type="button" class="wzadj" data-wadj="1">Ajustar el resto</button>'+
+    '<p class="wzhint">Recalcula los demás materiales para mantener la proporción olfativa. El lote pasará a '+f(nt,2)+' g.</p>'}
+function wzNext(from){var n=wz.items.length;for(var s=1;s<=n;s++){var k=(from+s)%n;if(!wz.items[k].done)return k}return n}
+function wzAdjust(){var cur=wz.items[wz.i];wz.k=wzKmax();
+  wz.items.forEach(function(y){if(y===cur)return;var v=wzV(y);
+    if(y.done&&v!==null&&v<wzG(y)*0.98){if(wzR(y)===null)y.real=String(+v.toFixed(3));y.as=null;y.done=false;y.top=true}});
+  cur.done=true;cur.top=false;cur.as=null;var nt=0;wz.items.forEach(function(y){nt+=wzG(y)});
+  wz.i=wzNext(wz.i);wzRender();$("wz").scrollTop=0;toast("Ajustado · lote de "+f(nt,2)+" g")}
+function wzRec(){return{k:wz.k,rows:wz.items.slice().sort(function(a,b){return a.ix-b.ix}).map(function(y){return{n:y.n,d:y.d,g:y.g0,r:wzR(y)}})}}
+/* Estadísticas de una pesada: compara el % de material puro de cada uno en el lote con el de la fórmula */
+function pesStats(p){var k=p.k||1,ST=0,SR=0,GT=0,RT=0,na=0;
+  var rs=(p.rows||[]).map(function(r){var g=r.g*k,v=r.r!=null?r.r:g,d=(r.d||100)/100;if(r.r==null)na++;ST+=r.g*d;SR+=v*d;GT+=g;RT+=v;return{n:r.n,d:r.d||100,g:g,r:r.r,pt:r.g*d,pr:v*d}});
+  /* Se compara con la mediana: si todo se pesó un 10 % de más la proporción no cambia, y el error queda en el material que se desvió */
+  var q=rs.filter(function(x){return x.pt>0}).map(function(x){return x.pr/x.pt}).sort(function(a,b){return a-b}),m=q.length?(q.length%2?q[(q.length-1)/2]:(q[q.length/2-1]+q[q.length/2])/2):1;
+  var nd=0,bad=false;rs.forEach(function(x){x.st=ST>0?x.pt/ST:0;x.sr=SR>0?x.pr/SR:0;x.dev=x.pt>0&&m>0?x.pr/x.pt/m-1:0;x.c=devCls(x.dev);if(x.c!=="ok")nd++;if(x.c==="bad")bad=true});
+  return{rows:rs,GT:GT,RT:RT,nd:nd,na:na,c:nd?(bad?"bad":"wn"):"ok",k:k}}
+function pesTag(s){return s.c==="ok"?"✓ Fiel":"⚠ "+s.nd+(s.nd===1?" desviado":" desviados")}
+function pesBody(p){var s=pesStats(p);
+  var h='<section class="card wzv '+s.c+'"><span class="ic" aria-hidden="true">'+(s.c==="ok"?"✓":"!")+'</span><span><b>'+(s.c==="ok"?"Lote fiel a la fórmula":s.nd+(s.nd===1?" material se desvió":" materiales se desviaron"))+'</b>'+
+    '<small>Pesaste '+f(s.RT,2)+' g de '+f(s.GT,2)+' g'+(s.k>1.0005?' · ajustado ×'+f(s.k,2):'')+(s.na?' · '+s.na+' sin anotar':'')+'</small></span></section>';
+  h+='<p class="ansec">Material por material</p><section class="card ilist pesl">'+s.rows.map(function(x){
+    return '<div><span class="l"><b>'+esc(x.n)+' <i>'+x.d+'%</i></b><small>Objetivo '+f(x.g,3)+' g · '+(x.r!=null?'pesado '+f(x.r,3)+' g':'sin anotar')+'</small>'+(x.c!=="ok"?'<small>Puro en el lote '+f(x.sr*100,2)+' % (fórmula '+f(x.st*100,2)+' %)</small>':'')+'</span><span class="pv '+x.c+'">'+pct(x.dev)+'</span></div>'}).join("")+'</section>'+
+    '<p class="ansub">La desviación compara la proporción de material puro de cada uno con la del resto del lote: si todo se pesa un poco de más por igual, el olor no cambia. Verde hasta 2 %, ámbar hasta 5 %, rojo más.'+(s.na?' Lo que no anotaste cuenta como pesado justo.':'')+'</p>';
+  return h}
 function wzRender(){
-  var b=$("wzb"),it=wz.items,n=it.length,h="",i;
+  var b=$("wzb"),it=wz.items,n=it.length,h="",i,fx=editId&&findF(editId);
+  $("wzf").textContent=fx?fx.name:"";$("wzt").textContent=wz.i>=n&&n?"Resumen":"Pesando";$("wzo").hidden=wz.i>=n;
   if(!n){b.innerHTML='<p class="msg">No hay materiales con gramos para pesar. Escribe nombre y partes en la calculadora.</p>';return}
   if(wz.i>=n){
-    var sT=0,sR=0;it.forEach(function(x){sT+=x.g;sR+=(x.real!==""&&!isNaN(parseFloat(x.real)))?parseFloat(x.real):x.g});
-    h+='<h2>Resumen</h2><p class="msg">Si no anotaste lo que pesaste, se asume la cantidad objetivo.</p><div class="wzt" style="color:var(--mute)"><span>Material</span><span>Objetivo</span><span>Pesado</span></div>';
-    it.forEach(function(x){var has=x.real!==""&&!isNaN(parseFloat(x.real)),r=has?parseFloat(x.real):x.g;
-      h+='<div class="wzt"><span><b>'+esc(x.n)+'</b> <small style="color:var(--mute)">'+x.d+'%</small></span><span>'+f(x.g,3)+' g</span><span>'+(has?f(r,3)+' g':'—')+'</span><span style="grid-column:1/-1;color:var(--mute);font-size:12px">% de lo pesado: '+f(r/sR*100,2)+'% (objetivo '+f(x.g/sT*100,2)+'%)</span></div>'});
-    h+='<div class="wzt"><span><b>Total</b></span><span>'+f(sT,3)+' g</span><span>'+f(sR,3)+' g</span></div>';
-    h+='<div class="wzbtn"><button type="button" data-wback="1">Volver</button><button type="button" class="p" data-wclose="1">Terminar</button></div>';
-    b.innerHTML=h;return;
-  }
-  var x=it[wz.i],done=it.filter(function(y){return y.done}).length;
-  h+='<div class="msg">'+(wz.i+1)+' de '+n+'</div><div class="wzprog"><i style="width:'+(done/n*100)+'%"></i></div>';
-  h+='<div style="font-size:28px;font-weight:700">'+esc(x.n)+'</div><div class="sub" style="margin:2px 0 0">Frasco al '+x.d+'%'+(x.note?' · '+esc(x.note):'')+'</div>';
-  h+='<div class="wzbig">'+f(x.g,3)+' <small>g</small></div>';
-  if(x.d<100)h+='<div class="msg" style="margin:0 0 12px">Material puro: '+f(x.g*x.d/100,4)+' g</div>';
-  h+='<label for="wzr">Lo que pesé (g), opcional</label><input id="wzr" type="number" inputmode="decimal" step="any" min="0" value="'+esc(x.real)+'" placeholder="'+f(x.g,3)+'" style="min-height:52px;font-size:20px">';
+    h+=pesBody(wzRec());
+    if(wz.saved){h+='<p class="msg ok">Pesada guardada en «'+esc(fx?fx.name:"la fórmula")+'». La verás en Información.</p><div class="wzbtn"><button type="button" class="p" data-wclose="1">Terminar</button></div>'}
+    else{h+='<label for="wzn">Nota del lote (opcional)</label><textarea id="wzn" rows="2" placeholder="Báscula, macerado, algo que cambiaste…">'+esc(wz.note||"")+'</textarea>';
+      h+=fx?'<div class="wzbtn"><button type="button" data-wback="1">Volver</button><button type="button" class="p" data-wsave="1">Guardar pesada</button></div><button type="button" class="lnkb" data-wquit="1" style="color:var(--mute)">Salir sin guardar</button>'
+        :'<p class="msg">Para registrar la pesada, abre o guarda la fórmula primero.</p><div class="wzbtn"><button type="button" data-wback="1">Volver</button><button type="button" class="p" data-wclose="1">Terminar</button></div>'}
+    b.innerHTML=h;return}
+  var x=it[wz.i],done=it.filter(function(y){return y.done}).length,g=wzG(x);
+  h+='<div class="wzpg"><span>'+(wz.i+1)+' de '+n+'</span>'+(wz.k>1.0005?'<span class="wzk">Ajustado ×'+f(wz.k,2)+'</span>':'')+'</div><div class="wzprog"><i style="width:'+(done/n*100)+'%"></i></div>';
+  h+='<section class="card wzc" style="--fc:'+famColor(x.n)+'"><div class="wzn">'+esc(x.n)+'</div><div class="sub" style="margin:2px 0 0">Frasco al '+x.d+'%'+(x.note?' · '+esc(x.note):'')+'</div>';
+  h+='<div class="wzbig">'+f(g,3)+' <small>g</small></div>';
+  if(x.d<100||wz.k>1.0005)h+='<div class="msg" style="margin:0 0 4px">'+(x.d<100?'Material puro: '+f(g*x.d/100,4)+' g':'')+(x.d<100&&wz.k>1.0005?' · ':'')+(wz.k>1.0005?'antes '+f(x.g0,3)+' g':'')+'</div>';
+  h+='<label for="wzr">Lo que marcó la báscula</label><div class="wzr"><input id="wzr" type="number" inputmode="decimal" step="any" min="0" value="'+esc(x.real)+'" placeholder="'+f(g,3)+'" enterkeyhint="next"><span>g</span></div>';
+  h+='<div id="wzi" aria-live="polite">'+wzInd(x)+'</div></section>';
   h+='<div class="wzbtn"><button type="button" data-wprev="1"'+(wz.i===0?' disabled':'')+'>Anterior</button><button type="button" class="p" data-wdone="1">Listo</button></div>';
-  h+='<div style="margin-top:8px">';
-  it.forEach(function(y,k){h+='<div class="mrow" data-wj="'+k+'" role="button" tabindex="0" style="'+(k===wz.i?'border-color:var(--acc);':'')+'"><b>'+(y.done?'✓ ':'')+esc(y.n)+'</b><small>'+f(y.g,3)+' g</small></div>'});
-  h+='</div>';
+  h+='<section class="card ilist pesl wzl">';
+  it.forEach(function(y,k){var v=wzR(y),st="",c="";
+    if(y.top){st="falta añadir";c="wn"}else if(y.done&&v!==null){var dd=wzG(y)>0?v/wzG(y)-1:0;c=devCls(dd);st=(c==="ok"?"✓ ":"")+pct(dd)}else if(y.done){st="✓";c="ok"}
+    h+='<div data-wj="'+k+'" role="button" tabindex="0"'+(k===wz.i?' class="cur"':'')+'><span class="l"><b>'+esc(y.n)+'</b><small>'+f(wzG(y),3)+' g</small></span><span class="pv '+c+'">'+st+'</span></div>'});
+  h+='</section>';
   b.innerHTML=h;
 }
+function wzDirty(){return wz&&!wz.saved&&wz.items.some(function(y){return y.done||wzR(y)!==null})}
+function wzSave(){var x=editId&&findF(editId);if(!x||!wz)return;
+  var go=function(){var r=wzRec();x.pes=x.pes||[];
+    x.pes.push({id:"p"+Date.now().toString(36)+Math.random().toString(36).slice(2,5),ts:Date.now(),k:+r.k.toFixed(6),note:(wz.note||"").trim(),rows:r.rows.map(function(y){return{n:y.n,d:y.d,g:+y.g.toFixed(6),r:y.r}})});
+    wz.saved=true;saveLib();wzRender();toast("Pesada guardada")};
+  if(dirty())actionSheet("La fórmula tiene cambios sin guardar. Para registrar la pesada hay que guardarlos.",[{label:"Guardar cambios y la pesada",fn:function(){saveEdit();go()}}]);else go()}
 function wzLockOn(){try{if(navigator.wakeLock&&navigator.wakeLock.request)navigator.wakeLock.request("screen").then(function(l){wzLock=l},function(){})}catch(e){}}
 function wzLockOff(){try{if(wzLock){wzLock.release();wzLock=null}}catch(e){}}
 function wzClose(){$("wz").hidden=true;document.body.style.overflow="";wzLockOff()}
-$("wzs").onclick=function(){wz=null;wz={items:wzBuild(),i:0};$("wz").hidden=false;document.body.style.overflow="hidden";$("wz").scrollTop=0;wzLockOn();wzRender()};
-$("wzx").onclick=wzClose;
-$("wzo").onchange=function(){if(!wz)return;var cur=wz.items[wz.i];wz.items=wzBuild();wz.i=0;for(var k=0;k<wz.items.length;k++)if(!wz.items[k].done){wz.i=k;break}wzRender()};
-$("wzb").addEventListener("input",function(e){if(e.target.id==="wzr"&&wz&&wz.items[wz.i])wz.items[wz.i].real=e.target.value});
+$("wzs").onclick=function(){wz={items:wzBuild(),i:0,k:1,note:"",saved:false};$("wz").hidden=false;document.body.style.overflow="hidden";$("wz").scrollTop=0;wzLockOn();wzRender()};
+$("wzx").innerHTML=IC_X;$("wzo").innerHTML=IC_SORT;
+$("wzx").onclick=function(){if(wzDirty())actionSheet("¿Salir sin guardar la pesada?",[{label:"Salir sin guardar",bad:true,fn:wzClose}]);else wzClose()};
+$("wzo").onclick=function(){if(!wz)return;var o=function(v,l){return{label:(wzOrd===v?"✓ ":"")+l,fn:function(){var cur=wz.items[wz.i];wzOrd=v;wzSort(wz.items);var k=wz.items.indexOf(cur);wz.i=k<0?0:k;wzRender()}}};
+  actionSheet("Orden para pesar",[o("tabla","Orden de la fórmula"),o("desc","Más pesado primero"),o("asc","Más ligero primero")])};
+$("wzb").addEventListener("input",function(e){if(!wz)return;
+  if(e.target.id==="wzr"&&wz.items[wz.i]){var x=wz.items[wz.i];x.real=e.target.value;$("wzi").innerHTML=wzInd(x)}
+  if(e.target.id==="wzn")wz.note=e.target.value});
+$("wzb").addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.id==="wzr"){e.preventDefault();var b=document.querySelector("#wzb [data-wdone]");if(b)b.click()}});
 $("wzb").addEventListener("click",function(e){
-  if(!wz)return;var t=e.target,j=t.closest&&t.closest("[data-wj]");
-  if(j){wz.i=+j.getAttribute("data-wj");wzRender();return}
-  if(t.getAttribute("data-wdone")!==null){wz.items[wz.i].done=true;wz.i++;wzRender();$("wz").scrollTop=0;return}
-  if(t.getAttribute("data-wprev")!==null){if(wz.i>0)wz.i--;wzRender();$("wz").scrollTop=0;return}
-  if(t.getAttribute("data-wback")!==null){wz.i=wz.items.length-1;wzRender();return}
-  if(t.getAttribute("data-wclose")!==null)wzClose();
+  if(!wz)return;var t=e.target.closest?e.target.closest("button,[data-wj]"):null;if(!t)return;
+  if(t.hasAttribute("data-wj")){wz.i=+t.getAttribute("data-wj");wzRender();return}
+  if(t.hasAttribute("data-wadj")){wzAdjust();return}
+  if(t.hasAttribute("data-wdone")){var x=wz.items[wz.i];x.as=wzR(x)===null?wzG(x):null;x.done=true;x.top=false;wz.i=wzNext(wz.i);wzRender();$("wz").scrollTop=0;return}
+  if(t.hasAttribute("data-wprev")){if(wz.i>0)wz.i--;wzRender();$("wz").scrollTop=0;return}
+  if(t.hasAttribute("data-wback")){wz.i=wz.items.length-1;wzRender();$("wz").scrollTop=0;return}
+  if(t.hasAttribute("data-wsave")){wzSave();return}
+  if(t.hasAttribute("data-wquit")){actionSheet("¿Salir sin guardar la pesada?",[{label:"Salir sin guardar",bad:true,fn:wzClose}]);return}
+  if(t.hasAttribute("data-wclose"))wzClose();
 });
 document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible"&&wz&&!$("wz").hidden)wzLockOn()});
 
@@ -1055,12 +1143,14 @@ $("gate").addEventListener("keydown",function(e){if(e.key==="Enter"&&(e.target.i
 
 /* ===== Duplicar, evaluar y exportar PDF ===== */
 var evOpen=null,armE=null;
+function evLote(x,v){var q=v.pes&&(x.pes||[]).filter(function(p){return p.id===v.pes})[0];return q?' <span class="evp">· lote del '+esc(fdt(q.ts))+'</span>':''}
 function evBlock(x){
   var ev=(x.evals||[]).slice().sort(function(a,b){return b.ts-a.ts});
   var h='<div style="margin-top:12px"><b>Evaluaciones</b>';
-  h+=ev.length?ev.map(function(v){return '<div class="evl"><div><b>'+esc(v.when||"Otro")+'</b>'+(v.score?' · <span class="stars">'+"★".repeat(v.score)+"☆".repeat(5-v.score)+'</span>':'')+' <small style="color:var(--mute)">'+fdate(v.ts)+'</small> <button type="button" data-evdel="'+x.id+'|'+v.id+'" aria-label="Borrar evaluación" style="min-height:40px;min-width:44px;padding:0 12px;color:var(--bad)">'+(armE===x.id+'|'+v.id?'¿Borrar?':'&#10005;')+'</button></div>'+(v.note?'<div style="white-space:pre-wrap">'+esc(v.note)+'</div>':'')+'</div>'}).join(""):'<p class="msg">Todavía no la has evaluado.</p>';
+  h+=ev.length?ev.map(function(v){return '<div class="evl"><div><b>'+esc(v.when||"Otro")+'</b>'+(v.score?' · <span class="stars">'+"★".repeat(v.score)+"☆".repeat(5-v.score)+'</span>':'')+' <small style="color:var(--mute)">'+fdate(v.ts)+'</small>'+evLote(x,v)+' <button type="button" data-evdel="'+x.id+'|'+v.id+'" aria-label="Borrar evaluación" style="min-height:40px;min-width:44px;padding:0 12px;color:var(--bad)">'+(armE===x.id+'|'+v.id?'¿Borrar?':'&#10005;')+'</button></div>'+(v.note?'<div style="white-space:pre-wrap">'+esc(v.note)+'</div>':'')+'</div>'}).join(""):'<p class="msg">Todavía no la has evaluado.</p>';
   if(evOpen===x.id){
     h+='<div style="margin-top:10px"><label for="ev-w">Cuándo la probaste</label><select id="ev-w"><option>A la hora</option><option selected>Al día</option><option>A la semana</option><option>Otro</option></select>'+
+    (x.pes&&x.pes.length?'<label for="ev-p">Lote pesado</label><select id="ev-p"><option value="">Sin especificar</option>'+pesSorted(x).map(function(q,i){return '<option value="'+q.id+'"'+(i===0?' selected':'')+'>'+esc(fdt(q.ts))+' · '+f(pesStats(q).RT,2)+' g</option>'}).join("")+'</select>':'')+
     '<label>Cómo huele</label><div class="evs" id="ev-s" data-score="0">'+[1,2,3,4,5].map(function(n){return '<button type="button" data-evs="'+n+'" aria-label="'+n+' de 5">★</button>'}).join("")+'</div>'+
     '<label for="ev-n">Notas</label><textarea id="ev-n" rows="3" placeholder="Salida, corazón, fondo, duración…"></textarea>'+
     '<div class="bar"><button type="button" class="p" data-evsave="'+x.id+'">Guardar evaluación</button></div><p class="msg" id="ev-m"></p></div>';
@@ -1074,7 +1164,7 @@ function fExtra(e){
   if((a=t.getAttribute("data-evsave"))!==null){var x=findF(a);if(!x)return true;
     var sc=+$("ev-s").getAttribute("data-score"),nt=$("ev-n").value.trim();
     if(!sc&&!nt){$("ev-m").textContent="Pon una calificación o una nota.";return true}
-    (x.evals=x.evals||[]).push({id:"e"+Date.now().toString(36)+Math.random().toString(36).slice(2,4),ts:Date.now(),when:$("ev-w").value,score:sc,note:nt});
+    (x.evals=x.evals||[]).push({id:"e"+Date.now().toString(36)+Math.random().toString(36).slice(2,4),ts:Date.now(),when:$("ev-w").value,score:sc,note:nt,pes:$("ev-p")?$("ev-p").value:""});
     evOpen=null;saveLib();renderLib();return true}
   if((a=t.getAttribute("data-evdel"))!==null){var q=a.split("|"),y=findF(q[0]);
     if(!y)return true;if(armE!==a){armE=a;renderLib();return true}armE=null;y.evals=(y.evals||[]).filter(function(v){return v.id!==q[1]});saveLib();renderLib();return true}
@@ -1318,6 +1408,25 @@ $("nimp").onclick=function(){var n=$("nn").value.trim(),m=$("nm");m.className="m
   var cat=$("nl").value.trim();newClose();if(!$("tab-for").hidden||true){openF=null;infoF=null}impOpen(n,cat)};
 $("fl").addEventListener("keydown",function(e){if(view==="imp"&&(e.key==="Enter"||e.key===" ")&&e.target.getAttribute&&e.target.getAttribute("data-iedit")!==null){e.preventDefault();impEdit(+e.target.getAttribute("data-iedit"))}});
 $("fana").onclick=function(){view="ana";renderLib();window.scrollTo(0,0)};
+var CHEV='<svg class="pchev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+function pesSorted(x){return (x.pes||[]).slice().sort(function(a,b){return b.ts-a.ts})}
+function pesList(x){var ps=pesSorted(x);
+  return '<p class="ansec">Pesadas</p>'+(ps.length?'<section class="card ilist pesl">'+ps.map(function(q){var st=pesStats(q);
+    return '<div role="button" tabindex="0" data-pes="'+x.id+'|'+q.id+'"><span class="l"><b>'+fdt(q.ts)+'</b><small>'+f(st.RT,2)+' g'+(q.note?' · '+esc(q.note):'')+'</small></span><span class="pv '+st.c+'">'+pesTag(st)+'</span>'+CHEV+'</div>'}).join("")+'</section>'
+    :'<p class="ansub">Cuando pesas con «Empezar a pesar» y guardas la pesada, el lote aparece aquí.</p>')}
+var pesCur=null,armP=false;
+function pesOpen(fid,pid){var x=findF(fid),q=x&&(x.pes||[]).filter(function(v){return v.id===pid})[0];if(!q)return;pesCur=[fid,pid];armP=false;
+  var ev=(x.evals||[]).filter(function(v){return v.pes===pid});
+  $("pest").textContent=fdt(q.ts);$("pesdel").textContent="Borrar";
+  $("pesb").innerHTML=pesBody(q)+(q.note?'<p class="ansec">Nota</p><section class="card" style="white-space:pre-wrap">'+esc(q.note)+'</section>':'')+
+    (ev.length?'<p class="ansec">Evaluaciones de este lote</p><section class="card">'+ev.map(function(v){return '<div class="evl"><b>'+esc(v.when||"Otro")+'</b>'+(v.score?' · <span class="stars">'+"★".repeat(v.score)+"☆".repeat(5-v.score)+'</span>':'')+(v.note?'<div style="white-space:pre-wrap">'+esc(v.note)+'</div>':'')+'</div>'}).join("")+'</section>':'');
+  $("pesm").hidden=false;$("pesm").querySelector(".bsin").scrollTop=0}
+function pesClose(){$("pesm").hidden=true;pesCur=null;armP=false}
+$("pesok").onclick=pesClose;
+$("pesm").addEventListener("click",function(e){if(e.target===this)pesClose()});
+$("pesm").addEventListener("keydown",function(e){if(e.key==="Escape")pesClose()});
+$("pesdel").onclick=function(){if(!pesCur)return;if(!armP){armP=true;this.textContent="¿Borrar?";return}
+  var x=findF(pesCur[0]),id=pesCur[1];if(x){x.pes=(x.pes||[]).filter(function(v){return v.id!==id});saveLib();renderLib()}pesClose();toast("Pesada borrada")};
 function fInfo(x){
   var c=calcOf(x),ev=x.evals||[],avg=0;ev.forEach(function(v){avg+=v.score||0});var sc=ev.filter(function(v){return v.score}).length;
   return '<div class="hdr ebar"><button type="button" class="mb" data-iback aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="et"><b>Información</b><small>'+esc(x.name)+'</small></div><span></span></div>'+
@@ -1325,7 +1434,7 @@ function fInfo(x){
   '<div><span>Peso total</span><b>'+f(x.tot,2)+' g</b></div><div><span>Materiales</span><b>'+c.rows.length+'</b></div>'+
   '<div><span>Partes de</span><b>'+(x.mode==="pesar"?"lo que se pesa":"material puro")+'</b></div>'+(x.cat?'<div><span>Lote</span><b>'+esc(x.cat)+'</b></div>':'')+
   (sc?'<div><span>Puntuación media</span><b class="stars">'+(avg/sc).toFixed(1)+' ★</b></div>':'')+'</section>'+
-  (c.rows.length?'<section class="card fprint"><div class="fpl">Familias</div>'+famBar(x,"fam")+famLeg(x,"fam")+'<div class="fpl" style="margin-top:10px">Pirámide</div>'+famBar(x,"pos")+famLeg(x,"pos")+'</section>':'')+'<label for="fd-t">Notas</label><textarea id="fd-t" rows="4" data-ffnote="'+x.id+'" placeholder="Cómo huele, qué cambiarías">'+esc(x.note||"")+'</textarea>'+
+  (c.rows.length?'<section class="card fprint"><div class="fpl">Familias</div>'+famBar(x,"fam")+famLeg(x,"fam")+'<div class="fpl" style="margin-top:10px">Pirámide</div>'+famBar(x,"pos")+famLeg(x,"pos")+'</section>':'')+pesList(x)+'<label for="fd-t">Notas</label><textarea id="fd-t" rows="4" data-ffnote="'+x.id+'" placeholder="Cómo huele, qué cambiarías">'+esc(x.note||"")+'</textarea>'+
   (x.orig&&x.orig.rows&&x.orig.rows.length?'<p class="ansec">Receta original</p><p class="ansub">Tal como venía ('+(x.orig.mode==="puro"?'partes de material puro':'partes tal como se pesa')+'). Solo para consultar: no se usa en los cálculos.</p><section class="card orig">'+
     x.orig.rows.map(function(r){return '<div><b>'+esc(r.n)+'</b><span>'+(r.d!=null?f(r.d,2).replace(/\.?0+$/,"")+' % · ':'')+f(r.p,4).replace(/\.?0+$/,"")+' partes</span></div>'}).join("")+'</section>':'')+
   evBlock(x)+(evOpen===x.id?'':'<button type="button" class="addrow" style="margin-top:12px" data-fev="'+x.id+'">+ Añadir evaluación</button>')+
@@ -1359,6 +1468,7 @@ $("fl").addEventListener("click",function(e){var t=e.target,b;if(!t.closest)retu
   if(t.closest("[data-fback]")){openF=null;infoF=null;evOpen=null;armD=armU=armE=null;renderLib();window.scrollTo(0,0);return}
   if((b=t.closest("[data-finfo]"))){infoF=b.getAttribute("data-finfo");evOpen=null;renderLib();window.scrollTo(0,0);return}
   if(t.closest("[data-iback]")){infoF=null;evOpen=null;renderLib();window.scrollTo(0,0);return}
+  if((b=t.closest("[data-pes]"))){var pq=b.getAttribute("data-pes").split("|");pesOpen(pq[0],pq[1]);return}
   if((b=t.closest("[data-fmore]"))){var x=findF(b.getAttribute("data-fmore"));if(!x)return;
     actionSheet("",[
       {label:"Cambiar nombre o lote",fn:function(){renameF(x.id)}},
