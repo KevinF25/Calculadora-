@@ -399,8 +399,8 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 <section class="card" hidden>
   <h2>Preparar una dilución</h2>
   <div class="top">
-    <div><label for="pp">Porcentaje deseado (%)</label><input id="pp" type="number" inputmode="decimal" step="any" min="0" max="100" placeholder="10"></div>
-    <div><label for="pt">Gramos de dilución</label><input id="pt" type="number" inputmode="decimal" step="any" min="0" placeholder="10"></div>
+    <div><label for="pp">Porcentaje deseado (%)</label><input id="pp" type="text" inputmode="decimal" autocomplete="off" step="any" min="0" max="100" placeholder="10"></div>
+    <div><label for="pt">Gramos de dilución</label><input id="pt" type="text" inputmode="decimal" autocomplete="off" step="any" min="0" placeholder="10"></div>
   </div>
   <p class="msg" id="po">Escribe el porcentaje y cuántos gramos quieres preparar.</p>
 </section>
@@ -409,8 +409,8 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
   <h2>Concentración real de una dilución</h2>
   <p class="sub" style="margin-top:0">Ya la preparaste: escribe lo que pesaste de verdad.</p>
   <div class="top">
-    <div><label for="dm">Material pesado (g)</label><input id="dm" type="number" inputmode="decimal" step="any" min="0"></div>
-    <div><label for="ds">Solvente pesado (g)</label><input id="ds" type="number" inputmode="decimal" step="any" min="0"></div>
+    <div><label for="dm">Material pesado (g)</label><input id="dm" type="text" inputmode="decimal" autocomplete="off" step="any" min="0"></div>
+    <div><label for="ds">Solvente pesado (g)</label><input id="ds" type="text" inputmode="decimal" autocomplete="off" step="any" min="0"></div>
   </div>
   <p class="msg" id="dr">Escribe los dos pesos para ver el porcentaje real.</p>
 </section>
@@ -465,7 +465,7 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 </section></div>
 <div id="totm" class="modal" hidden><section class="card mbox" role="dialog" aria-modal="true" aria-labelledby="tott">
   <h2 id="tott">Peso total a hacer</h2>
-  <div class="totrow"><input id="tot" class="totin" type="number" inputmode="decimal" step="any" min="0" value="10" aria-label="Peso total en gramos"><span>g</span></div>
+  <div class="totrow"><input id="tot" class="totin" type="text" inputmode="decimal" autocomplete="off" step="any" min="0" value="10" aria-label="Peso total en gramos"><span>g</span></div>
   <div class="chips"><button type="button" data-tq="2">2 g</button><button type="button" data-tq="5">5 g</button><button type="button" data-tq="10">10 g</button><button type="button" data-tq="30">30 g</button><button type="button" data-tq="50">50 g</button><button type="button" data-tq="100">100 g</button></div>
   <p class="msg" id="totmsg" style="color:var(--mute)"></p>
   <div class="wzbtn" style="margin:14px 0 0"><button type="button" class="p" id="totok">Listo</button></div>
@@ -475,7 +475,7 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
   <label for="rn">Material</label><input id="rn" list="mats" placeholder="Nombre del material" autocomplete="off">
   <div class="mnote" id="rnote"></div>
   <label>Dilución del frasco</label><div class="dils" id="rd"></div>
-  <label for="rp">Partes</label><input id="rp" class="totin" type="number" inputmode="decimal" step="any" min="0" placeholder="0">
+  <label for="rp">Partes</label><input id="rp" class="totin" type="text" inputmode="decimal" autocomplete="off" step="any" min="0" placeholder="0">
   <div class="rinfo" id="rinfo"></div>
 </div></div>
 <div id="impm" class="bsheet" hidden><div class="bsin" role="dialog" aria-modal="true" aria-labelledby="int">
@@ -483,8 +483,8 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
   <label for="in_n">Material</label><input id="in_n" list="mats" placeholder="Nombre del material" autocomplete="off">
   <div class="mnote" id="in_new"></div>
   <div id="in_dw"><label>Dilución en la receta</label><div class="dils" id="in_d"></div>
-  <div id="in_ow" hidden><label for="in_do">Dilución de la receta (%)</label><input id="in_do" type="number" inputmode="decimal" step="any" min="0" max="100" placeholder="Ej. 50" style="margin-bottom:12px"></div></div>
-  <label for="in_p">Partes en la receta</label><input id="in_p" class="totin" type="number" inputmode="decimal" step="any" min="0" placeholder="0">
+  <div id="in_ow" hidden><label for="in_do">Dilución de la receta (%)</label><input id="in_do" type="text" inputmode="decimal" autocomplete="off" step="any" min="0" max="100" placeholder="Ej. 50" style="margin-bottom:12px"></div></div>
+  <label for="in_p">Partes en la receta</label><input id="in_p" class="totin" type="text" inputmode="decimal" autocomplete="off" step="any" min="0" placeholder="0">
   <div class="rinfo" id="in_info"></div>
 </div></div>
 <div id="toast" hidden></div>
@@ -493,7 +493,7 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
   <label for="md">Las partes son de</label>
   <select id="md" style="margin-bottom:12px"><option value="puro">Material puro (mantiene la proporción olfativa)</option><option value="pesar">Lo que peso del frasco</option></select>
   <label for="mn">Límite de alerta de la balanza (g)</label>
-  <input id="mn" type="number" inputmode="decimal" step="any" min="0" value="0.010">
+  <input id="mn" type="text" inputmode="decimal" autocomplete="off" step="any" min="0" value="0.010">
   <p class="msg" style="color:var(--mute)">El límite avisa cuando una línea pide menos gramos de los que tu balanza mide bien.</p>
   <p class="msg" id="sb" style="color:var(--mute)"></p>
   <div class="wzbtn" style="margin:14px 0 0"><button type="button" class="p" id="setok">Listo</button></div>
@@ -732,6 +732,8 @@ function renderVers(){
 }
 
 
+/* Campos numéricos: en el iPhone con teclado en español se escribe coma; se convierte a punto antes de calcular */
+document.addEventListener("input",function(e){var t=e.target;if(t&&t.getAttribute&&t.getAttribute("inputmode")==="decimal"&&t.value.indexOf(",")>-1){var c=t.selectionStart;t.value=t.value.replace(/,/g,".");try{t.setSelectionRange(c,c)}catch(x){}}},true);
 $("md").onchange=render;$("m2").addEventListener("click",function(e){var n=e.target.getAttribute&&e.target.getAttribute("data-need");if(n){$("tot").value=n;calc()}});$("tot").oninput=calc;$("mn").oninput=calc;$("dm").oninput=function(){dil();store()};$("ds").oninput=function(){dil();store()};$("nt").oninput=store;
 function shareFormula(){
   var x=editId&&findF(editId),t=(x?x.name+"\n":"")+text(),ok=function(){toast("Fórmula copiada")};
@@ -916,8 +918,11 @@ function wzRec(){return{k:wz.k,rows:wz.items.slice().sort(function(a,b){return a
 /* Estadísticas de una pesada: compara el % de material puro de cada uno en el lote con el de la fórmula */
 function pesStats(p){var k=p.k||1,ST=0,SR=0,GT=0,RT=0,na=0;
   var rs=(p.rows||[]).map(function(r){var g=r.g*k,v=r.r!=null?r.r:g,d=(r.d||100)/100;if(r.r==null)na++;ST+=r.g*d;SR+=v*d;GT+=g;RT+=v;return{n:r.n,d:r.d||100,g:g,r:r.r,pt:r.g*d,pr:v*d}});
-  /* Se compara con la mediana: si todo se pesó un 10 % de más la proporción no cambia, y el error queda en el material que se desvió */
-  var q=rs.filter(function(x){return x.pt>0}).map(function(x){return x.pr/x.pt}).sort(function(a,b){return a-b}),m=q.length?(q.length%2?q[(q.length-1)/2]:(q[q.length/2-1]+q[q.length/2])/2):1;
+  /* Referencia: el grupo más grande de materiales pesados en la misma proporción (±2 %); en empate, el más cercano al objetivo.
+     Así, si todo se pesó un 10 % de más el olor no cambia, y el error queda en el material que se desvió (también con solo 2) */
+  var q=rs.filter(function(x){return x.pt>0}).map(function(x){return x.pr/x.pt}),m=k,best=-1;
+  q.forEach(function(a){var g=q.filter(function(b){return Math.abs(b/a-1)<=.02});
+    if(g.length>best||(g.length===best&&Math.abs(a/k-1)<Math.abs(m/k-1))){best=g.length;m=a}});
   var nd=0,bad=false;rs.forEach(function(x){x.st=ST>0?x.pt/ST:0;x.sr=SR>0?x.pr/SR:0;x.dev=x.pt>0&&m>0?x.pr/x.pt/m-1:0;x.c=devCls(x.dev);if(x.c!=="ok")nd++;if(x.c==="bad")bad=true});
   return{rows:rs,GT:GT,RT:RT,nd:nd,na:na,c:nd?(bad?"bad":"wn"):"ok",k:k}}
 function pesTag(s){return s.c==="ok"?"✓ Fiel":"⚠ "+s.nd+(s.nd===1?" desviado":" desviados")}
@@ -944,7 +949,7 @@ function wzRender(){
   h+='<section class="card wzc" style="--fc:'+famColor(x.n)+'"><div class="wzn">'+esc(x.n)+'</div><div class="sub" style="margin:2px 0 0">Frasco al '+x.d+'%'+(x.note?' · '+esc(x.note):'')+'</div>';
   h+='<div class="wzbig">'+f(g,3)+' <small>g</small></div>';
   if(x.d<100||wz.k>1.0005)h+='<div class="msg" style="margin:0 0 4px">'+(x.d<100?'Material puro: '+f(g*x.d/100,4)+' g':'')+(x.d<100&&wz.k>1.0005?' · ':'')+(wz.k>1.0005?'antes '+f(x.g0,3)+' g':'')+'</div>';
-  h+='<label for="wzr">Lo que marcó la báscula</label><div class="wzr"><input id="wzr" type="number" inputmode="decimal" step="any" min="0" value="'+esc(x.real)+'" placeholder="'+f(g,3)+'" enterkeyhint="next"><span>g</span></div>';
+  h+='<label for="wzr">Lo que marcó la báscula</label><div class="wzr"><input id="wzr" type="text" inputmode="decimal" autocomplete="off" step="any" min="0" value="'+esc(x.real)+'" placeholder="'+f(g,3)+'" enterkeyhint="next"><span>g</span></div>';
   h+='<div id="wzi" aria-live="polite">'+wzInd(x)+'</div></section>';
   h+='<div class="wzbtn"><button type="button" data-wprev="1"'+(wz.i===0?' disabled':'')+'>Anterior</button><button type="button" class="p" data-wdone="1">Listo</button></div>';
   h+='<section class="card ilist pesl wzl">';
