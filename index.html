@@ -188,6 +188,30 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 .hdr .save{white-space:nowrap;border:0;background:transparent;color:var(--acc);font-weight:600;font-size:17px;padding:0 4px 0 6px;min-height:48px;width:auto}
 .hdr .save:disabled{color:var(--mute);opacity:.55}
 .ilist{padding:0;overflow:hidden}
+.lnkb{display:block;width:100%;margin-top:10px;border:0;background:transparent;color:var(--acc);font-weight:600;min-height:44px}
+.imode{display:flex;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:2px;margin:0 0 6px}
+.imode button{flex:1;border:0;border-radius:8px;background:transparent;min-height:36px;font-size:15px;color:var(--mute)}
+.imode button.on{background:var(--card);color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.irow{padding:12px 14px;border-top:1px solid var(--line)}
+.irow:first-child{border-top:0}
+.irow .t{display:flex;gap:8px;align-items:center}
+.irow .t input{flex:1;font-weight:600}
+.irow .t button{flex:none;width:40px;min-height:40px;padding:0;border-color:transparent;background:transparent;color:var(--mute)}
+.irow .b{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;align-items:end}
+.irow .b.np{grid-template-columns:2fr 1fr}
+.irow .b label{margin-bottom:2px;font-size:12px}
+.irow .res{text-align:right;font-variant-numeric:tabular-nums}
+.irow .res b{display:block;font-size:19px;color:var(--acc)}
+.irow .res small{color:var(--mute);font-size:12px}
+.irow.bad .res b{color:var(--warn);font-size:14px}
+.irow .ot{margin-top:6px}
+.inew{font-size:11px;font-weight:700;color:var(--warn);margin-left:6px;text-transform:uppercase}
+.isum{display:flex;justify-content:space-between;padding:12px 14px;font-size:14px;color:var(--mute);border-top:1px solid var(--line)}
+.isum b{color:var(--ink)}
+.orig{padding:0;overflow:hidden}
+.orig>div{display:flex;justify-content:space-between;gap:10px;padding:10px 14px;border-top:1px solid var(--line);font-size:15px}
+.orig>div:first-child{border-top:0}
+.orig span{color:var(--mute);font-variant-numeric:tabular-nums}
 .anseg{display:flex;gap:6px;overflow-x:auto;margin:0 0 12px;padding-bottom:2px}
 .anseg button{flex:none;min-height:36px;padding:0 14px;border-radius:999px;font-size:15px}
 .anseg button.on{background:var(--acc);border-color:var(--acc);color:var(--bg);font-weight:600}
@@ -375,6 +399,7 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
   <label for="nl" style="margin-top:10px">Lote (opcional)</label><input id="nl" list="fcats" placeholder="Ej. Primer lote de prueba" enterkeyhint="go">
   <p class="msg" id="nm" aria-live="polite"></p>
   <div class="wzbtn" style="margin:14px 0 0"><button type="button" id="ncancel">Cancelar</button><button type="button" class="p" id="ncreate">Crear</button></div>
+  <button type="button" class="lnkb" id="nimp">Importar una receta externa…</button>
 </section></div>
 <div id="mnewm" class="modal" hidden><section class="card mbox" role="dialog" aria-modal="true" aria-labelledby="mnewt">
   <h2 id="mnewt">Nuevo material</h2>
@@ -666,8 +691,9 @@ function renderLib(){
   var h=keys.map(function(c){g[c].sort(function(a,b){return b.ts-a.ts});
     return '<div class="fam" style="background:'+(c?'#1d6b58':'#5f726d')+'">'+esc(c||"Sin categoría")+'</div><div class="glist">'+g[c].map(function(x){
       return '<div class="mrow" data-fo="'+x.id+'" role="button" tabindex="0"><b>'+esc(x.name)+'</b><small>'+fdate(x.ts)+'</small></div>'}).join("")+'</div>'}).join("");
-  if(view){var vh=view==="ana"?anaHTML():view==="pick"?pickHTML():cmpHTML();
-    if(view){[].forEach.call($("tab-for").children,function(c){c.hidden=c.id!=="fl"});document.body.classList.remove("hasbar2");$("fl").innerHTML=vh;ebar();return}}
+  if(view==="imp"&&!imp)view=null;
+  if(view){var vh=view==="imp"?impHTML():view==="ana"?anaHTML():view==="pick"?pickHTML():cmpHTML();
+    if(view){[].forEach.call($("tab-for").children,function(c){c.hidden=c.id!=="fl"});document.body.classList.remove("hasbar2");$("fl").innerHTML=vh;if(view==="imp")impUpdate();ebar();return}}
   var dx=openF?findF(openF):null;if(!dx)openF=null;
   [].forEach.call($("tab-for").children,function(c){c.hidden=!!dx&&c.id!=="fl"});
   document.body.classList.toggle("hasbar2",!!dx&&infoF!==dx.id&&!$("tab-for").hidden);
@@ -718,7 +744,7 @@ $("sheet").addEventListener("click",function(e){if(e.target===this){closeSheet()
   var b=e.target.closest&&e.target.closest("[data-sa]");if(!b)return;var fn=sheetFns[+b.getAttribute("data-sa")];closeSheet();if(fn)fn()});
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!$("sheet").hidden)closeSheet()});
 $("nv-mat").onclick=function(){leaveCalc(function(){openM=-1;armMd=null;showTab("mat")})};
-$("nv-for").onclick=function(){leaveCalc(function(){view=null;if(editId){editId=null;ebar();store()}openF=null;infoF=null;evOpen=null;armD=armU=armE=null;renderLib();showTab("for")})};
+$("nv-for").onclick=function(){leaveCalc(function(){view=null;imp=null;if(editId){editId=null;ebar();store()}openF=null;infoF=null;evOpen=null;armD=armU=armE=null;renderLib();showTab("for")})};
 
 var wz=null,wzLock=null;
 function wzBuild(){
@@ -1117,6 +1143,60 @@ function cmpHTML(){
   h+='<p class="ansec">Pirámide</p>'+barRows(fs,"pos")+'<p class="ansec">Familias</p>'+barRows(fs,"fam");
   return h}
 $("fl").addEventListener("keydown",function(e){if((e.key==="Enter"||e.key===" ")&&e.target.getAttribute&&e.target.getAttribute("data-pk")!==null){e.preventDefault();e.target.click()}});
+/* ===== Importar receta externa =====
+   Las partes pueden venir "tal como se pesa" (con su dilución) o "de puro".
+   Se convierten a puro (partes × dilución) y se ajustan para sumar 1000 manteniendo la proporción.
+   Solo afecta a la fórmula importada; la receta original se guarda aparte y no se usa en cálculos. */
+var imp=null;
+function impDil(r){if(r.dsel!=="otro")return +r.dsel;var v=parseFloat(String(r.dother).replace(",","."));return v>0&&v<=100?v:NaN}
+function impPart(r){return parseFloat(String(r.p).replace(",","."))}
+function impPure(r){var p=impPart(r);if(!(p>0))return 0;if(imp.mode==="puro")return p;var d=impDil(r);return isNaN(d)?NaN:p*d/100}
+function impCalc(){var S=0,ok=0,bad=0,src=0;imp.rows.forEach(function(r){var p=impPart(r);if(!(p>0))return;src+=p;var v=impPure(r);if(isNaN(v)||!r.n.trim())bad++;else{S+=v;ok++}});
+  return{S:S,src:src,ok:ok,bad:bad,fac:S>0?1000/S:0}}
+function impResult(){var c=impCalc(),out=[],big=-1,sum=0;
+  imp.rows.forEach(function(r){var v=impPure(r);if(!(v>0)||!r.n.trim())return;var q=Math.round(v*c.fac*10000)/10000;sum+=q;out.push({n:r.n.trim(),q:q});if(big<0||q>out[big].q)big=out.length-1});
+  if(big>=0)out[big].q=Math.round((out[big].q+1000-sum)*10000)/10000;return out}
+function impHTML(){var c=impCalc(),pz=imp.mode==="puro";
+  var h='<div class="hdr ebar ecalc"><button type="button" class="mb" data-iback2 aria-label="Cancelar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="et"><b>Importar receta</b><small>'+esc(imp.name)+'</small></div><span class="rt"><button type="button" class="save" data-igo'+(c.ok&&!c.bad?'':' disabled')+'>Importar</button></span></div>';
+  h+='<label>Las partes de la receta son</label><div class="imode"><button type="button" data-imode="pesar" class="'+(pz?'':'on')+'">Tal como se pesa</button><button type="button" data-imode="puro" class="'+(pz?'on':'')+'">De material puro</button></div>';
+  h+='<p class="ansub" style="margin:4px 4px 12px">'+(pz?'Las partes ya son de material puro: solo se ajustan para sumar 1000.':'Cada material se convierte a puro (partes × dilución) y todo se ajusta para sumar 1000.')+'</p>';
+  h+='<section class="card" style="padding:0;overflow:hidden">'+imp.rows.map(function(r,i){
+    var known=!r.n.trim()||!!findMat(r.n);
+    return '<div class="irow" data-ir="'+i+'"><div class="t"><input list="mats" placeholder="Material" aria-label="Material" value="'+esc(r.n)+'" data-if="n" data-ii="'+i+'"><button type="button" data-idel="'+i+'" aria-label="Quitar línea">&#10005;</button></div>'+
+    (known?'':'<span class="inew">Nuevo en tu lista</span>')+
+    '<div class="b'+(pz?' np':'')+'">'+(pz?'':'<div><label>Dilución</label><select data-if="dsel" data-ii="'+i+'">'+["100","10","1","otro"].map(function(v){return '<option value="'+v+'"'+(r.dsel===v?' selected':'')+'>'+(v==="otro"?"Otra…":v+"%")+'</option>'}).join("")+'</select></div>')+
+    '<div><label>Partes</label><input type="number" inputmode="decimal" step="any" min="0" value="'+esc(r.p)+'" data-if="p" data-ii="'+i+'" aria-label="Partes"></div>'+
+    '<div class="res"><small>En puro</small><b data-iout="'+i+'">—</b></div></div>'+
+    (!pz&&r.dsel==="otro"?'<div class="ot"><label>Dilución de la receta (%)</label><input type="number" inputmode="decimal" step="any" min="0" max="100" placeholder="Ej. 50" value="'+esc(r.dother)+'" data-if="dother" data-ii="'+i+'"></div>':'')+'</div>'}).join("")+
+    '<button type="button" class="addline" data-iadd>+ Agregar material</button>'+
+    '<div class="isum" id="isum"></div></section>';
+  return h}
+function impUpdate(){var c=impCalc();
+  imp.rows.forEach(function(r,i){var el=document.querySelector('[data-iout="'+i+'"]'),row=document.querySelector('[data-ir="'+i+'"]');if(!el)return;
+    var p=impPart(r),v=impPure(r),bad=p>0&&(isNaN(v)||!r.n.trim());row.classList.toggle("bad",bad);
+    el.textContent=!(p>0)?"—":isNaN(v)?"Dilución no válida":!r.n.trim()?"Falta el nombre":f(v*c.fac,1)});
+  var s=$("isum");if(s)s.innerHTML=c.ok?'<span>'+(imp.mode==="puro"?'Suma de la receta':'En puro antes de ajustar')+' <b>'+f(c.S,2).replace(/\.?0+$/,"")+'</b></span><span>× '+f(c.fac,4).replace(/\.?0+$/,"")+' → <b>1000</b></span>':'<span>Escribe los materiales y sus partes.</span>';
+  var g=document.querySelector("[data-igo]");if(g)g.disabled=!(c.ok&&!c.bad)}
+function impOpen(name,cat){imp={name:name,cat:cat,mode:"pesar",rows:[{n:"",dsel:"100",dother:"",p:""}]};view="imp";renderLib();window.scrollTo(0,0);
+  setTimeout(function(){var e=document.querySelector('[data-if="n"]');if(e)e.focus()},80)}
+function impSave(){var c=impCalc();if(!c.ok||c.bad)return;var out=impResult();
+  var id="f"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  var orig={mode:imp.mode,rows:imp.rows.filter(function(r){return impPart(r)>0&&r.n.trim()}).map(function(r){return{n:r.n.trim(),d:imp.mode==="puro"?null:impDil(r),p:impPart(r)}})};
+  lib.push({id:id,name:imp.name,cat:imp.cat,ts:Date.now(),tot:10,mode:"puro",note:"",orig:orig,
+    rows:out.map(function(o){return{n:o.n,d:avail(o.n)[0],p:String(o.q)}})});
+  var unk=[];out.forEach(function(o){if(!findMat(o.n)&&unk.indexOf(o.n)<0)unk.push(o.n)});
+  saveLib();imp=null;view=null;openF=id;infoF=null;renderLib();window.scrollTo(0,0);toast("Receta importada");
+  if(unk.length)setTimeout(function(){actionSheet(unk.length===1?unk[0]+" no está en tu lista de Materiales. ¿Quieres agregarlo?":unk.length+" materiales no están en tu lista de Materiales ("+unk.join(", ")+"). ¿Quieres agregarlos?",[
+    {label:"Agregar a Materiales",fn:function(){unk.forEach(function(n){reg.push({n:n,d:[100,10,1],note:"",fam:"",pos:""})});saveMats();fillList();toast("Agregado a Materiales")}}])},350)}
+$("nimp").onclick=function(){var n=$("nn").value.trim(),m=$("nm");m.className="msg";
+  if(!n){m.textContent="Ponle un nombre a la receta.";$("nn").focus();return}
+  if(lib.some(function(v){return v.name.toLowerCase()===n.toLowerCase()})){m.className="msg wn";m.textContent="Ya hay una fórmula con ese nombre.";return}
+  var cat=$("nl").value.trim();newClose();if(!$("tab-for").hidden||true){openF=null;infoF=null}impOpen(n,cat)};
+$("fl").addEventListener("input",function(e){if(view!=="imp"||!imp)return;var t=e.target,k=t.getAttribute&&t.getAttribute("data-if");if(!k)return;var r=imp.rows[+t.getAttribute("data-ii")];if(!r)return;
+  r[k]=t.value;if(k==="dsel"){renderLib();return}
+  if(k==="n"){var row=t.closest(".irow"),known=!t.value.trim()||!!findMat(t.value),tag=row.querySelector(".inew");if(known&&tag)tag.remove();if(!known&&!tag){var sp=document.createElement("span");sp.className="inew";sp.textContent="Nuevo en tu lista";row.querySelector(".t").after(sp)}}
+  impUpdate()});
+$("fl").addEventListener("change",function(e){if(view==="imp"&&e.target.getAttribute&&e.target.getAttribute("data-if")==="dsel"){var r=imp.rows[+e.target.getAttribute("data-ii")];if(r&&r.dsel!==e.target.value){r.dsel=e.target.value;renderLib()}}});
 $("fana").onclick=function(){view="ana";renderLib();window.scrollTo(0,0)};
 function fInfo(x){
   var c=calcOf(x),ev=x.evals||[],avg=0;ev.forEach(function(v){avg+=v.score||0});var sc=ev.filter(function(v){return v.score}).length;
@@ -1126,6 +1206,8 @@ function fInfo(x){
   '<div><span>Partes de</span><b>'+(x.mode==="pesar"?"lo que se pesa":"material puro")+'</b></div>'+(x.cat?'<div><span>Lote</span><b>'+esc(x.cat)+'</b></div>':'')+
   (sc?'<div><span>Puntuación media</span><b class="stars">'+(avg/sc).toFixed(1)+' ★</b></div>':'')+'</section>'+
   '<label for="fd-t">Notas</label><textarea id="fd-t" rows="4" data-ffnote="'+x.id+'" placeholder="Cómo huele, qué cambiarías">'+esc(x.note||"")+'</textarea>'+
+  (x.orig&&x.orig.rows&&x.orig.rows.length?'<p class="ansec">Receta original</p><p class="ansub">Tal como venía ('+(x.orig.mode==="puro"?'partes de material puro':'partes tal como se pesa')+'). Solo para consultar: no se usa en los cálculos.</p><section class="card orig">'+
+    x.orig.rows.map(function(r){return '<div><b>'+esc(r.n)+'</b><span>'+(r.d!=null?f(r.d,2).replace(/\.?0+$/,"")+' % · ':'')+f(r.p,4).replace(/\.?0+$/,"")+' partes</span></div>'}).join("")+'</section>':'')+
   evBlock(x)+(evOpen===x.id?'':'<button type="button" class="addrow" style="margin-top:12px" data-fev="'+x.id+'">+ Añadir evaluación</button>')+
   '<p class="msg" id="fd-m"></p>';
 }
@@ -1138,6 +1220,13 @@ function fDet(x){
   '<div class="sumbar fbar"><div class="in"><button type="button" class="p" data-fopen="'+x.id+'">Editar en la calculadora</button></div></div>';
 }
 $("fl").addEventListener("click",function(e){var t=e.target,b;if(!t.closest)return;
+  if(view==="imp"){
+    if(t.closest("[data-iback2]")){var c0=impCalc();if(c0.src>0){actionSheet("¿Descartar esta receta? No se guardará.",[{label:"Descartar receta",bad:true,fn:function(){imp=null;view=null;renderLib();window.scrollTo(0,0)}}])}else{imp=null;view=null;renderLib()}return}
+    if((b=t.closest("[data-imode]"))){imp.mode=b.getAttribute("data-imode");renderLib();return}
+    if(t.closest("[data-iadd]")){imp.rows.push({n:"",dsel:"100",dother:"",p:""});renderLib();var ins=document.querySelectorAll('[data-if="n"]');if(ins.length)ins[ins.length-1].focus();return}
+    if((b=t.closest("[data-idel]"))){imp.rows.splice(+b.getAttribute("data-idel"),1);if(!imp.rows.length)imp.rows.push({n:"",dsel:"100",dother:"",p:""});renderLib();return}
+    if(t.closest("[data-igo]")){impSave();return}
+    return}
   if(view){
     if(t.closest("[data-vback]")){if(view==="cmp"){view=cmpBack}else if(view==="pick"){view=pickBack}else view=null;renderLib();window.scrollTo(0,0);return}
     if((b=t.closest("[data-acat]"))){anaCat=b.getAttribute("data-acat");renderLib();return}
@@ -1180,9 +1269,9 @@ $("ebar").addEventListener("click",function(e){var t=e.target,x=editId&&findF(ed
 $("setok").onclick=function(){$("setm").hidden=true};
 $("setm").addEventListener("click",function(e){if(e.target===this)this.hidden=true});
 var renId=null;
-function newClose(){$("fnewm").hidden=true;$("nn").value="";$("nl").value="";$("nm").textContent="";renId=null;$("fnewt").textContent="Nueva fórmula";$("ncreate").textContent="Crear"}
+function newClose(){$("nimp").hidden=false;$("fnewm").hidden=true;$("nn").value="";$("nl").value="";$("nm").textContent="";renId=null;$("fnewt").textContent="Nueva fórmula";$("ncreate").textContent="Crear"}
 $("fnew").onclick=function(){renId=null;$("fnewm").hidden=false;$("nn").focus()};
-function renameF(id){var x=findF(id);if(!x)return;renId=id;$("fnewt").textContent="Cambiar nombre";$("ncreate").textContent="Guardar";$("nn").value=x.name;$("nl").value=x.cat||"";$("nm").textContent="";$("fnewm").hidden=false;$("nn").focus()}
+function renameF(id){var x=findF(id);if(!x)return;renId=id;$("nimp").hidden=true;$("fnewt").textContent="Cambiar nombre";$("ncreate").textContent="Guardar";$("nn").value=x.name;$("nl").value=x.cat||"";$("nm").textContent="";$("fnewm").hidden=false;$("nn").focus()}
 $("ncancel").onclick=newClose;
 $("fnewm").addEventListener("click",function(e){if(e.target===this)newClose()});
 $("fnewm").addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.tagName==="INPUT")$("ncreate").click();if(e.key==="Escape")newClose()});
