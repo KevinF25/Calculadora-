@@ -206,6 +206,14 @@ details.card summary{font-weight:600;font-size:17px;cursor:pointer;min-height:28
 .chip{display:inline-flex;align-items:center;gap:2px;padding:3px 4px 3px 10px;border-radius:999px;background:var(--accbg);color:var(--ink);font-size:14px}
 .chip button{border:0;background:transparent;min-height:26px;width:26px;padding:0;color:var(--mute);font-size:12px}
 .pots{display:flex;gap:6px}
+.sbar.mini{height:6px;gap:2px;margin-top:6px}
+.sbar.mini i:first-child{border-radius:3px 0 0 3px}.sbar.mini i:last-child{border-radius:0 3px 3px 0}.sbar.mini i:only-child{border-radius:3px}
+.leg.mini{margin:6px 0 0;font-size:12px;gap:4px 10px}
+.leg.mini i{width:8px;height:8px}
+.mrow2{box-shadow:inset 4px 0 0 var(--fc,transparent)}
+.fprint{padding:12px 14px}
+.fpl{font-size:12px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.fdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:1px}
 .catprev{font-size:14px;margin-top:8px;line-height:1.4}
 .catprev b{color:var(--acc)}
 .srclink{display:inline-block;margin-top:10px;color:var(--acc);font-weight:600;font-size:15px;text-decoration:none}
@@ -592,7 +600,7 @@ function render(){
   rows.forEach(function(r,i){
     if(!r.n&&!(parseFloat(r.p)>0)&&rowI!==i)return;any=true;
     var miss=r.n&&!owns(r.n);
-    h+='<div class="mrow2'+(miss?' miss':'')+'" id="r'+i+'" data-edit="'+i+'" role="button" tabindex="0"><div class="l"><b>'+(r.n?esc(r.n):'<span style="color:var(--mute)">Material sin nombre</span>')+(miss?'<span class="nohave">No lo tengo</span>':'')+'</b>'+
+    h+='<div class="mrow2'+(miss?' miss':'')+'" id="r'+i+'" data-edit="'+i+'" role="button" tabindex="0" style="--fc:'+(r.n?famColor(r.n):'transparent')+'"><div class="l"><b>'+(r.n?esc(r.n):'<span style="color:var(--mute)">Material sin nombre</span>')+(miss?'<span class="nohave">No lo tengo</span>':'')+'</b>'+
     '<small>'+(+r.d)+'% · '+fp(r.p)+' partes · <span data-o="pc">0%</span></small></div>'+
     '<div class="g"><b data-o="g">0.000</b> g<span data-o="pu" hidden></span></div><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></div>';
   });
@@ -782,7 +790,7 @@ function renderLib(){
   var keys=Object.keys(g).sort(function(a,b){if(!a)return 1;if(!b)return -1;return a.localeCompare(b)});
   var h=keys.map(function(c){g[c].sort(function(a,b){return b.ts-a.ts});
     return '<div class="fam" style="background:'+(c?'#1d6b58':'#5f726d')+'">'+esc(c||"Sin categoría")+'</div><div class="glist">'+g[c].map(function(x){
-      return '<div class="mrow" data-fo="'+x.id+'" role="button" tabindex="0"><b>'+esc(x.name)+'</b><small>'+fdate(x.ts)+'</small></div>'}).join("")+'</div>'}).join("");
+      return '<div class="mrow" data-fo="'+x.id+'" role="button" tabindex="0"><span class="mt"><b>'+esc(x.name)+'</b>'+famBar(x,"fam",true)+'</span><small>'+fdate(x.ts)+'</small></div>'}).join("")+'</div>'}).join("");
   if(view==="imp"&&!imp)view=null;
   if(view){var vh=view==="imp"?impHTML():view==="ana"?anaHTML():view==="pick"?pickHTML():cmpHTML();
     if(view){[].forEach.call($("tab-for").children,function(c){c.hidden=c.id!=="fl"});document.body.classList.remove("hasbar2");$("fl").innerHTML=vh;if(view==="imp")impUpdate();ebar();return}}
@@ -1182,6 +1190,13 @@ function simil(a,b){var A=pureMix(a),B=pureMix(b),d=0,k;for(k in A)d+=Math.abs(A
 var PYR=[["Salida","var(--py1)","var(--pyt1)"],["Corazón","var(--py2)","#fff"],["Fondo","var(--py3)","var(--pyt3)"],["Sin definir","var(--line)","var(--ink)"]];
 function splitBy(x,key){var m=pureMix(x),o={};for(var k in m){var mt=findMat(m[k].n),c;
   if(key==="pos")c=mt&&mt.pos?mt.pos:"Sin definir";else c=mt?famOf(mt):"Sin familia";o[c]=(o[c]||0)+m[k].v}return o}
+/* Barra de familias (o pirámide) para una fórmula; mini = fina y sin números */
+function famParts(x,key){var o=splitBy(x,key),defs=key==="pos"?PYR.map(function(p){return{k:p[0],c:p[1],lt:p[2]}}):FAMLIST.map(function(k){return{k:k,c:FAM[k],lt:"#fff"}});
+  return defs.map(function(d){return{k:d.k,c:d.c,lt:d.lt,v:o[d.k]||0}}).filter(function(p){return p.v>0.0005})}
+function famBar(x,key,mini){var ps=famParts(x,key);if(!ps.length)return "";
+  return mini?'<div class="sbar mini" aria-hidden="true">'+ps.map(function(p){return '<i style="flex:'+(p.v*100).toFixed(2)+' 1 0;background:'+p.c+'"></i>'}).join("")+'</div>':barHTML(ps)}
+function famLeg(x,key){return '<div class="leg mini">'+famParts(x,key).map(function(p){return '<span><i style="background:'+p.c+'"></i>'+esc(p.k)+' '+Math.round(p.v*100)+'%</span>'}).join("")+'</div>'}
+function famColor(n){var m=findMat(n);if(m)return FAM[famOf(m)];var c=catFind(n);return c&&FAM[c.fam]||FAM["Sin familia"]}
 function barHTML(parts){return '<div class="sbar">'+parts.filter(function(p){return p.v>0.0005}).map(function(p){var w=(p.v*100).toFixed(2);
   return '<i style="flex:'+w+' 1 0;background:'+p.c+';color:'+(p.lt||'#fff')+'" title="'+esc(p.k)+': '+f(p.v*100,1)+' %">'+(p.v>=0.12?Math.round(p.v*100)+'%':'')+'</i>'}).join("")+'</div>'}
 function barRows(fs,key){
@@ -1310,7 +1325,7 @@ function fInfo(x){
   '<div><span>Peso total</span><b>'+f(x.tot,2)+' g</b></div><div><span>Materiales</span><b>'+c.rows.length+'</b></div>'+
   '<div><span>Partes de</span><b>'+(x.mode==="pesar"?"lo que se pesa":"material puro")+'</b></div>'+(x.cat?'<div><span>Lote</span><b>'+esc(x.cat)+'</b></div>':'')+
   (sc?'<div><span>Puntuación media</span><b class="stars">'+(avg/sc).toFixed(1)+' ★</b></div>':'')+'</section>'+
-  '<label for="fd-t">Notas</label><textarea id="fd-t" rows="4" data-ffnote="'+x.id+'" placeholder="Cómo huele, qué cambiarías">'+esc(x.note||"")+'</textarea>'+
+  (c.rows.length?'<section class="card fprint"><div class="fpl">Familias</div>'+famBar(x,"fam")+famLeg(x,"fam")+'<div class="fpl" style="margin-top:10px">Pirámide</div>'+famBar(x,"pos")+famLeg(x,"pos")+'</section>':'')+'<label for="fd-t">Notas</label><textarea id="fd-t" rows="4" data-ffnote="'+x.id+'" placeholder="Cómo huele, qué cambiarías">'+esc(x.note||"")+'</textarea>'+
   (x.orig&&x.orig.rows&&x.orig.rows.length?'<p class="ansec">Receta original</p><p class="ansub">Tal como venía ('+(x.orig.mode==="puro"?'partes de material puro':'partes tal como se pesa')+'). Solo para consultar: no se usa en los cálculos.</p><section class="card orig">'+
     x.orig.rows.map(function(r){return '<div><b>'+esc(r.n)+'</b><span>'+(r.d!=null?f(r.d,2).replace(/\.?0+$/,"")+' % · ':'')+f(r.p,4).replace(/\.?0+$/,"")+' partes</span></div>'}).join("")+'</section>':'')+
   evBlock(x)+(evOpen===x.id?'':'<button type="button" class="addrow" style="margin-top:12px" data-fev="'+x.id+'">+ Añadir evaluación</button>')+
@@ -1321,7 +1336,8 @@ function fDet(x){
   var draft=editId===x.id&&dirty();
   return '<div class="hdr ebar two"><button type="button" class="mb" data-fback aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="et"><b>'+esc(x.name)+'</b><small>'+(x.cat?esc(x.cat)+' · ':'')+f(x.tot,2)+' g</small></div><span class="rt"><button type="button" class="mb acc" data-finfo="'+x.id+'" aria-label="Información"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.2"/><path d="M12 11v5.5"/><circle cx="12" cy="7.6" r="1.1" fill="currentColor" stroke="none"/></svg></button><button type="button" class="mb acc" data-fmore="'+x.id+'" aria-label="Más acciones"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9.2"/><circle cx="7.8" cy="12" r="1.25" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.25" fill="currentColor" stroke="none"/><circle cx="16.2" cy="12" r="1.25" fill="currentColor" stroke="none"/></svg></button></span></div>'+
   '<p class="msg" id="fd-m"></p>'+(draft?'<p class="fwarn">Tienes cambios sin guardar en la calculadora. Toca Editar para seguir con ellos.</p>':'')+
-  '<div class="flines">'+(c.rows.length?c.rows.map(function(r){return '<div><b>'+esc(r.n)+'</b> <small>'+r.d+'% · '+fp(r.p)+' partes</small><div><small>Pesar '+f(r.g,3)+' g · puro '+f(r.pu,4)+' g · '+f(r.pc*100,2)+'%</small></div></div>'}).join(""):'<p class="msg">Sin materiales.</p>')+'</div>'+
+  
+  '<div class="flines">'+(c.rows.length?c.rows.map(function(r){return '<div><b><i class="fdot" style="background:'+famColor(r.n)+'"></i>'+esc(r.n)+'</b> <small>'+r.d+'% · '+fp(r.p)+' partes</small><div><small>Pesar '+f(r.g,3)+' g · puro '+f(r.pu,4)+' g · '+f(r.pc*100,2)+'%</small></div></div>'}).join(""):'<p class="msg">Sin materiales.</p>')+'</div>'+
   '<div class="sumbar fbar"><div class="in"><button type="button" class="p" data-fopen="'+x.id+'">Editar en la calculadora</button></div></div>';
 }
 $("fl").addEventListener("click",function(e){var t=e.target,b;if(!t.closest)return;
