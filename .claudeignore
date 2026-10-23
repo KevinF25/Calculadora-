@@ -1,0 +1,26 @@
+# Carpetas y archivos pesados o temporales que no hace falta leer
+
+# Dependencias y builds
+node_modules/
+dist/
+build/
+.next/
+.vercel/
+.cache/
+
+# Secretos
+.env
+.env.*
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Pruebas y capturas temporales
+screenshots/
+test-results/
+playwright-report/
+
+# Sistema
+.DS_Store
