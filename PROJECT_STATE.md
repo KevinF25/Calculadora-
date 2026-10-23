@@ -1,6 +1,6 @@
 # Estado del proyecto: Calculadora de fórmulas de perfume
 
-_Última actualización: 23 oct 2026 · main en `96a0ee3` (PR #22)_
+_Última actualización: 23 oct 2026 · main en `fe090c0` (PR #23)_
 
 ## 1. Resumen del estado actual
 
@@ -12,7 +12,7 @@ Calculadora de fórmulas de perfumería instalable en el iPhone como app (PWA), 
 - importar recetas externas;
 - consultar una ficha detallada de cada material.
 
-**Estado:** estable y en producción. Se han unido 22 PRs a `main` y Vercel publica cada cambio automáticamente. La última auditoría de cálculos pasó 38 de 38 pruebas numéricas. No hay errores conocidos abiertos.
+**Estado:** estable y en producción. Se han unido 23 PRs a `main` y Vercel publica cada cambio automáticamente. La última auditoría de cálculos pasó 38 de 38 pruebas numéricas. No hay errores conocidos abiertos.
 
 - **Producción:** Vercel, desplegado desde `main`. GitHub Pages está desactivado a propósito, porque si está activo Vercel no publica.
 - **Vista previa de cada PR:** https://calculadora-git-claude-calculator-design-opti-fed283-kevin-b086.vercel.app
