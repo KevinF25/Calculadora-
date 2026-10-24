@@ -2,6 +2,18 @@
 
 Calculadora de fórmulas de perfume: PWA para iPhone, en español. Para ver el avance, lo que funciona y lo que falta, consulta **`PROJECT_STATE.md`**.
 
+## Qué leer según la tarea
+
+Leer solo lo que toque; no explorar todo el proyecto.
+
+| Tarea | Leer |
+|---|---|
+| Estado y pendientes | `PROJECT_STATE.md`, sección 4 |
+| Colores, estilo, modo oscuro | `DESIGN.md` |
+| Función o pantalla concreta | `MAPA_CODIGO.md` y después `grep -n "nombre" index.html`; leer solo ese tramo |
+| Matemática de fórmulas | `PROJECT_STATE.md`, "Matemática central"; luego `calc()`, `fracs()` en `index.html` |
+| Cambio de código | Esta página y el código cercano |
+
 ## Ejecutar y probar
 
 No hay `npm`, ni build, ni dependencias: son archivos estáticos.
