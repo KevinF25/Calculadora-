@@ -10,8 +10,8 @@ Leer solo lo que toque; no explorar todo el proyecto.
 |---|---|
 | Estado y pendientes | `PROJECT_STATE.md`, sección 4 |
 | Colores, estilo, modo oscuro | `DESIGN.md` |
-| Función o pantalla concreta | `grep -n "function nombre(" index.html` y leer solo ese tramo |
-| Listar funciones | `grep -n "^\s*function " index.html` |
+| Función o pantalla concreta | `grep -on "function nombre(" index.html` y leer solo ese tramo |
+| Listar funciones | `grep -on "^\s*function [A-Za-z0-9_$]*" index.html` |
 | Matemática de fórmulas | `PROJECT_STATE.md`, "Matemática central"; luego `calc()`, `fracs()` en `index.html` |
 | Cambio de código | Esta página y el código cercano |
 
