@@ -10,7 +10,7 @@ No hay `npm`, ni build, ni dependencias: son archivos estáticos.
 python3 -m http.server 8765      # abrir http://localhost:8765
 ```
 
-- Abrir `index.html` directamente con `file://` también funciona, pero sin service worker.
+ - Abrir `index.html` directamente con `file://` también funciona, pero sin service worker.
 - Para pruebas en el navegador, usar Playwright con `executablePath: '/opt/pw-browsers/chromium'`.
   - Bloquear `supabase` y `fonts` con `page.route` y pulsar `#ggu` ("Usar sin cuenta").
   - Probar en modo claro y oscuro (`colorScheme`) con viewport de 390×844 e `isMobile`.
